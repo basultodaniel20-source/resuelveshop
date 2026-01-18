@@ -218,7 +218,7 @@ function animarAlCarrito(origenElemento) {
 }
 
 .precio {
-  color: #28a745;
+  color: #079428;
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 16px;

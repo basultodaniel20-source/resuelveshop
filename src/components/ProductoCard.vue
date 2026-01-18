@@ -142,9 +142,9 @@ function animarAlCarrito(origenElemento) {
 
 /* PRECIO */
 .precio {
-  color: #28a745;
+  color: #079428;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 6px;
 }
 
