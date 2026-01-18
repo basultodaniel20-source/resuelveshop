@@ -98,7 +98,7 @@ export const productos = [
   incluye: [
     "🧺 Detergente en polvo: 1 a 2 paquetes",
 		"🧴 Detergente líquido o lavavajillas: 1 unidad",
-		"🧼 Jabón de lavar ropa: 2 a 4 unidades",
+		"🧼 Jabón de lavar: 2 a 4 unidades",
 		"🛁 Jabón de baño: 3 a 5 unidades",
 		"🧻 Papel higiénico o servilletas: 1 paquete",
 		"🦷 Algún producto adicional de higiene (desodorante, frazada, cloro, etc.)",
