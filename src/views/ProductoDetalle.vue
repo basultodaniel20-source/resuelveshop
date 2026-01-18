@@ -47,7 +47,7 @@
 
   <!-- INCLUYE -->
   <div v-if="producto.incluye && producto.incluye.length" class="incluye">
-    <h3>📦 Este combo incluye:</h3>
+    <h3>📦 Este combo incluye (aprox):</h3>
     <ul>
       <li v-for="(item, i) in producto.incluye" :key="i">
         ✅ {{ item }}
