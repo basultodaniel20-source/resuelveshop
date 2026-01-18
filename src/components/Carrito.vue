@@ -22,7 +22,7 @@
         <div class="info">
           <strong>{{ item.nombre }}</strong>
           <div class="detalle">
-            {{ item.precio }} CUP x {{ item.cantidad }} =
+            {{ item.precio }} € x {{ item.cantidad }} =
             <b>{{ item.precio * item.cantidad }} €</b>
           </div>
         </div>
