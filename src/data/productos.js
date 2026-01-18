@@ -101,7 +101,7 @@ export const productos = [
 		"🧼 Jabón de lavar ropa: 2 a 4 unidades",
 		"🛁 Jabón de baño: 3 a 5 unidades",
 		"🧻 Papel higiénico o servilletas: 1 paquete",
-		"🦷 Algún producto adicional de higiene (desodorante, cloro, etc.)",
+		"🦷 Algún producto adicional de higiene (desodorante, frazada, cloro, etc.)",
   ],
 
   entrega: "En toda Cuba",
