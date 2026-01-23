@@ -41,13 +41,14 @@
     <div v-if="items.length" class="total">
       <strong>Total: {{ total }} €</strong>
     </div>
-    <button
+   <button
   v-if="items.length > 0"
   class="whatsapp-flotante"
-  @click="$emit('whatsapp')"
+  @click="$router.push('/checkout')"
 >
-  🟢 Finalizar pedido por WhatsApp
+  Finalizar pedido
 </button>
+
 </div>
 </template>
 

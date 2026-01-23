@@ -40,11 +40,31 @@
         </div>
       </div>
     </div>
+     <!-- ACCIONES -->
+    <div class="acciones">
+
+      <!-- PERFIL O LOGIN -->
+      <router-link
+        v-if="user"
+        to="/perfil"
+        class="cuenta-link"
+      >
+        👤 Perfil
+      </router-link>
+
+      <router-link
+        v-else
+        to="/login"
+        class="cuenta-link"
+      >
+        🔑 Login
+      </router-link>
 
     <!-- CARRITO -->
     <router-link to="/carrito" class="carrito-indicador">
       🛒 {{ total }}
     </router-link>
+    </div>
   </header>
 </template>
 
@@ -53,6 +73,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue"
 import { useRouter } from "vue-router"
 import logo from "../assets/logo.png"
 import { productos } from "../data/productos.js"
+import { supabase } from "../supabase"
 
 defineProps({
   total: {
@@ -60,15 +81,28 @@ defineProps({
     default: 0
   }
 })
-
+ 
 const emit = defineEmits(["buscar"])
-
 const router = useRouter()
-
 const search = ref("")
 const abierto = ref(false)
 const seleccion = ref(0)
 const searchBox = ref(null)
+const user = ref(null)
+
+// Obtener usuario actual
+/* 👤 OBTENER SESIÓN */
+async function cargarUsuario() {
+  const { data } = await supabase.auth.getUser()
+  user.value = data.user
+}
+onMounted(() => {
+  cargarUsuario()
+  document.addEventListener("mousedown", clickFuera)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener("mousedown", clickFuera)
+})
 
 /* 🔄 RESET BUSCAR AL HACER CLIC EN LOGO */
 function resetBuscar() {
@@ -185,12 +219,10 @@ function subir() {
   position: sticky;
   top: 0;
   z-index: 1000;
-
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 20px;
-
   padding: 10px 16px;
   background: #f5f6f8;
 }
@@ -288,6 +320,25 @@ function subir() {
 }
 .sugerencia.activa {
   background: #e8f5e9;
+}
+/* ACCIONES */
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+/* PERFIL / LOGIN */
+.cuenta-link {
+  color: rgb(16, 15, 15);
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 16px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.cuenta-link:active {
+  transform: scale(0.95);
 }
 
 /* CARRITO */

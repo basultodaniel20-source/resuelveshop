@@ -13,7 +13,6 @@
       :carrito="carrito"
       @agregar="agregarAlCarrito"
       @eliminar="eliminar"
-      @whatsapp="finalizarPedido"
     />
     <Footer />   <!-- 👈 AQUÍ -->
   </div>
@@ -68,35 +67,6 @@ function eliminar(i) {
 const totalItems = computed(() =>
   carrito.value.reduce((t, i) => t + i.cantidad, 0)
 )
-function finalizarPedido() {
-  if (carrito.value.length === 0) {
-    alert("El carrito está vacío")
-    return
-  }
-
-  const numero = "34643170184"
-
-  let msg = "Hola, quiero hacer este pedido:\n\n"
-
-  carrito.value.forEach(i => {
-    msg += `• ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} €\n`
-  })
-
-  const total = carrito.value.reduce(
-    (s, i) => s + i.precio * i.cantidad,
-    0
-  )
-
-  msg += `\nTotal: ${total} €`
-
-  // ⚠️ MUY IMPORTANTE: encodear el mensaje
-  const url = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`
-
-  window.open(url, "_blank")
-
-  carrito.value = []
-  localStorage.removeItem("carrito")
-}
 </script>
 
 <style>
