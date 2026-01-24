@@ -36,19 +36,21 @@ const p2 = ref("")
 const loading = ref(false)
 const ok = ref("")
 const err = ref("")
+const ready = ref(false)
 
 onMounted(async () => {
-  // Esto ayuda a “capturar” el evento cuando vienes del email.
-  // En muchos casos Supabase automáticamente crea sesión temporal al abrir el link.
-  supabase.auth.onAuthStateChange((event) => {
-    // event suele ser "PASSWORD_RECOVERY"
-    // console.log(event);
-  })
+  const { data } = await supabase.auth.getSession()
+  ready.value = !!data.session
 })
 
 async function guardar() {
   err.value = ""
   ok.value = ""
+
+  if (!ready.value) {
+    err.value = "Este enlace no es válido o ya expiró. Pide uno nuevo."
+    return
+  }
 
   if (!p1.value || p1.value.length < 6) {
     err.value = "La contraseña debe tener al menos 6 caracteres."
@@ -69,9 +71,12 @@ async function guardar() {
   }
 
   ok.value = "✅ Contraseña actualizada. Ya puedes iniciar sesión."
-  setTimeout(() => router.push("/login"), 1200)
+
+  await supabase.auth.signOut()
+  setTimeout(() => router.push("/login"), 900)
 }
 </script>
+
 
 <style scoped>
 .auth-page {

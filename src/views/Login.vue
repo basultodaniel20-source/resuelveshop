@@ -124,14 +124,13 @@ async function enviarReset() {
   }
 
   // 👇 Esto manda el email de recuperación y abrirá /reset-password
-const SITE_URL = import.meta.env.PROD
-  ? "https://resuelveshop.com"
-  : window.location.origin
+const PROD_URL = "https://resuelveshop.com" // elige 1 canónico
 
-const redirectTo = `${SITE_URL}/reset-password`
+const redirectTo = import.meta.env.PROD
+  ? `${PROD_URL}/reset-password`
+  : `${window.location.origin}/reset-password`
 
 const { error } = await supabase.auth.resetPasswordForEmail(mail, { redirectTo })
-
 
   resetLoading.value = false
 
