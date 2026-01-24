@@ -1,169 +1,239 @@
 <template>
-  <div class="perfil">
-    <!-- Top bar móvil -->
+  <div class="perfil-page">
+    <!-- Top bar (solo móvil) -->
     <div class="topbar">
-      <button class="burger" @click="drawer = true">☰</button>
-      <h2>Mi cuenta</h2>
-      <div class="email-mini" v-if="email">{{ email }}</div>
+      <button class="hamb-btn" @click="drawer = true" aria-label="Abrir menú">
+        ☰
+      </button>
+
+      <div class="topbar-title">
+        <span class="avatar">👤</span>
+        <span>Mi cuenta</span>
+      </div>
+
+      <router-link to="/carrito" class="topbar-cart">
+        🛒
+      </router-link>
     </div>
 
-    <!-- Drawer móvil -->
+    <!-- Overlay + Drawer (móvil) -->
     <div v-if="drawer" class="overlay" @click="drawer = false"></div>
-    <aside class="sidebar" :class="{ open: drawer }">
-      <div class="userbox">
-        <div class="user-email">{{ email }}</div>
-      </div>
-
-      <button
-        class="navbtn"
-        :class="{ active: tab === 'datos' }"
-        @click="tab = 'datos'; drawer = false"
-      >
-        📦 Mis datos
-      </button>
-
-      <button class="navbtn muted" disabled>
-        🛒 Mis pedidos (próximamente)
-      </button>
-
-      <button class="navbtn danger" @click="cerrarSesion">
-        🚪 Cerrar sesión
-      </button>
-    </aside>
-
-    <!-- Contenido -->
-    <main class="content">
-      <div class="card" v-if="loading">
-        Cargando...
-      </div>
-
-      <div class="card" v-else>
-        <h3 class="cardtitle">📍 Datos de entrega</h3>
-
-        <div class="grid">
-          <label>
-            Nombre completo
-            <input v-model="form.nombre" placeholder="Tu nombre" />
-          </label>
-
-          <label>
-            Teléfono
-            <input v-model="form.telefono" placeholder="Tu teléfono" />
-          </label>
-
-          <label class="full">
-            Dirección
-            <textarea v-model="form.direccion" placeholder="Dirección completa"></textarea>
-          </label>
+    <aside class="drawer" :class="{ open: drawer }">
+      <div class="drawer-head">
+        <div class="drawer-user">
+          <div class="drawer-avatar">👤</div>
+          <div class="drawer-info">
+            <div class="drawer-email">{{ user?.email }}</div>
+            <div class="drawer-sub">Cuenta</div>
+          </div>
         </div>
 
-        <button class="save" @click="guardar" :disabled="saving">
-          💾 {{ saving ? "Guardando..." : "Guardar cambios" }}
+        <button class="drawer-close" @click="drawer = false" aria-label="Cerrar">
+          ✕
+        </button>
+      </div>
+
+      <nav class="drawer-nav">
+        <button
+          class="nav-item"
+          :class="{ active: tab === 'datos' }"
+          @click="tab = 'datos'; drawer = false"
+        >
+          📦 Mis datos
         </button>
 
-        <p v-if="msg" class="msg" :class="{ ok: msgOk, bad: !msgOk }">
-          {{ msg }}
-        </p>
-      </div>
-    </main>
+        <button
+          class="nav-item"
+          :class="{ active: tab === 'pedidos' }"
+          @click="tab = 'pedidos'; drawer = false"
+        >
+          🧾 Mis pedidos
+          <span class="badge">NEW</span>
+        </button>
+
+        <router-link class="nav-item" to="/" @click="drawer = false">
+          🏠 Inicio
+        </router-link>
+
+        <router-link class="nav-item" to="/carrito" @click="drawer = false">
+          🛒 Carrito
+        </router-link>
+
+        <button class="nav-item danger" @click="cerrarSesion">
+          🚪 Cerrar sesión
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Layout escritorio -->
+    <div class="layout">
+      <!-- Sidebar (escritorio/tablet) -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <div class="user-block">
+            <div class="user-avatar">👤</div>
+            <div class="user-meta">
+              <div class="user-email">{{ user?.email }}</div>
+              <div class="user-sub">Cuenta</div>
+            </div>
+          </div>
+
+          <div class="sidebar-actions">
+            <button class="side-btn" :class="{ active: tab === 'datos' }" @click="tab='datos'">
+              📦 Mis datos
+            </button>
+            <button class="side-btn" :class="{ active: tab === 'pedidos' }" @click="tab='pedidos'">
+              🧾 Mis pedidos
+              <span class="badge">NEW</span>
+            </button>
+
+            <div class="sep"></div>
+
+            <router-link class="side-btn ghost" to="/">
+              🏠 Inicio
+            </router-link>
+            <router-link class="side-btn ghost" to="/carrito">
+              🛒 Carrito
+            </router-link>
+
+            <button class="side-btn danger" @click="cerrarSesion">
+              🚪 Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <div class="main-card">
+          <div class="main-head">
+            <h2>{{ tab === 'datos' ? "Datos de entrega" : "Mis pedidos" }}</h2>
+            <p class="muted" v-if="tab === 'datos'">
+              Guarda tus datos para que el checkout sea más rápido.
+            </p>
+            <p class="muted" v-else>
+              Aquí verás tus pedidos. (Si aún no lo tienes, te lo activo en el siguiente paso.)
+            </p>
+          </div>
+
+          <!-- DATOS -->
+          <form v-if="tab === 'datos'" class="form" @submit.prevent="guardar">
+            <div class="grid">
+              <div class="field">
+                <label>Nombre completo</label>
+                <input v-model="form.nombre" placeholder="Tu nombre" required />
+              </div>
+
+              <div class="field">
+                <label>Teléfono</label>
+                <input v-model="form.telefono" placeholder="Tu teléfono" required />
+              </div>
+
+              <div class="field full">
+                <label>Dirección</label>
+                <textarea v-model="form.direccion" placeholder="Dirección completa" rows="3" required />
+              </div>
+            </div>
+
+            <button class="save" type="submit" :disabled="saving">
+              💾 {{ saving ? "Guardando..." : "Guardar cambios" }}
+            </button>
+
+            <p class="ok" v-if="okMsg">{{ okMsg }}</p>
+            <p class="err" v-if="errMsg">{{ errMsg }}</p>
+          </form>
+
+          <!-- PEDIDOS -->
+          <div v-else class="pedidos">
+            <div class="empty">
+              <div class="empty-ico">🧾</div>
+              <div class="empty-title">Próximamente</div>
+              <div class="empty-text">
+                Ya estás listo. En el próximo paso te activo el listado de pedidos aquí.
+              </div>
+              <button class="save" @click="tab='datos'">
+                Volver a mis datos
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { supabase } from "../supabase"
 
 const router = useRouter()
 
+const user = ref(null)
 const drawer = ref(false)
 const tab = ref("datos")
 
-const loading = ref(true)
 const saving = ref(false)
-const msg = ref("")
-const msgOk = ref(true)
+const okMsg = ref("")
+const errMsg = ref("")
 
-const email = ref("")
-
-const form = reactive({
+const form = ref({
   nombre: "",
   telefono: "",
   direccion: "",
 })
 
 async function cargarPerfil() {
-  loading.value = true
-  msg.value = ""
+  const { data: u } = await supabase.auth.getUser()
+  user.value = u.user
 
-  const { data: userData } = await supabase.auth.getUser()
-  const user = userData.user
-
-  if (!user) {
+  if (!user.value) {
     router.push("/login")
     return
   }
 
-  email.value = user.email || ""
-
-  // Traer perfil
+  // Traer profile actual
   const { data, error } = await supabase
     .from("profiles")
     .select("nombre, telefono, direccion")
-    .eq("id", user.id)
-    .maybeSingle()
+    .eq("id", user.value.id)
+    .single()
 
-  // Si no existe aún, lo creamos vacío
-  if (!data && !error) {
-    await supabase.from("profiles").insert({
-      id: user.id,
-      email: user.email,
-      nombre: "",
-      telefono: "",
-      direccion: "",
-    })
+  if (!error && data) {
+    form.value.nombre = data.nombre || ""
+    form.value.telefono = data.telefono || ""
+    form.value.direccion = data.direccion || ""
   }
-
-  if (data) {
-    form.nombre = data.nombre || ""
-    form.telefono = data.telefono || ""
-    form.direccion = data.direccion || ""
-  }
-
-  loading.value = false
 }
 
 async function guardar() {
-  saving.value = true
-  msg.value = ""
+  if (!user.value) return
 
-  const { data: userData } = await supabase.auth.getUser()
-  const user = userData.user
-  if (!user) {
-    router.push("/login")
+  saving.value = true
+  okMsg.value = ""
+  errMsg.value = ""
+
+  const payload = {
+    id: user.value.id,
+    email: user.value.email,
+    nombre: form.value.nombre,
+    telefono: form.value.telefono,
+    direccion: form.value.direccion,
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase.from("profiles").upsert(payload)
+
+  saving.value = false
+
+  if (error) {
+    console.error(error)
+    errMsg.value = "No se pudo guardar. Intenta de nuevo."
     return
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .upsert({
-      id: user.id,
-      email: user.email,
-      nombre: form.nombre,
-      telefono: form.telefono,
-      direccion: form.direccion,
-    })
-
-  if (error) {
-    msgOk.value = false
-    msg.value = "Error al guardar. Revisa políticas RLS de profiles."
-    console.error(error)
-  } else {
-    msgOk.value = true
-    msg.value = "Guardado ✅"
-  }
-
-  saving.value = false
+  okMsg.value = "✅ Guardado correctamente"
 }
 
 async function cerrarSesion() {
@@ -171,100 +241,284 @@ async function cerrarSesion() {
   router.push("/")
 }
 
-onMounted(cargarPerfil)
+onMounted(() => {
+  cargarPerfil()
+})
 </script>
 
 <style scoped>
-.perfil {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 18px;
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 14px;
+/* Página */
+.perfil-page {
+  padding: 18px;
+  background: #f5f6f8;
+  min-height: calc(100vh - 0px);
 }
 
+/* Topbar (móvil) */
 .topbar {
   display: none;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  justify-content: space-between;
+  gap: 10px;
   background: white;
   border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  margin-bottom: 14px;
 }
 
-.burger {
+.hamb-btn {
   border: none;
-  background: #f1f1f1;
-  border-radius: 10px;
-  padding: 10px 12px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: #e8f5e9;
+  display: grid;
+  place-items: center;
+}
+
+.topbar-cart {
+  text-decoration: none;
+  background: #28a745;
+  color: white;
+  font-weight: 800;
+  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+
+/* Drawer (móvil) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 5000;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 82%;
+  max-width: 320px;
+  height: 100vh;
+  background: white;
+  z-index: 6000;
+  transform: translateX(-105%);
+  transition: transform .18s ease;
+  box-shadow: 20px 0 40px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer.open { transform: translateX(0); }
+
+.drawer-head {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.drawer-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: #e8f5e9;
+  display: grid;
+  place-items: center;
   font-size: 18px;
 }
 
-.email-mini {
-  margin-left: auto;
-  font-size: 12px;
-  opacity: .7;
+.drawer-email {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.2;
 }
 
-.sidebar {
+.drawer-sub {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.drawer-close {
+  border: none;
+  background: #f0f0f0;
+  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+}
+
+.drawer-nav {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #eee;
+  background: white;
+  padding: 12px 12px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-item.active {
+  border-color: #28a745;
+  background: #e8f5e9;
+}
+
+.nav-item.danger {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #991b1b;
+}
+
+.badge {
+  margin-left: auto;
+  background: #111;
+  color: white;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+/* Layout escritorio */
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.sidebar-card,
+.main-card {
   background: white;
   border-radius: 16px;
-  padding: 14px;
-  height: fit-content;
-  position: sticky;
-  top: 90px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
-.userbox {
-  padding: 12px;
-  border-radius: 14px;
-  background: #f6f7f8;
-  margin-bottom: 10px;
+.user-block {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
+}
+
+.user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #e8f5e9;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
 }
 
 .user-email {
-  font-weight: 700;
-  word-break: break-all;
+  font-weight: 900;
+  font-size: 14px;
 }
 
-.navbtn {
-  width: 100%;
+.user-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.side-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 12px;
+  font-weight: 900;
   text-align: left;
-  border: 1px solid #ececec;
-  background: white;
-  padding: 12px 12px;
-  border-radius: 12px;
-  margin-top: 10px;
   cursor: pointer;
-  font-weight: 700;
+  background: #f3f4f6;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.navbtn.active {
+.side-btn.active {
   background: #28a745;
   color: white;
-  border-color: #28a745;
 }
 
-.navbtn.muted {
-  opacity: .45;
-  cursor: not-allowed;
+.side-btn.ghost {
+  background: #fff;
+  border: 1px solid #eee;
+  text-decoration: none;
 }
 
-.navbtn.danger {
+.side-btn.danger {
   background: #dc3545;
   color: white;
-  border-color: #dc3545;
 }
 
-.content .card {
-  background: white;
-  border-radius: 16px;
-  padding: 18px;
+.sep {
+  height: 1px;
+  background: #eee;
+  margin: 6px 0;
 }
 
-.cardtitle {
-  margin: 0 0 14px 0;
+.main-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.muted {
+  margin: 6px 0 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.form {
+  margin-top: 14px;
 }
 
 .grid {
@@ -273,83 +527,85 @@ onMounted(cargarPerfil)
   gap: 12px;
 }
 
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-weight: 700;
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: #374151;
+  margin-bottom: 6px;
 }
 
-input, textarea {
+.field input,
+.field textarea {
+  width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
   border-radius: 12px;
-  font-size: 16px;
+  border: 1px solid #e5e7eb;
+  outline: none;
+  font-size: 15px;
 }
 
-textarea {
-  min-height: 90px;
-  resize: vertical;
+.field input:focus,
+.field textarea:focus {
+  border-color: #28a745;
 }
 
-.full {
+.field.full {
   grid-column: 1 / -1;
 }
 
 .save {
   margin-top: 14px;
-  width: 100%;
   background: #28a745;
-  color: white;
   border: none;
-  padding: 14px;
+  color: white;
+  font-weight: 900;
+  padding: 12px 14px;
   border-radius: 12px;
-  font-size: 16px;
-  font-weight: 800;
   cursor: pointer;
+  width: 100%;
 }
 
-.msg {
+.save:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ok {
   margin-top: 10px;
-  font-weight: 700;
+  color: #166534;
+  font-weight: 800;
 }
-.msg.ok { color: #1a7f37; }
-.msg.bad { color: #b42318; }
 
-/* MÓVIL */
+.err {
+  margin-top: 10px;
+  color: #991b1b;
+  font-weight: 800;
+}
+
+/* Pedidos placeholder */
+.pedidos .empty {
+  margin-top: 12px;
+  padding: 18px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 16px;
+  text-align: center;
+}
+.empty-ico { font-size: 34px; }
+.empty-title { font-weight: 900; margin-top: 6px; }
+.empty-text { color: #6b7280; font-size: 13px; margin-top: 6px; }
+
+/* Responsive */
 @media (max-width: 900px) {
-  .perfil {
+  .layout {
     grid-template-columns: 1fr;
   }
-
+  .sidebar {
+    display: none;
+  }
   .topbar {
     display: flex;
   }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 300px;
-    max-width: 85vw;
-    transform: translateX(-110%);
-    transition: transform .2s ease;
-    z-index: 9999;
-    border-radius: 0 16px 16px 0;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.35);
-    z-index: 9998;
-  }
-
   .grid {
     grid-template-columns: 1fr;
   }
