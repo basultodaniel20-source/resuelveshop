@@ -13,6 +13,7 @@
       :carrito="carrito"
       @agregar="agregarAlCarrito"
       @eliminar="eliminar"
+      
     />
     <Footer />   <!-- 👈 AQUÍ -->
   </div>

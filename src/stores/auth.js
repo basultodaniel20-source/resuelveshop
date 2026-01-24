@@ -1,22 +1,23 @@
-import { reactive } from "vue"
+// src/stores/auth.js
+import { ref } from "vue"
 import { supabase } from "../supabase"
 
-export const authState = reactive({
-  user: null,
-  loading: true
-})
+const user = ref(null)
+let started = false
 
-export async function initAuth() {
-  const { data } = await supabase.auth.getSession()
-  authState.user = data.session?.user || null
-  authState.loading = false
+export function useAuth() {
+  // Arranca solo una vez
+  if (!started) {
+    started = true
 
-  supabase.auth.onAuthStateChange((_event, session) => {
-    authState.user = session?.user || null
-  })
-}
+    supabase.auth.getUser().then(({ data }) => {
+      user.value = data.user ?? null
+    })
 
-export async function logout() {
-  await supabase.auth.signOut()
-  authState.user = null
+    supabase.auth.onAuthStateChange((_event, session) => {
+      user.value = session?.user ?? null
+    })
+  }
+
+  return { user }
 }

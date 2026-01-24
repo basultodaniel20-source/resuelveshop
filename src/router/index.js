@@ -7,63 +7,45 @@ import Register from "../views/Register.vue"
 import Perfil from "../views/Perfil.vue"
 import Checkout from "../views/Checkout.vue"
 import Pago from "../views/Pago.vue"
+import { supabase } from "../supabase"
 
 const routes = [
+  { path: "/", component: Home },
+
+  { path: "/categoria/:categoria", component: Home, props: true },
+
+  { path: "/carrito", component: CarritoView },
+
+  // ✅ SOLO UNA RUTA para producto
   {
-    path: "/",
-    component: Home
+    path: "/producto/:id",
+    name: "ProductoDetalle",
+    component: ProductoDetalle,
+    props: true,
   },
 
-  {
-    path: "/categoria/:categoria",
-    component: Home,
-    props: true
-  },
+  { path: "/login", component: Login },
+  { path: "/register", component: Register },
 
-  {
-    path: "/carrito",
-    component: CarritoView
-  },
-
-  {
-  path: "/producto/:id",
-  name: "ProductoDetalle",
-  component: () => import("../views/ProductoDetalle.vue"),
-  props: true
-},
-
-{
-  path: "/producto/:id",
-  name: "producto",
-  component: ProductoDetalle,
-  props: true
-},
-
-{ path: "/login",
-   component: Login },
-{ path: "/register",
-   component: Register },
-{
-  path: "/perfil",
-  component: Perfil
-},
-
-{
-  path: "/checkout",
-  component: Checkout
-},
-{
-  path: "/checkout",
-  component: () => import("../views/Checkout.vue")
-},
-{
-  path: "/pago",
-  component: () => import("../views/Pago.vue")
-}
-
+  // ✅ Protegidas con login
+  { path: "/perfil", component: Perfil, meta: { requiresAuth: true } },
+  { path: "/checkout", component: Checkout, meta: { requiresAuth: true } },
+  { path: "/pago", component: Pago, meta: { requiresAuth: true } },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
+
+// ✅ Guard: si no hay sesión, manda a /login
+router.beforeEach(async (to) => {
+  if (!to.meta.requiresAuth) return true
+
+  const { data } = await supabase.auth.getUser()
+  if (!data.user) return { path: "/login" }
+
+  return true
+})
+
+export default router

@@ -2,15 +2,15 @@
   <header class="header">
     <!-- LOGO -->
     <router-link to="/" class="brand" @click="resetBuscar">
-  <img :src="logo" alt="Logo" class="logo" />
-</router-link>
+      <img :src="logo" alt="Logo" class="logo" />
+    </router-link>
 
     <!-- BUSCADOR -->
     <div class="search-box" ref="searchBox">
       <div class="input-wrapper">
         <span class="icono">🔍</span>
 
-      <input
+        <input
           v-model="search"
           type="text"
           placeholder="Buscar productos..."
@@ -40,30 +40,22 @@
         </div>
       </div>
     </div>
-     <!-- ACCIONES -->
-    <div class="acciones">
 
+    <!-- ACCIONES -->
+    <div class="acciones">
       <!-- PERFIL O LOGIN -->
-      <router-link
-        v-if="user"
-        to="/perfil"
-        class="cuenta-link"
-      >
+      <router-link v-if="user" to="/perfil" class="cuenta-link">
         👤 Perfil
       </router-link>
 
-      <router-link
-        v-else
-        to="/login"
-        class="cuenta-link"
-      >
+      <router-link v-else to="/login" class="cuenta-link">
         🔑 Login
       </router-link>
 
-    <!-- CARRITO -->
-    <router-link to="/carrito" class="carrito-indicador">
-      🛒 {{ total }}
-    </router-link>
+      <!-- CARRITO -->
+      <router-link to="/carrito" class="carrito-indicador">
+        🛒 {{ total }}
+      </router-link>
     </div>
   </header>
 </template>
@@ -81,28 +73,22 @@ defineProps({
     default: 0
   }
 })
- 
+
 const emit = defineEmits(["buscar"])
 const router = useRouter()
+
 const search = ref("")
 const abierto = ref(false)
 const seleccion = ref(0)
 const searchBox = ref(null)
-const user = ref(null)
 
-// Obtener usuario actual
-/* 👤 OBTENER SESIÓN */
+const user = ref(null)
+let unsubAuth = null
+
 async function cargarUsuario() {
   const { data } = await supabase.auth.getUser()
-  user.value = data.user
+  user.value = data.user ?? null
 }
-onMounted(() => {
-  cargarUsuario()
-  document.addEventListener("mousedown", clickFuera)
-})
-onBeforeUnmount(() => {
-  document.removeEventListener("mousedown", clickFuera)
-})
 
 /* 🔄 RESET BUSCAR AL HACER CLIC EN LOGO */
 function resetBuscar() {
@@ -113,11 +99,8 @@ function resetBuscar() {
 /* 🔎 FILTRAR SUGERENCIAS */
 const sugerencias = computed(() => {
   if (!search.value.trim()) return []
-
   return productos
-    .filter(p =>
-      p.nombre.toLowerCase().includes(search.value.toLowerCase())
-    )
+    .filter(p => p.nombre.toLowerCase().includes(search.value.toLowerCase()))
     .slice(0, 5)
 })
 
@@ -129,7 +112,6 @@ function onInput() {
 
 /* ⏎ ENTER = ir al primer resultado */
 function onEnter() {
-  // Si hay sugerencias y hay una seleccionada → ir a producto
   if (sugerencias.value.length && seleccion.value >= 0) {
     const producto = sugerencias.value[seleccion.value]
     if (producto) {
@@ -138,36 +120,22 @@ function onEnter() {
     }
   }
 
-  // Si no, búsqueda normal
   abierto.value = false
   emit("buscar", search.value)
-
-  // Quita foco
   document.activeElement.blur()
 
-  // Ir a home
   if (router.currentRoute.value.path !== "/") {
     router.push("/")
   }
 }
 
-
-
 /* 🖱️ CLICK O SELECCIÓN */
 function seleccionar(producto) {
-  // Autocompletar buscador con el nombre
   search.value = producto.nombre
-
-  // Lanzar búsqueda normal
   emit("buscar", producto.nombre)
-
-  // Cerrar sugerencias
   abierto.value = false
-
-  // Quitar foco
   document.activeElement.blur()
 
-  // Ir a home si no estás ahí
   if (router.currentRoute.value.path !== "/") {
     router.push("/")
   }
@@ -187,31 +155,33 @@ function clickFuera(e) {
   }
 }
 
-onMounted(() => {
+/* ⬇️ SUBIR / BAJAR EN SUGERENCIAS */
+function bajar() {
+  if (!sugerencias.value.length) return
+  if (seleccion.value < sugerencias.value.length - 1) seleccion.value++
+}
+
+function subir() {
+  if (!sugerencias.value.length) return
+  if (seleccion.value > 0) seleccion.value--
+}
+
+onMounted(async () => {
+  await cargarUsuario()
+
+  // ✅ Escuchar cambios de sesión (sin refrescar)
+  const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    user.value = session?.user ?? null
+  })
+  unsubAuth = data?.subscription
+
   document.addEventListener("mousedown", clickFuera)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", clickFuera)
+  unsubAuth?.unsubscribe?.()
 })
-
-/* ⬇️ SUBIR / BAJAR EN SUGERENCIAS */
-function bajar() {
-  if (!sugerencias.value.length) return
-
-  if (seleccion.value < sugerencias.value.length - 1) {
-    seleccion.value++
-  }
-}
-
-function subir() {
-  if (!sugerencias.value.length) return
-
-  if (seleccion.value > 0) {
-    seleccion.value--
-  }
-}
-
 </script>
 
 <style scoped>
@@ -318,15 +288,18 @@ function subir() {
   height: 32px;
   object-fit: contain;
 }
+
 .sugerencia.activa {
   background: #e8f5e9;
 }
+
 /* ACCIONES */
 .acciones {
   display: flex;
   align-items: center;
   gap: 20px;
 }
+
 /* PERFIL / LOGIN */
 .cuenta-link {
   color: rgb(16, 15, 15);
@@ -361,7 +334,7 @@ function subir() {
 .carrito-indicador:active {
   transform: scale(0.95);
 }
-/* SUGERENCIA ACTIVA */
+
 @media (max-width: 900px) {
   .header {
     grid-template-columns: 1fr auto;
