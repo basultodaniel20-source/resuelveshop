@@ -8,6 +8,8 @@ import Perfil from "../views/Perfil.vue"
 import Checkout from "../views/Checkout.vue"
 import Pago from "../views/Pago.vue"
 import { supabase } from "../supabase"
+import ResetPassword from "@/views/ResetPassword.vue"
+
 
 const routes = [
   { path: "/", component: Home },
@@ -31,6 +33,8 @@ const routes = [
   { path: "/perfil", component: Perfil, meta: { requiresAuth: true } },
   { path: "/checkout", component: Checkout, meta: { requiresAuth: true } },
   { path: "/pago", component: Pago, meta: { requiresAuth: true } },
+  
+  { path: "/reset-password", component: ResetPassword, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

@@ -7,20 +7,25 @@
       </button>
 
       <div class="topbar-title">
-        <span class="avatar">👤</span>
-        <span>Mi cuenta</span>
+        <div class="avatar avatar--sm">{{ iniciales }}</div>
+        <div class="title-text">
+          <div class="t1">Mi cuenta</div>
+          <div class="t2">{{ user?.email }}</div>
+        </div>
       </div>
 
-      <!-- ✅ Quitado carrito aquí (ya lo tienes en el Header global) -->
-      <div class="topbar-spacer"></div>
+      <button class="topbar-logout" @click="cerrarSesion" aria-label="Cerrar sesión">
+        🚪
+      </button>
     </div>
 
     <!-- Overlay + Drawer (móvil) -->
     <div v-if="drawer" class="overlay" @click="drawer = false"></div>
-    <aside class="drawer" :class="{ open: drawer }">
+
+    <aside class="drawer" :class="{ open: drawer }" aria-label="Menú">
       <div class="drawer-head">
         <div class="drawer-user">
-          <div class="drawer-avatar">👤</div>
+          <div class="avatar avatar--md">{{ iniciales }}</div>
           <div class="drawer-info">
             <div class="drawer-email">{{ user?.email }}</div>
             <div class="drawer-sub">Cuenta</div>
@@ -47,11 +52,8 @@
           @click="tab = 'pedidos'; drawer = false"
         >
           🧾 Mis pedidos
-          <span class="badge">NEW</span>
+          <span class="badge">PROX</span>
         </button>
-
-        <!-- ✅ Quitado Inicio y Carrito del menú -->
-        <div class="nav-sep"></div>
 
         <button class="nav-item danger" @click="cerrarSesion">
           🚪 Cerrar sesión
@@ -65,10 +67,10 @@
       <aside class="sidebar">
         <div class="sidebar-card">
           <div class="user-block">
-            <div class="user-avatar">👤</div>
+            <div class="avatar avatar--lg">{{ iniciales }}</div>
             <div class="user-meta">
+              <div class="user-name">{{ form.nombre || "Tu cuenta" }}</div>
               <div class="user-email">{{ user?.email }}</div>
-              <div class="user-sub">Cuenta</div>
             </div>
           </div>
 
@@ -79,12 +81,10 @@
 
             <button class="side-btn" :class="{ active: tab === 'pedidos' }" @click="tab='pedidos'">
               🧾 Mis pedidos
-              <span class="badge">NEW</span>
+              <span class="badge">PROX</span>
             </button>
 
             <div class="sep"></div>
-
-            <!-- ✅ Quitado Inicio y Carrito aquí también -->
 
             <button class="side-btn danger" @click="cerrarSesion">
               🚪 Cerrar sesión
@@ -97,13 +97,22 @@
       <main class="main">
         <div class="main-card">
           <div class="main-head">
-            <h2>{{ tab === 'datos' ? "Datos de entrega" : "Mis pedidos" }}</h2>
-            <p class="muted" v-if="tab === 'datos'">
-              Guarda tus datos para que el pago sea más rápido.
-            </p>
-            <p class="muted" v-else>
-              Aquí verás tus pedidos. 
-            </p>
+            <div class="head-left">
+              <h2>{{ tab === 'datos' ? "Datos de entrega" : "Mis pedidos" }}</h2>
+
+              <p class="muted" v-if="tab === 'datos'">
+                Guarda tus datos para que el checkout sea más rápido.
+              </p>
+              <p class="muted" v-else>
+                Aquí verás tus pedidos. (Lo activamos en el siguiente paso.)
+              </p>
+            </div>
+
+            <!-- Tabs pro -->
+            <div class="tabs">
+              <button class="pill" :class="{ on: tab==='datos' }" @click="tab='datos'">📦 Datos</button>
+              <button class="pill" :class="{ on: tab==='pedidos' }" @click="tab='pedidos'">🧾 Pedidos</button>
+            </div>
           </div>
 
           <!-- DATOS -->
@@ -126,11 +135,17 @@
             </div>
 
             <button class="save" type="submit" :disabled="saving">
-              💾 {{ saving ? "Guardando..." : "Guardar cambios" }}
+              <span v-if="saving" class="spinner" aria-hidden="true"></span>
+              {{ saving ? "Guardando..." : "Guardar cambios" }}
             </button>
 
-            <p class="ok" v-if="okMsg">{{ okMsg }}</p>
-            <p class="err" v-if="errMsg">{{ errMsg }}</p>
+            <transition name="fadeUp">
+              <p class="ok" v-if="okMsg">{{ okMsg }}</p>
+            </transition>
+
+            <transition name="fadeUp">
+              <p class="err" v-if="errMsg">{{ errMsg }}</p>
+            </transition>
           </form>
 
           <!-- PEDIDOS -->
@@ -139,7 +154,7 @@
               <div class="empty-ico">🧾</div>
               <div class="empty-title">Próximamente</div>
               <div class="empty-text">
-                Cuando tengas pedidos activos se veran aquí !.
+                Ya estás listo. En el próximo paso te activo el listado real de pedidos aquí.
               </div>
               <button class="save" @click="tab='datos'">
                 Volver a mis datos
@@ -154,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 import { useRouter } from "vue-router"
 import { supabase } from "../supabase"
 
@@ -172,6 +187,20 @@ const form = ref({
   nombre: "",
   telefono: "",
   direccion: "",
+})
+
+/* ✅ Iniciales */
+const iniciales = computed(() => {
+  const nombre = (form.value.nombre || "").trim()
+  if (nombre) {
+    const parts = nombre.split(/\s+/).filter(Boolean)
+    const a = parts[0]?.[0] || ""
+    const b = parts[1]?.[0] || parts[0]?.[1] || ""
+    return (a + b).toUpperCase()
+  }
+  const email = (user.value?.email || "").trim()
+  if (email) return email.slice(0, 2).toUpperCase()
+  return "U"
 })
 
 async function cargarPerfil() {
@@ -203,7 +232,7 @@ async function guardar() {
   okMsg.value = ""
   errMsg.value = ""
 
-  // ✅ Tu updated_at es type: DATE, así que guardamos "YYYY-MM-DD"
+  // ✅ Tu columna updated_at es DATE -> YYYY-MM-DD
   const today = new Date().toISOString().slice(0, 10)
 
   const payload = {
@@ -228,6 +257,8 @@ async function guardar() {
   }
 
   okMsg.value = "✅ Guardado correctamente"
+  // auto-ocultar a los 2.5s
+  setTimeout(() => { okMsg.value = "" }, 2500)
 }
 
 async function cerrarSesion() {
@@ -245,8 +276,23 @@ onMounted(() => {
 .perfil-page {
   padding: 18px;
   background: #f5f6f8;
-  min-height: calc(100vh - 0px);
+  min-height: 100vh;
 }
+
+/* Avatar iniciales */
+.avatar {
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  border-radius: 16px;
+  background: #e8f5e9;
+  color: #14532d;
+  border: 1px solid rgba(40,167,69,0.25);
+  user-select: none;
+}
+.avatar--sm { width: 40px; height: 40px; border-radius: 14px; font-size: 14px; }
+.avatar--md { width: 44px; height: 44px; border-radius: 14px; font-size: 15px; }
+.avatar--lg { width: 54px; height: 54px; border-radius: 18px; font-size: 16px; }
 
 /* Topbar (móvil) */
 .topbar {
@@ -261,12 +307,8 @@ onMounted(() => {
   margin-bottom: 14px;
 }
 
-.topbar-spacer {
-  width: 44px;
-  height: 44px;
-}
-
-.hamb-btn {
+.hamb-btn,
+.topbar-logout {
   border: none;
   background: #f0f0f0;
   border-radius: 12px;
@@ -281,16 +323,22 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   font-weight: 900;
-  font-size: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
-.avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  background: #e8f5e9;
-  display: grid;
-  place-items: center;
+.title-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.t1 { font-size: 14px; }
+.t2 {
+  font-size: 12px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Drawer (móvil) */
@@ -316,7 +364,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
-
 .drawer.open { transform: translateX(0); }
 
 .drawer-head {
@@ -334,21 +381,11 @@ onMounted(() => {
   gap: 12px;
 }
 
-.drawer-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: #e8f5e9;
-  display: grid;
-  place-items: center;
-  font-size: 18px;
-}
-
 .drawer-email {
   font-weight: 900;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.2;
-  max-width: 180px;
+  max-width: 190px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -384,7 +421,6 @@ onMounted(() => {
   border-radius: 14px;
   font-weight: 900;
   cursor: pointer;
-  text-decoration: none;
   color: #111;
   display: flex;
   align-items: center;
@@ -400,12 +436,6 @@ onMounted(() => {
   border-color: #fecaca;
   background: #fff1f2;
   color: #991b1b;
-}
-
-.nav-sep {
-  height: 1px;
-  background: #eee;
-  margin: 6px 0;
 }
 
 .badge {
@@ -442,24 +472,19 @@ onMounted(() => {
   margin-bottom: 12px;
 }
 
-.user-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: #e8f5e9;
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-}
-
-.user-email {
+.user-meta { min-width: 0; }
+.user-name {
   font-weight: 900;
   font-size: 14px;
 }
-
-.user-sub {
+.user-email {
+  font-weight: 700;
   font-size: 12px;
   color: #6b7280;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-actions {
@@ -498,6 +523,15 @@ onMounted(() => {
   margin: 6px 0;
 }
 
+/* Main */
+.main-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
 .main-head h2 {
   margin: 0;
   font-size: 20px;
@@ -509,9 +543,30 @@ onMounted(() => {
   font-size: 13px;
 }
 
-.form {
-  margin-top: 14px;
+/* Tabs tipo tienda */
+.tabs {
+  display: flex;
+  gap: 10px;
+  background: #f3f4f6;
+  padding: 6px;
+  border-radius: 999px;
+  height: fit-content;
 }
+.pill {
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.pill.on {
+  background: white;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+/* Form */
+.form { margin-top: 14px; }
 
 .grid {
   display: grid;
@@ -535,16 +590,12 @@ onMounted(() => {
   border: 1px solid #e5e7eb;
   outline: none;
   font-size: 15px;
+  background: white;
 }
-
 .field input:focus,
-.field textarea:focus {
-  border-color: #28a745;
-}
+.field textarea:focus { border-color: #28a745; }
 
-.field.full {
-  grid-column: 1 / -1;
-}
+.field.full { grid-column: 1 / -1; }
 
 .save {
   margin-top: 14px;
@@ -556,23 +607,43 @@ onMounted(() => {
   border-radius: 12px;
   cursor: pointer;
   width: 100%;
+  transition: transform .12s ease, opacity .12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
+.save:active { transform: scale(0.98); }
+.save:disabled { opacity: 0.75; cursor: not-allowed; }
 
-.save:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.45);
+  border-top-color: white;
+  animation: spin .7s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .ok {
   margin-top: 10px;
   color: #166534;
   font-weight: 900;
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  padding: 10px 12px;
+  border-radius: 12px;
 }
 
 .err {
   margin-top: 10px;
   color: #991b1b;
   font-weight: 900;
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  padding: 10px 12px;
+  border-radius: 12px;
 }
 
 /* Pedidos placeholder */
@@ -587,19 +658,20 @@ onMounted(() => {
 .empty-title { font-weight: 900; margin-top: 6px; }
 .empty-text { color: #6b7280; font-size: 13px; margin-top: 6px; }
 
+/* Animaciones feedback */
+.fadeUp-enter-active, .fadeUp-leave-active {
+  transition: all .18s ease;
+}
+.fadeUp-enter-from, .fadeUp-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    display: none;
-  }
-  .topbar {
-    display: flex;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-  }
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar { display: flex; }
+  .grid { grid-template-columns: 1fr; }
 }
 </style>

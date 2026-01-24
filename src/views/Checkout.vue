@@ -63,7 +63,7 @@ async function continuar() {
 
   if (!user) {
     alert("Debes iniciar sesión")
-    router.push("/login")
+   router.push({ path: "/login", query: { redirect: "/checkout" } })
     return
   }
 
