@@ -99,10 +99,10 @@
           <div class="main-head">
             <h2>{{ tab === 'datos' ? "Datos de entrega" : "Mis pedidos" }}</h2>
             <p class="muted" v-if="tab === 'datos'">
-              Guarda tus datos para que el checkout sea más rápido.
+              Guarda tus datos para que el pago sea más rápido.
             </p>
             <p class="muted" v-else>
-              Aquí verás tus pedidos. (Si aún no lo tienes, te lo activo en el siguiente paso.)
+              Aquí verás tus pedidos. 
             </p>
           </div>
 
@@ -139,7 +139,7 @@
               <div class="empty-ico">🧾</div>
               <div class="empty-title">Próximamente</div>
               <div class="empty-text">
-                Ya estás listo. En el próximo paso te activo el listado de pedidos aquí.
+                Cuando tengas pedidos activos se veran aquí !.
               </div>
               <button class="save" @click="tab='datos'">
                 Volver a mis datos
