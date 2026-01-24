@@ -11,9 +11,8 @@
         <span>Mi cuenta</span>
       </div>
 
-      <router-link to="/carrito" class="topbar-cart">
-        🛒
-      </router-link>
+      <!-- ✅ Quitado carrito aquí (ya lo tienes en el Header global) -->
+      <div class="topbar-spacer"></div>
     </div>
 
     <!-- Overlay + Drawer (móvil) -->
@@ -51,13 +50,8 @@
           <span class="badge">NEW</span>
         </button>
 
-        <router-link class="nav-item" to="/" @click="drawer = false">
-          🏠 Inicio
-        </router-link>
-
-        <router-link class="nav-item" to="/carrito" @click="drawer = false">
-          🛒 Carrito
-        </router-link>
+        <!-- ✅ Quitado Inicio y Carrito del menú -->
+        <div class="nav-sep"></div>
 
         <button class="nav-item danger" @click="cerrarSesion">
           🚪 Cerrar sesión
@@ -82,6 +76,7 @@
             <button class="side-btn" :class="{ active: tab === 'datos' }" @click="tab='datos'">
               📦 Mis datos
             </button>
+
             <button class="side-btn" :class="{ active: tab === 'pedidos' }" @click="tab='pedidos'">
               🧾 Mis pedidos
               <span class="badge">NEW</span>
@@ -89,12 +84,7 @@
 
             <div class="sep"></div>
 
-            <router-link class="side-btn ghost" to="/">
-              🏠 Inicio
-            </router-link>
-            <router-link class="side-btn ghost" to="/carrito">
-              🛒 Carrito
-            </router-link>
+            <!-- ✅ Quitado Inicio y Carrito aquí también -->
 
             <button class="side-btn danger" @click="cerrarSesion">
               🚪 Cerrar sesión
@@ -193,7 +183,6 @@ async function cargarPerfil() {
     return
   }
 
-  // Traer profile actual
   const { data, error } = await supabase
     .from("profiles")
     .select("nombre, telefono, direccion")
@@ -214,16 +203,21 @@ async function guardar() {
   okMsg.value = ""
   errMsg.value = ""
 
+  // ✅ Tu updated_at es type: DATE, así que guardamos "YYYY-MM-DD"
+  const today = new Date().toISOString().slice(0, 10)
+
   const payload = {
     id: user.value.id,
     email: user.value.email,
     nombre: form.value.nombre,
     telefono: form.value.telefono,
     direccion: form.value.direccion,
-    updated_at: new Date().toISOString(),
+    updated_at: today,
   }
 
-  const { error } = await supabase.from("profiles").upsert(payload)
+  const { error } = await supabase
+    .from("profiles")
+    .upsert(payload, { onConflict: "id" })
 
   saving.value = false
 
@@ -267,6 +261,11 @@ onMounted(() => {
   margin-bottom: 14px;
 }
 
+.topbar-spacer {
+  width: 44px;
+  height: 44px;
+}
+
 .hamb-btn {
   border: none;
   background: #f0f0f0;
@@ -281,7 +280,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 16px;
 }
 
 .avatar {
@@ -289,18 +289,6 @@ onMounted(() => {
   height: 34px;
   border-radius: 12px;
   background: #e8f5e9;
-  display: grid;
-  place-items: center;
-}
-
-.topbar-cart {
-  text-decoration: none;
-  background: #28a745;
-  color: white;
-  font-weight: 800;
-  border-radius: 999px;
-  width: 44px;
-  height: 44px;
   display: grid;
   place-items: center;
 }
@@ -347,8 +335,8 @@ onMounted(() => {
 }
 
 .drawer-avatar {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 14px;
   background: #e8f5e9;
   display: grid;
@@ -357,9 +345,13 @@ onMounted(() => {
 }
 
 .drawer-email {
-  font-weight: 800;
+  font-weight: 900;
   font-size: 14px;
   line-height: 1.2;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .drawer-sub {
@@ -390,7 +382,7 @@ onMounted(() => {
   background: white;
   padding: 12px 12px;
   border-radius: 14px;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
   text-decoration: none;
   color: #111;
@@ -408,6 +400,12 @@ onMounted(() => {
   border-color: #fecaca;
   background: #fff1f2;
   color: #991b1b;
+}
+
+.nav-sep {
+  height: 1px;
+  background: #eee;
+  margin: 6px 0;
 }
 
 .badge {
@@ -489,12 +487,6 @@ onMounted(() => {
   color: white;
 }
 
-.side-btn.ghost {
-  background: #fff;
-  border: 1px solid #eee;
-  text-decoration: none;
-}
-
 .side-btn.danger {
   background: #dc3545;
   color: white;
@@ -530,7 +522,7 @@ onMounted(() => {
 .field label {
   display: block;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   color: #374151;
   margin-bottom: 6px;
 }
@@ -574,13 +566,13 @@ onMounted(() => {
 .ok {
   margin-top: 10px;
   color: #166534;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .err {
   margin-top: 10px;
   color: #991b1b;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 /* Pedidos placeholder */
