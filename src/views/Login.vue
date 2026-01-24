@@ -47,4 +47,28 @@ async function login() {
   border-radius: 12px;
 }
 .error { color: red; }
+
+input {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+button {
+  padding: 10px 15px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #369870;
+  transform: scale(1.05);
+}
+button:active {
+  transform: scale(0.95);
+}
+
 </style>
