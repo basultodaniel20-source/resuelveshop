@@ -52,8 +52,19 @@
           <input v-model="resetEmail" type="email" placeholder="tu@email.com" />
         </div>
 
-        <button class="btn" @click="enviarReset" :disabled="resetLoading" type="button">
-          {{ resetLoading ? "Enviando..." : "Enviar enlace" }}
+        <button
+          class="btn"
+          @click="enviarReset"
+          :disabled="resetLoading || cooldown > 0"
+          type="button"
+        >
+          {{
+            resetLoading
+              ? "Enviando..."
+              : cooldown > 0
+                ? `Espera ${cooldown}s`
+                : "Enviar enlace"
+          }}
         </button>
 
         <p class="ok" v-if="resetOk">{{ resetOk }}</p>
@@ -83,11 +94,21 @@ const resetLoading = ref(false)
 const resetOk = ref("")
 const resetErr = ref("")
 
+// Cooldown para evitar rate limit
+const cooldown = ref(0)
+let timer = null
+
 function cerrarReset() {
   mostrarReset.value = false
   resetOk.value = ""
   resetErr.value = ""
   resetLoading.value = false
+
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
+  cooldown.value = 0
 }
 
 async function login() {
@@ -106,8 +127,10 @@ async function login() {
     return
   }
 
-  // ✅ REDIRECT: si venías desde checkout (o cualquier otra)
-  const redirect = typeof route.query.redirect === "string" ? route.query.redirect : "/"
+  // ✅ REDIRECT: si venías desde checkout u otra ruta protegida
+  const redirect =
+    typeof route.query.redirect === "string" ? route.query.redirect : "/"
+
   router.push(redirect)
 }
 
@@ -123,14 +146,14 @@ async function enviarReset() {
     return
   }
 
-  // 👇 Esto manda el email de recuperación y abrirá /reset-password
-const PROD_URL = "https://resuelveshop.com" // elige 1 canónico
+  // 👇 Forzamos dominio canónico en producción
+  const PROD_URL = "https://resuelveshop.com"
 
-const redirectTo = import.meta.env.PROD
-  ? `${PROD_URL}/reset-password`
-  : `${window.location.origin}/reset-password`
+  const redirectTo = import.meta.env.PROD
+    ? `${PROD_URL}/reset-password`
+    : `${window.location.origin}/reset-password`
 
-const { error } = await supabase.auth.resetPasswordForEmail(mail, { redirectTo })
+  const { error } = await supabase.auth.resetPasswordForEmail(mail, { redirectTo })
 
   resetLoading.value = false
 
@@ -140,6 +163,16 @@ const { error } = await supabase.auth.resetPasswordForEmail(mail, { redirectTo }
   }
 
   resetOk.value = "✅ Listo. Revisa tu email (incluye spam)."
+
+  // ⏱️ Activar cooldown 60s
+  cooldown.value = 60
+  timer = setInterval(() => {
+    cooldown.value--
+    if (cooldown.value <= 0) {
+      clearInterval(timer)
+      timer = null
+    }
+  }, 1000)
 }
 </script>
 

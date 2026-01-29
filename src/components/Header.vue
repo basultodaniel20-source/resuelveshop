@@ -1,5 +1,8 @@
 <template>
   <header class="header">
+    <!-- HAMBURGER -->
+    <button class="hamb" @click="drawer = true" aria-label="Abrir menú">☰</button>
+
     <!-- LOGO -->
     <router-link to="/" class="brand" @click="resetBuscar">
       <img :src="logo" alt="Logo" class="logo" />
@@ -22,11 +25,9 @@
           @focus="abierto = true"
         />
 
-        <!-- ❌ LIMPIAR -->
         <button v-if="search" class="clear" @click="limpiar">✕</button>
       </div>
 
-      <!-- SUGERENCIAS -->
       <div v-if="abierto && sugerencias.length" class="sugerencias">
         <div
           v-for="(s, i) in sugerencias"
@@ -43,20 +44,65 @@
 
     <!-- ACCIONES -->
     <div class="acciones">
-      <!-- PERFIL O LOGIN -->
-      <router-link v-if="user" to="/perfil" class="cuenta-link">
-        👤 Perfil
+      <router-link v-if="user" to="/account" class="cuenta-link">
+        👤 Mi cuenta
       </router-link>
 
       <router-link v-else to="/login" class="cuenta-link">
         🔑 Login
       </router-link>
 
-      <!-- CARRITO -->
       <router-link to="/carrito" class="carrito-indicador">
         🛒 {{ total }}
       </router-link>
     </div>
+
+    <!-- OVERLAY + DRAWER -->
+    <div v-if="drawer" class="overlay" @click="drawer = false"></div>
+
+    <aside class="drawer" :class="{ open: drawer }" aria-label="Menú">
+      <div class="drawer-head">
+        <div class="drawer-user" v-if="user">
+          <div class="avatar">{{ iniciales }}</div>
+          <div class="drawer-info">
+            <div class="drawer-email">{{ user.email }}</div>
+            <div class="drawer-sub">Cuenta</div>
+          </div>
+        </div>
+
+        <div class="drawer-user" v-else>
+          <div class="avatar">RS</div>
+          <div class="drawer-info">
+            <div class="drawer-email">ResuelveShop</div>
+            <div class="drawer-sub">Menú</div>
+          </div>
+        </div>
+
+        <button class="drawer-close" @click="drawer = false" aria-label="Cerrar">
+          ✕
+        </button>
+      </div>
+
+      <nav class="drawer-nav">
+        <router-link class="nav-link" to="/" @click="goClose">🏠 Inicio</router-link>
+
+        <router-link class="nav-link" to="/carrito" @click="goClose">
+          🛒 Carrito ({{ total }})
+        </router-link>
+
+        <router-link v-if="user" class="nav-link" to="/account" @click="goClose">
+          👤 Mi cuenta
+        </router-link>
+
+        <router-link v-else class="nav-link" to="/login" @click="goClose">
+          🔑 Iniciar sesión
+        </router-link>
+
+        <button v-if="user" class="nav-link danger" @click="logout">
+          🚪 Cerrar sesión
+        </button>
+      </nav>
+    </aside>
   </header>
 </template>
 
@@ -68,10 +114,7 @@ import { productos } from "../data/productos.js"
 import { supabase } from "../supabase"
 
 defineProps({
-  total: {
-    type: Number,
-    default: 0
-  }
+  total: { type: Number, default: 0 }
 })
 
 const emit = defineEmits(["buscar"])
@@ -82,8 +125,15 @@ const abierto = ref(false)
 const seleccion = ref(0)
 const searchBox = ref(null)
 
+const drawer = ref(false)
 const user = ref(null)
 let unsubAuth = null
+
+const iniciales = computed(() => {
+  const email = (user.value?.email || "").trim()
+  if (!email) return "RS"
+  return email.slice(0, 2).toUpperCase()
+})
 
 async function cargarUsuario() {
   const { data } = await supabase.auth.getUser()
@@ -110,38 +160,28 @@ function onInput() {
   seleccion.value = 0
 }
 
-/* ⏎ ENTER = ir al primer resultado */
 function onEnter() {
   if (sugerencias.value.length && seleccion.value >= 0) {
     const producto = sugerencias.value[seleccion.value]
-    if (producto) {
-      seleccionar(producto)
-      return
-    }
+    if (producto) return seleccionar(producto)
   }
 
   abierto.value = false
   emit("buscar", search.value)
   document.activeElement.blur()
 
-  if (router.currentRoute.value.path !== "/") {
-    router.push("/")
-  }
+  if (router.currentRoute.value.path !== "/") router.push("/")
 }
 
-/* 🖱️ CLICK O SELECCIÓN */
 function seleccionar(producto) {
   search.value = producto.nombre
   emit("buscar", producto.nombre)
   abierto.value = false
   document.activeElement.blur()
 
-  if (router.currentRoute.value.path !== "/") {
-    router.push("/")
-  }
+  if (router.currentRoute.value.path !== "/") router.push("/")
 }
 
-/* ❌ LIMPIAR */
 function limpiar() {
   search.value = ""
   emit("buscar", "")
@@ -155,7 +195,6 @@ function clickFuera(e) {
   }
 }
 
-/* ⬇️ SUBIR / BAJAR EN SUGERENCIAS */
 function bajar() {
   if (!sugerencias.value.length) return
   if (seleccion.value < sugerencias.value.length - 1) seleccion.value++
@@ -166,10 +205,20 @@ function subir() {
   if (seleccion.value > 0) seleccion.value--
 }
 
+function goClose() {
+  drawer.value = false
+}
+
+/* 🚪 LOGOUT */
+async function logout() {
+  await supabase.auth.signOut()
+  drawer.value = false
+  router.push("/")
+}
+
 onMounted(async () => {
   await cargarUsuario()
 
-  // ✅ Escuchar cambios de sesión (sin refrescar)
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null
   })
@@ -190,53 +239,46 @@ onBeforeUnmount(() => {
   top: 0;
   z-index: 1000;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
   padding: 10px 16px;
   background: #f5f6f8;
 }
 
-/* LOGO */
-.brand {
-  display: flex;
-  align-items: center;
+/* HAMB */
+.hamb{
+  border:none;
+  background:white;
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:900;
+  cursor:pointer;
 }
+.hamb:active{ transform:scale(.97); }
 
+/* LOGO */
+.brand { display: flex; align-items: center; }
 .logo {
-  height: 160px;
+  height: 120px;
   width: auto;
   object-fit: contain;
   border-radius: 50%;
   transition: all 0.15s ease;
 }
-
-.logo:active {
-  transform: scale(1.1);
-}
+.logo:active { transform: scale(1.05); }
 
 /* BUSCADOR */
-.search-box {
-  position: relative;
-  display: flex;
-  justify-content: center;
-}
-
-.input-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 500px;
-}
-
+.search-box { position: relative; display: flex; justify-content: center; }
+.input-wrapper { position: relative; width: 100%; max-width: 520px; }
 .input-wrapper input {
   width: 100%;
   padding: 12px 40px 12px 40px;
   border-radius: 12px;
   border: 1px solid #ccc;
   font-size: 16px;
+  background: white;
 }
-
-/* ICONO */
 .icono {
   position: absolute;
   left: 12px;
@@ -244,8 +286,6 @@ onBeforeUnmount(() => {
   transform: translateY(-50%);
   opacity: 0.6;
 }
-
-/* ❌ LIMPIAR */
 .clear {
   position: absolute;
   right: 10px;
@@ -262,7 +302,7 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 100%;
   width: 100%;
-  max-width: 500px;
+  max-width: 520px;
   background: white;
   border-radius: 12px;
   margin-top: 6px;
@@ -270,7 +310,6 @@ onBeforeUnmount(() => {
   overflow: hidden;
   z-index: 2000;
 }
-
 .sugerencia {
   display: flex;
   align-items: center;
@@ -278,83 +317,139 @@ onBeforeUnmount(() => {
   padding: 10px 14px;
   cursor: pointer;
 }
-
-.sugerencia:hover {
-  background: #f0f0f0;
-}
-
-.sugerencia img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.sugerencia.activa {
-  background: #e8f5e9;
-}
+.sugerencia:hover { background: #f0f0f0; }
+.sugerencia img { width: 32px; height: 32px; object-fit: contain; }
+.sugerencia.activa { background: #e8f5e9; }
 
 /* ACCIONES */
-.acciones {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-/* PERFIL / LOGIN */
+.acciones { display: flex; align-items: center; gap: 14px; }
 .cuenta-link {
   color: rgb(16, 15, 15);
-  padding: 12px 18px;
+  padding: 12px 16px;
   border-radius: 999px;
   font-weight: bold;
   font-size: 16px;
   text-decoration: none;
-  transition: all 0.15s ease;
+  background: white;
 }
-.cuenta-link:active {
-  transform: scale(0.95);
-}
+.cuenta-link:active { transform: scale(0.97); }
 
-/* CARRITO */
 .carrito-indicador {
   background: #28a745;
   color: white;
-  padding: 12px 18px;
+  padding: 12px 16px;
   border-radius: 999px;
   font-weight: bold;
   font-size: 16px;
   text-decoration: none;
-  transition: all 0.15s ease;
+}
+.carrito-indicador:hover { background: #218838; }
+.carrito-indicador:active { transform: scale(0.97); }
+
+/* OVERLAY + DRAWER */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  z-index:5000;
+}
+.drawer{
+  position:fixed;
+  top:0; left:0;
+  width:82%;
+  max-width:320px;
+  height:100vh;
+  background:white;
+  z-index:6000;
+  transform:translateX(-105%);
+  transition:transform .18s ease;
+  box-shadow:20px 0 40px rgba(0,0,0,.18);
+  display:flex;
+  flex-direction:column;
+}
+.drawer.open{ transform:translateX(0); }
+
+.drawer-head{
+  padding:16px;
+  border-bottom:1px solid #eee;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.drawer-user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+.avatar{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  background:#e8f5e9;
+  color:#14532d;
+  border:1px solid rgba(40,167,69,0.25);
+}
+.drawer-info{ min-width:0; }
+.drawer-email{
+  font-weight:900;
+  font-size:13px;
+  max-width:190px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.drawer-sub{ color:#6b7280; font-size:12px; }
+
+.drawer-close{
+  border:none;
+  background:#f0f0f0;
+  border-radius:12px;
+  width:38px;
+  height:38px;
+  cursor:pointer;
 }
 
-.carrito-indicador:hover {
-  background: #218838;
-  transform: scale(1.02);
+.drawer-nav{
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
-.carrito-indicador:active {
-  transform: scale(0.95);
+.nav-link{
+  text-decoration:none;
+  border:1px solid #eee;
+  background:white;
+  padding:12px;
+  border-radius:14px;
+  font-weight:900;
+  color:#111;
+  text-align:left;
+  cursor:pointer;
 }
 
+.nav-link.danger{
+  border-color:#fecaca;
+  background:#fff1f2;
+  color:#991b1b;
+}
+
+/* Responsive */
 @media (max-width: 900px) {
   .header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto auto 1fr auto;
     grid-template-rows: auto auto;
     gap: 12px;
   }
-
   .search-box {
     grid-column: 1 / -1;
     order: 3;
   }
-
-  .logo {
-    height: 120px;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo {
-    height: 90px;
-  }
+  .logo { height: 90px; }
 }
 </style>
