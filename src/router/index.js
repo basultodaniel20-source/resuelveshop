@@ -11,6 +11,8 @@ import ResetPassword from "../views/ResetPassword.vue"
 import AccountAddresses from "../views/AccountAddresses.vue"
 import AccountOrders from "../views/AccountOrders.vue"
 import { supabase } from "../supabase"
+import AccountOrderDetail from "../views/AccountOrderDetail.vue"
+import AdminOrders from "../views/AdminOrders.vue"
 
 const routes = [
   { path: "/", component: Home },
@@ -33,6 +35,10 @@ const routes = [
   // ✅ Subrutas de "Mi cuenta" (primero)
   { path: "/account/addresses", component: AccountAddresses, meta: { requiresAuth: true } },
   { path: "/account/orders", component: AccountOrders, meta: { requiresAuth: true } },
+  
+   // Detalle de orden
+  { path: "/account/orders/:id", component: AccountOrderDetail, meta: { requiresAuth: true } },
+
 
   // ✅ Mi cuenta
   { path: "/account", component: Perfil, meta: { requiresAuth: true } },
@@ -42,6 +48,10 @@ const routes = [
 
   { path: "/checkout", component: Checkout, meta: { requiresAuth: true } },
   { path: "/pago", component: Pago, meta: { requiresAuth: true } },
+
+  // ✅ Rutas de admin
+  { path: "/admin/orders", component: AdminOrders, meta: { requiresAuth: true, requiresAdmin: true } },
+
 ]
 
 const router = createRouter({
@@ -55,14 +65,20 @@ router.beforeEach(async (to) => {
 
   const { data } = await supabase.auth.getSession()
   const user = data.session?.user
+  if (!user) return { path: "/login", query: { redirect: to.fullPath } }
 
-  if (!user) {
-    // evita redirect raro si ya estás yendo a login
-    if (to.path === "/login") return true
-    return { path: "/login", query: { redirect: to.fullPath } }
+  if (to.meta.requiresAdmin) {
+    const { data: prof, error } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single()
+
+    if (error || !prof?.is_admin) return { path: "/" }
   }
 
   return true
 })
+
 
 export default router

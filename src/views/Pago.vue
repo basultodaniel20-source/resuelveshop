@@ -43,7 +43,6 @@ const total = computed(() => {
     0
   )
 })
-
 async function pagar() {
   if (procesando.value) return
   procesando.value = true
@@ -60,39 +59,41 @@ async function pagar() {
 
     if (!user) {
       alert("Debes iniciar sesión")
-      router.push("/login")
+      router.push({ path: "/login", query: { redirect: "/pago" } })
       return
     }
-    
-    const pedido = {
-      user_id: user.id,
-      productos: data.value.productos,   // ✅ AQUÍ
-      total: total.value,
-      nombre: data.value.nombre,
-      telefono: data.value.telefono,
-      direccion: data.value.direccion,
-      notas: data.value.notas || "",
-      estado: "pendiente",
-}
 
+    // ✅ Debe venir del checkout
+    const orderId = data.value.order_id
+    if (!orderId) {
+      alert("Falta el ID del pedido. Vuelve al checkout.")
+      router.push("/checkout")
+      return
+    }
 
-    const { error } = await supabase.from("pedidos").insert([pedido])
+    // ✅ Aquí simulas pago OK (Bizum real lo harías con backend)
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: "paid" })
+      .eq("id", orderId)
+      .eq("user_id", user.id)
 
     if (error) {
       console.error("Error Supabase:", error)
-      alert("Error al guardar el pedido")
-      procesando.value = false
+      alert("Error al confirmar el pago")
       return
     }
 
-    // ✅ TODO OK
-    alert("Pedido realizado correctamente")
+    alert("✅ Pago realizado. Pedido confirmado.")
 
     localStorage.removeItem("carrito")
-    localStorage.removeItem("checkout")
+localStorage.removeItem("checkout")
 
-    router.push("/perfil")
+// 🔔 Avisar a la app de que el carrito cambió
+window.dispatchEvent(new Event("carrito-actualizado"))
 
+
+    router.push("/account/orders")
   } catch (e) {
     console.error("Error inesperado:", e)
     alert("Error inesperado")
@@ -100,5 +101,6 @@ async function pagar() {
     procesando.value = false
   }
 }
+
 </script>
 

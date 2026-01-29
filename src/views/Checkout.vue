@@ -25,18 +25,17 @@
       <textarea v-model="direccion" placeholder="Dirección completa" required></textarea>
       <textarea v-model="notas" placeholder="Notas (opcional)"></textarea>
 
-      <button class="pagar-btn">
-        Continuar al pago (Bizum)
-      </button>
+    <button class="pagar-btn" :disabled="cargandoPerfil">
+  {{ cargandoPerfil ? "Cargando datos..." : "Continuar al pago (Bizum)" }}
+</button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { supabase } from "../supabase"
-
 
 const router = useRouter()
 
@@ -53,21 +52,97 @@ const telefono = ref("")
 const direccion = ref("")
 const notas = ref("")
 
+const cargandoPerfil = ref(true)
+
 const total = computed(() =>
   carrito.value.reduce((s, i) => s + i.precio * i.cantidad, 0)
 )
-async function continuar() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
+onMounted(async () => {
+  // ✅ Si no hay usuario, manda a login y vuelve
+  const { data } = await supabase.auth.getUser()
+  const user = data.user
   if (!user) {
-    alert("Debes iniciar sesión")
-   router.push({ path: "/login", query: { redirect: "/checkout" } })
+    router.push({ path: "/login", query: { redirect: "/checkout" } })
     return
   }
 
+  // ✅ Autocompletar con profiles
+  const { data: prof, error } = await supabase
+    .from("profiles")
+    .select("nombre, telefono, direccion")
+    .eq("id", user.id)
+    .single()
+
+  cargandoPerfil.value = false
+
+  if (!error && prof) {
+    nombre.value = prof.nombre || ""
+    telefono.value = prof.telefono || ""
+    direccion.value = prof.direccion || ""
+  }
+})
+
+async function continuar() {
+  const { data } = await supabase.auth.getUser()
+  const user = data.user
+
+  if (!user) {
+    alert("Debes iniciar sesión")
+    router.push({ path: "/login", query: { redirect: "/checkout" } })
+    return
+  }
+
+  // (Pro) Guardar datos de envío en profiles
+  const today = new Date().toISOString().slice(0, 10)
+  await supabase.from("profiles").upsert(
+    {
+      id: user.id,
+      email: user.email,
+      nombre: nombre.value,
+      telefono: telefono.value,
+      direccion: direccion.value,
+      updated_at: today,
+    },
+    { onConflict: "id" }
+  )
+
+  // ✅ Crear pedido en Supabase (PENDING)
+  const orderPayload = {
+    user_id: user.id,
+    status: "pending",
+    total: total.value,
+    currency: "EUR",
+    items: carrito.value.map((i) => ({
+      id: i.id,
+      nombre: i.nombre,
+      precio: i.precio,
+      cantidad: i.cantidad,
+      imagen: i.imagen || null,
+    })),
+    shipping: {
+      nombre: nombre.value,
+      telefono: telefono.value,
+      direccion: direccion.value,
+      notas: notas.value || "",
+    },
+  }
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .insert(orderPayload)
+    .select("id")
+    .single()
+
+  if (error) {
+    console.error(error)
+    alert("No se pudo crear el pedido. Intenta de nuevo.")
+    return
+  }
+
+  // Guardamos checkout local con order_id real
   const pedido = {
+    order_id: order.id,
     productos: carrito.value,
     total: total.value,
     direccion: direccion.value,
@@ -76,15 +151,11 @@ async function continuar() {
     notas: notas.value,
   }
 
-  // ✅ Guardamos SOLO en localStorage
   localStorage.setItem("checkout", JSON.stringify(pedido))
-
-  // 👉 Ir a pago
   router.push("/pago")
 }
-
-
 </script>
+
 
 <style scoped>
 .checkout {

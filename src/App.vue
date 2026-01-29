@@ -18,18 +18,35 @@
     <Footer />   <!-- 👈 AQUÍ -->
   </div>
 </template>
-
 <script setup>
-import { ref, computed, watch } from "vue"
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue"
 import Header from "./components/Header.vue"
 import { productos as productosData } from "./data/productos.js"
-import Footer from "./components/Footer.vue" 
+import Footer from "./components/Footer.vue"
+
 const texto = ref("")
 const productos = ref(productosData)
-const carrito = ref(
-  JSON.parse(localStorage.getItem("carrito")) || []
-)
 
+// ✅ Estado del carrito (solo se carga desde una función)
+const carrito = ref([])
+
+function cargarCarrito() {
+  carrito.value = JSON.parse(localStorage.getItem("carrito")) || []
+}
+
+// ✅ Cargar al iniciar
+cargarCarrito()
+
+// ✅ Escuchar cambios externos (pago / repetir compra / etc.)
+onMounted(() => {
+  window.addEventListener("carrito-actualizado", cargarCarrito)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("carrito-actualizado", cargarCarrito)
+})
+
+// ✅ Mantener localStorage sincronizado cuando el usuario cambia el carrito desde la UI
 watch(
   carrito,
   (nuevoCarrito) => {
