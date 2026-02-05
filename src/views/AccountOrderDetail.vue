@@ -174,12 +174,26 @@ onMounted(async () => {
 
   const id = route.params.id
 
-  const { data, error } = await supabase
-    .from("orders")
-    .select("id,status,total,currency,items,shipping,created_at")
-    .eq("id", id)
-    .eq("user_id", u.user.id)
+    // ✅ detectar si soy admin
+  const { data: prof } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", u.user.id)
     .single()
+
+  const isAdmin = !!prof?.is_admin
+
+  // ✅ Si soy admin, puedo ver cualquier pedido (no filtro por user_id)
+  let q = supabase
+    .from("orders")
+    .select("id,status,total,currency,items,shipping,created_at,user_id")
+    .eq("id", id)
+
+  // ✅ Si NO soy admin, solo veo mis pedidos
+  if (!isAdmin) q = q.eq("user_id", u.user.id)
+
+  const { data, error } = await q.single()
+
 
   loading.value = false
 
