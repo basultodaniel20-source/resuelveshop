@@ -15,26 +15,6 @@
             <span class="badge">🔒 Compra segura</span>
           </div>
         </div>
-
-        <div class="hero-right">
-          <div class="tip">
-            <div class="tip-top">
-              <span class="tip-ico">💡</span>
-              <div>
-                <div class="tip-title">Consejo</div>
-                <div class="tip-text">
-                  Elige un combo, agrégalo al carrito y finaliza en menos de 1 minuto.
-                </div>
-              </div>
-            </div>
-
-            <div class="tip-steps">
-              <div class="step"><b>1.</b> Elige</div>
-              <div class="step"><b>2.</b> Carrito</div>
-              <div class="step"><b>3.</b> Paga</div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
