@@ -5,7 +5,7 @@
         <router-link class="back" to="/account">←</router-link>
         <div>
           <h2>📍 Mis direcciones</h2>
-          <p class="muted">Guarda tus datos para que el checkout sea más rápido.</p>
+          <p class="muted">Guarda tus datos para que el pago sea más rápido.</p>
         </div>
       </div>
 

@@ -76,17 +76,17 @@ function shortId(id) {
 
 function statusLabel(s) {
   const v = (s || "").toLowerCase()
-  if (v === "paid") return "Pagado"
-  if (v === "pending") return "Pendiente"
-  if (v === "cancelled") return "Cancelado"
+  if (v === "Pagado") return "Pagado"
+  if (v === "Pendiente") return "Pendiente"
+  if (v === "Cancelado") return "Cancelado"
   return s || "Estado"
 }
 
 function statusClass(s) {
   const v = (s || "").toLowerCase()
-  if (v === "paid") return "ok"
-  if (v === "pending") return "warn"
-  if (v === "cancelled") return "bad"
+  if (v === "Pagado") return "ok"
+  if (v === "Pendiente") return "warn"
+  if (v === "Cancelado") return "bad"
   return ""
 }
 

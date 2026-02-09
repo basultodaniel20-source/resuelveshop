@@ -32,18 +32,12 @@
 
           <div class="items">
             <div v-for="(it, idx) in (order.items || [])" :key="idx" class="item">
-              <!-- ✅ Foto clicable al detalle del producto -->
-              <router-link
-                class="imgWrap"
-                :to="`/producto/${it.id}`"
-                :title="it.nombre"
-              >
-                <img v-if="it.imagen" :src="it.imagen" class="img" />
+              <router-link class="imgWrap" :to="`/producto/${it.id}`" :title="it.nombre">
+                <img v-if="imgFor(it)" :src="imgFor(it)" class="img" />
                 <div v-else class="imgPlaceholder">🛍️</div>
               </router-link>
 
               <div class="itxt">
-                <!-- ✅ Nombre clicable también -->
                 <router-link class="iname" :to="`/producto/${it.id}`">
                   {{ it.nombre }}
                 </router-link>
@@ -72,12 +66,9 @@
 
         <!-- Acciones -->
         <div class="actions">
-  <button class="btn" type="button" @click="repetirCompra">
-    🔁 Repetir compra
-  </button>
-
-  <router-link class="btn ghost" to="/">Seguir comprando</router-link>
-</div>
+          <button class="btn" type="button" @click="repetirCompra">🔁 Repetir compra</button>
+          <router-link class="btn ghost" to="/">Seguir comprando</router-link>
+        </div>
       </template>
     </div>
   </div>
@@ -87,6 +78,7 @@
 import { ref, onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { supabase } from "../supabase"
+import { productos as productosData } from "../data/productos.js"
 
 const route = useRoute()
 const router = useRouter()
@@ -95,6 +87,30 @@ const loading = ref(true)
 const errorMsg = ref("")
 const order = ref(null)
 
+// ✅ Mapa catálogo local: id -> producto
+const byId = new Map(productosData.map((p) => [String(p.id), p]))
+
+// ✅ SIEMPRE usa primero catálogo local. BD solo si no existe en catálogo.
+function imgFor(it) {
+  // 1) Prioridad: catálogo local (esto SIEMPRE funciona en tu tienda)
+  const p = byId.get(String(it?.id))
+  if (p?.imagen) return p.imagen
+
+  // 2) Fallback: lo que venga en BD (por si algún día guardas URLs reales)
+  const raw = (it?.imagen || "").toString().trim()
+  if (!raw) return ""
+
+  // Solo aceptamos cosas “realmente navegables”
+  if (raw.startsWith("http") || raw.startsWith("https") || raw.startsWith("data:image/")) return raw
+  if (raw.startsWith("/")) {
+    // ❌ Evita rutas tipo /src/assets/... (eso rompe en navegador)
+    if (raw.startsWith("/src/")) return ""
+    return raw
+  }
+
+  return ""
+}
+
 function shortId(id) {
   if (!id) return ""
   return String(id).split("-")[0].toUpperCase()
@@ -102,17 +118,17 @@ function shortId(id) {
 
 function statusLabel(s) {
   const v = (s || "").toLowerCase()
-  if (v === "paid") return "Pagado"
-  if (v === "pending") return "Pendiente"
-  if (v === "cancelled") return "Cancelado"
+  if (v === "Pagado") return "Pagado"
+  if (v === "Pendiente") return "Pendiente"
+  if (v === "Cancelado") return "Cancelado"
   return s || "Estado"
 }
 
 function statusClass(s) {
   const v = (s || "").toLowerCase()
-  if (v === "paid") return "ok"
-  if (v === "pending") return "warn"
-  if (v === "cancelled") return "bad"
+  if (v === "Pagado") return "ok"
+  if (v === "Pendiente") return "warn"
+  if (v === "Cancelado") return "bad"
   return ""
 }
 
@@ -135,8 +151,6 @@ function repetirCompra() {
   if (!order.value?.items?.length) return
 
   const actual = JSON.parse(localStorage.getItem("carrito") || "[]")
-
-  // Mapa para sumar cantidades por id
   const map = new Map(actual.map((p) => [String(p.id), { ...p }]))
 
   for (const it of order.value.items) {
@@ -152,7 +166,7 @@ function repetirCompra() {
         nombre: it.nombre,
         precio: it.precio,
         cantidad: it.cantidad,
-        imagen: it.imagen || null,
+        imagen: imgFor(it) || null,
       })
     }
   }
@@ -174,7 +188,7 @@ onMounted(async () => {
 
   const id = route.params.id
 
-    // ✅ detectar si soy admin
+  // ✅ detectar si soy admin
   const { data: prof } = await supabase
     .from("profiles")
     .select("is_admin")
@@ -183,17 +197,14 @@ onMounted(async () => {
 
   const isAdmin = !!prof?.is_admin
 
-  // ✅ Si soy admin, puedo ver cualquier pedido (no filtro por user_id)
   let q = supabase
     .from("orders")
     .select("id,status,total,currency,items,shipping,created_at,user_id")
     .eq("id", id)
 
-  // ✅ Si NO soy admin, solo veo mis pedidos
   if (!isAdmin) q = q.eq("user_id", u.user.id)
 
   const { data, error } = await q.single()
-
 
   loading.value = false
 

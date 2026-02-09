@@ -21,12 +21,12 @@
 
         <select v-model="fStatus" class="select">
           <option value="all">Todos</option>
-          <option value="pending">pending</option>
-          <option value="paid">paid</option>
-          <option value="preparing">preparing</option>
-          <option value="shipped">shipped</option>
-          <option value="delivered">delivered</option>
-          <option value="cancelled">cancelled</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Pagado">Pagado</option>
+          <option value="Preparando">Preparando</option>
+          <option value="Enviando">Enviado</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Cancelado">Cancelado</option>
         </select>
       </div>
 
@@ -57,12 +57,12 @@
 
           <div class="right">
             <select class="select mini" v-model="o.status" @change="cambiarEstado(o)">
-              <option value="pending">pending</option>
-              <option value="paid">paid</option>
-              <option value="preparing">preparing</option>
-              <option value="shipped">shipped</option>
-              <option value="delivered">delivered</option>
-              <option value="cancelled">cancelled</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Pagado">Pagado</option>
+              <option value="Preparado">Preparando</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Entregado">Entregado</option>
+              <option value="Cancelado">Cancelado</option>
             </select>
 
             <button class="btn ghost" type="button" @click="abrir(o)">
@@ -92,17 +92,18 @@
         </div>
 
         <div class="modal-body">
+
           <!-- Estado -->
           <div class="section">
             <div class="stitle">Estado</div>
             <div class="row2">
               <select class="select" v-model="modal.status" @change="cambiarEstado(modal)">
-                <option value="pending">pending</option>
-                <option value="paid">paid</option>
-                <option value="preparing">preparing</option>
-                <option value="shipped">shipped</option>
-                <option value="delivered">delivered</option>
-                <option value="cancelled">cancelled</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pagado">Pagado</option>
+                <option value="Preparando">Preparando</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Entregado">Entregado</option>
+                <option value="Cancelado">Cancelado</option>
               </select>
 
               <div class="mutedSmall">User: {{ modal.user_id }}</div>
@@ -121,8 +122,9 @@
                   title="Ver producto"
                   @click="cerrar"
                 >
-                  <img v-if="it.imagen" :src="it.imagen" class="img" />
-                  <div v-else class="imgPh">📦</div>
+                  <!-- ✅ ahora usa imgFor(it) -->
+                 <img v-if="imgFor(it)" :src="imgFor(it)" class="img" />
+                <div v-else class="imgPh">📦</div>
                 </router-link>
 
                 <div class="itxt">
@@ -183,9 +185,9 @@
 </template>
 
 <script setup>
-import { productos as productosData } from "../data/productos.js"
-import { ref, onMounted, computed, watch } from "vue"
+import { ref, onMounted, computed, watch, onBeforeUnmount } from "vue"
 import { supabase } from "../supabase"
+import { productos as productosData } from "../data/productos.js"
 
 const loading = ref(true)
 const errorMsg = ref("")
@@ -195,21 +197,14 @@ const q = ref("")
 const fStatus = ref("all")
 
 const modal = ref(null)
-const byId = new Map(productosData.map(p => [String(p.id), p]))
 
-
+// catálogo local por id (para recuperar imagen si no viene en items)
+const byId = new Map(productosData.map((p) => [String(p.id), p]))
 
 function imgFor(it) {
-  // 1) si viene una URL buena desde la BD, úsala
-  const raw = it?.imagen
-  if (raw && (raw.startsWith("http") || raw.startsWith("/"))) return raw
-
-  // 2) si no, busca el producto en tu catálogo local
   const p = byId.get(String(it?.id))
   return p?.imagen || null
 }
-
-
 
 function abrir(o) {
   modal.value = JSON.parse(JSON.stringify(o)) // copia para que el modal sea estable
@@ -227,6 +222,10 @@ function onKey(e) {
 watch(modal, (v) => {
   if (v) window.addEventListener("keydown", onKey)
   else window.removeEventListener("keydown", onKey)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", onKey)
 })
 
 function shortId(id) {
@@ -250,18 +249,18 @@ function money(n, cur = "EUR") {
 
 function statusClass(s) {
   const v = (s || "").toLowerCase()
-  if (v === "paid") return "ok"
-  if (v === "pending") return "warn"
-  if (v === "cancelled") return "bad"
-  if (v === "shipped" || v === "delivered") return "info"
+  if (v === "Pagado") return "ok"
+  if (v === "Pendiente") return "warn"
+  if (v === "Cancelado") return "bad"
+  if (v === "Enviado" || v === "delivered") return "info"
   return ""
 }
 
 const filtered = computed(() => {
   const text = (q.value || "").trim().toLowerCase()
   return (orders.value || [])
-    .filter(o => (fStatus.value === "all" ? true : String(o.status) === fStatus.value))
-    .filter(o => {
+    .filter((o) => (fStatus.value === "all" ? true : String(o.status) === fStatus.value))
+    .filter((o) => {
       if (!text) return true
       const hay = [
         o.id,
@@ -300,11 +299,7 @@ async function cargar() {
 }
 
 async function cambiarEstado(o) {
-  // actualiza en DB
-  const { error } = await supabase
-    .from("orders")
-    .update({ status: o.status })
-    .eq("id", o.id)
+  const { error } = await supabase.from("orders").update({ status: o.status }).eq("id", o.id)
 
   if (error) {
     console.error(error)
@@ -313,7 +308,7 @@ async function cambiarEstado(o) {
   }
 
   // sincroniza lista
-  const idx = orders.value.findIndex(x => x.id === o.id)
+  const idx = orders.value.findIndex((x) => x.id === o.id)
   if (idx >= 0) orders.value[idx].status = o.status
 }
 
