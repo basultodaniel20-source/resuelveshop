@@ -1,6 +1,11 @@
 
 <template>
   <div class="home">
+    <!-- ✅ DEBUG TEMP: si esto NO aparece en móvil, no estás viendo el deploy nuevo -->
+    <div class="build-badge">
+      BUILD ✅ 2026-02-09
+    </div>
+
     <!-- HERO PRO -->
     <section class="hero">
       <div class="hero-card">
@@ -85,6 +90,17 @@ const productosFiltrados = computed(() => {
 <style scoped>
 .home{
   padding: 8px 2px 22px;
+}
+
+/* ✅ DEBUG TEMP */
+.build-badge{
+  background: #fde047;
+  color: #111;
+  font-weight: 1000;
+  padding: 10px 12px;
+  border-radius: 14px;
+  margin: 6px 0 10px;
+  border: 1px solid rgba(0,0,0,0.15);
 }
 
 /* HERO */
@@ -222,5 +238,6 @@ const productosFiltrados = computed(() => {
 /* Responsive */
 @media (max-width: 900px){
   .hero-card{ grid-template-columns: 1fr; }
+  .tip-steps{ grid-template-columns: 1fr; } /* más limpio en móvil */
 }
 </style>
