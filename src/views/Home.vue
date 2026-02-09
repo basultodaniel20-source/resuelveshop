@@ -221,6 +221,40 @@ const productosFiltrados = computed(() => {
 
 /* Responsive */
 @media (max-width: 900px){
-  .hero-card{ grid-template-columns: 1fr; }
+  .hero-card{
+    grid-template-columns: 1fr;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .hero-left h1{
+    font-size: 20px;
+    line-height: 1.1;
+  }
+
+  .hero-left p{
+    font-size: 12px;
+  }
+
+  .badge{
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+
+  .tip{
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .tip-text{
+    font-size: 12px;
+  }
+
+  .step{
+    padding: 8px;
+    font-size: 11px;
+    border-radius: 12px;
+  }
 }
+
 </style>
