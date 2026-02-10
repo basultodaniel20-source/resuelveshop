@@ -44,18 +44,19 @@
 
     <!-- ACCIONES -->
     <div class="acciones">
-      <router-link v-if="user" to="/account" class="cuenta-link">
-        👤 Mi cuenta
-      </router-link>
+  <router-link v-if="user" to="/account" class="cuenta-icon" aria-label="Mi cuenta">
+    👤
+  </router-link>
 
-      <router-link v-else to="/login" class="cuenta-link">
-        🔑 Login
-      </router-link>
+  <router-link v-else to="/login" class="cuenta-icon" aria-label="Login">
+    🔑
+  </router-link>
 
-      <router-link to="/carrito" class="carrito-indicador">
-        🛒 {{ total }}
-      </router-link>
-    </div>
+  <router-link to="/carrito" class="carrito-indicador" aria-label="Carrito">
+    🛒 <span class="n">{{ total }}</span>
+  </router-link>
+</div>
+
 
     <!-- OVERLAY + DRAWER -->
     <div v-if="drawer" class="overlay" @click="drawer = false"></div>
@@ -440,16 +441,59 @@ onBeforeUnmount(() => {
 }
 
 /* Responsive */
+/* ===== Mobile Pro Header ===== */
 @media (max-width: 900px) {
-  .header {
+  .header{
     grid-template-columns: auto auto 1fr auto;
     grid-template-rows: auto auto;
-    gap: 12px;
+    gap: 10px;
+    padding: 10px 12px;
   }
-  .search-box {
+
+  /* Logo más pequeño (antes estaba enorme) */
+  .logo{
+    height: 56px;
+    border-radius: 14px;
+  }
+
+  /* Buscador abajo ocupando todo */
+  .search-box{
     grid-column: 1 / -1;
     order: 3;
   }
-  .logo { height: 90px; }
+  .input-wrapper{ max-width: 100%; }
+  .input-wrapper input{
+    font-size: 15px;
+    padding: 12px 40px 12px 40px;
+  }
+
+  /* Icono cuenta (en vez de pastilla gigante) */
+  .cuenta-icon{
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: white;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    font-weight: 900;
+    color:#111;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Carrito en círculo y sin el número visible dentro en móvil */
+  .carrito-indicador{
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-weight: 1000;
+  }
+  .carrito-indicador .n{
+    display:none;
+  }
 }
+
 </style>
