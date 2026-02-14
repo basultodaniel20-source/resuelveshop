@@ -64,83 +64,88 @@ function isActive(path) {
 </script>
 
 <style scoped>
-.bottom-nav {
+.bottom-nav{
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 74px;
+  height: 90px;
   background: white;
   border-top: 1px solid #eee;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
   z-index: 9999;
-  padding: 6px 8px;
+  padding: 10px 10px;
+
+  box-shadow: 0 -10px 25px rgba(0,0,0,0.08);
 }
 
-.item {
+.item{
   text-decoration: none;
   color: #9ca3af;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   font-weight: 900;
-  font-size: 11px;
-  gap: 2px;
+  font-size: 13px;
+  gap: 5px;
 }
 
-.item .icon {
-  font-size: 20px;
+.item .icon{
+  font-size: 28px;
+  line-height: 1;
 }
 
-.item.active {
+.item.active{
   color: #28a745;
 }
 
-.center {
-  transform: translateY(-18px);
+/* BOTÓN CENTRAL */
+.center{
+  transform: translateY(-28px);
 }
 
-.center .circle {
-  width: 58px;
-  height: 58px;
+.center .circle{
+  width: 72px;
+  height: 72px;
   background: #28a745;
   color: white;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 24px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
-  border: 5px solid white;
+  font-size: 30px;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.20);
+  border: 6px solid white;
   position: relative;
 }
 
-.center .txt {
-  margin-top: 2px;
+.center .txt{
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 1000;
 }
 
-.badge {
+.badge{
   position: absolute;
   top: -6px;
   right: -6px;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
   border-radius: 999px;
   background: #111;
   color: white;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 1000;
   display: grid;
   place-items: center;
-  border: 2px solid white;
+  border: 3px solid white;
 }
 
-/* SOLO MÓVIL */
-@media (min-width: 900px) {
-  .bottom-nav {
-    display: none;
-  }
+/* SOLO PC */
+@media (min-width: 900px){
+  .bottom-nav{ display:none; }
 }
 </style>

@@ -91,7 +91,7 @@ const totalItems = computed(() =>
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 12px;
+  padding: 8px 12px 110px; /* 👈 padding abajo para el menú */
   background: #f5f6f8;
   box-sizing: border-box;
 }

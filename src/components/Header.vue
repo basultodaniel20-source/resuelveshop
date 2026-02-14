@@ -44,19 +44,18 @@
 
     <!-- ACCIONES -->
     <div class="acciones">
-  <router-link v-if="user" to="/account" class="cuenta-icon" aria-label="Mi cuenta">
-    👤
-  </router-link>
+      <router-link v-if="user" to="/account" class="cuenta-icon" aria-label="Mi cuenta">
+        👤
+      </router-link>
 
-  <router-link v-else to="/login" class="cuenta-icon" aria-label="Login">
-    🔑
-  </router-link>
+      <router-link v-else to="/login" class="cuenta-icon" aria-label="Login">
+        🔑
+      </router-link>
 
-  <router-link to="/carrito" class="carrito-indicador" aria-label="Carrito">
-    🛒 <span class="n">{{ total }}</span>
-  </router-link>
-</div>
-
+      <router-link to="/carrito" class="carrito-indicador" aria-label="Carrito">
+        🛒 <span class="n">{{ total }}</span>
+      </router-link>
+    </div>
 
     <!-- OVERLAY + DRAWER -->
     <div v-if="drawer" class="overlay" @click="drawer = false"></div>
@@ -324,28 +323,35 @@ onBeforeUnmount(() => {
 
 /* ACCIONES */
 .acciones { display: flex; align-items: center; gap: 14px; }
-.cuenta-link {
-  color: rgb(16, 15, 15);
-  padding: 12px 16px;
+
+.cuenta-icon{
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
-  font-weight: bold;
-  font-size: 16px;
-  text-decoration: none;
   background: white;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  font-weight: 900;
+  color:#111;
+  border: 1px solid #e5e7eb;
 }
-.cuenta-link:active { transform: scale(0.97); }
 
 .carrito-indicador {
   background: #28a745;
   color: white;
   padding: 12px 16px;
   border-radius: 999px;
-  font-weight: bold;
+  font-weight: 1000;
   font-size: 16px;
   text-decoration: none;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 .carrito-indicador:hover { background: #218838; }
 .carrito-indicador:active { transform: scale(0.97); }
+.n{ font-weight: 1000; }
 
 /* OVERLAY + DRAWER */
 .overlay{
@@ -440,7 +446,6 @@ onBeforeUnmount(() => {
   color:#991b1b;
 }
 
-/* Responsive */
 /* ===== Mobile Pro Header ===== */
 @media (max-width: 900px) {
   .header{
@@ -450,9 +455,15 @@ onBeforeUnmount(() => {
     padding: 10px 12px;
   }
 
-  /* Logo más pequeño (antes estaba enorme) */
+  /* Hamburguesa más grande */
+  .hamb{
+    padding: 14px 18px;
+    font-size: 20px;
+  }
+
+  /* Logo más visible pero controlado */
   .logo{
-    height: 56px;
+    height: 70px;
     border-radius: 14px;
   }
 
@@ -467,41 +478,9 @@ onBeforeUnmount(() => {
     padding: 12px 40px 12px 40px;
   }
 
-  /* Icono cuenta (en vez de pastilla gigante) */
-  .cuenta-icon{
-    width: 42px;
-    height: 42px;
-    border-radius: 999px;
-    background: white;
-    display: grid;
-    place-items: center;
-    text-decoration: none;
-    font-weight: 900;
-    color:#111;
-    border: 1px solid #e5e7eb;
-  }
-
-  /* Carrito en círculo y sin el número visible dentro en móvil */
-  .carrito-indicador{
-    width: 54px;
-    height: 54px;
-    padding: 0;
-    border-radius: 999px;
-    display: grid;
-    place-items: center;
-    font-weight: 1000;
-  }
-  .carrito-indicador .n{
+  /* ✅ En móvil ocultar botones de arriba (Perfil/Login y Carrito) */
+  .acciones{
     display:none;
   }
-
-  /* 📱 En móvil ocultar botones de arriba (Mi cuenta y Carrito) */
-@media (max-width: 900px) {
-  .acciones {
-    display: none;
-  }
 }
-
-}
-
 </style>
