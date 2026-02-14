@@ -5,13 +5,21 @@
       <span class="txt">Inicio</span>
     </router-link>
 
-    <router-link to="/" class="item" :class="{ active: isActive('/catalogo') }">
+    <router-link
+      to="/catalogo"
+      class="item"
+      :class="{ active: isActive('/catalogo') }"
+    >
       <span class="icon">🗂️</span>
       <span class="txt">Catálogo</span>
     </router-link>
 
     <!-- BOTÓN CENTRAL -->
-    <router-link to="/carrito" class="item center" :class="{ active: isActive('/carrito') }">
+    <router-link
+      to="/carrito"
+      class="item center"
+      :class="{ active: isActive('/carrito') }"
+    >
       <div class="circle">
         🛒
         <span v-if="total > 0" class="badge">{{ total }}</span>
@@ -19,12 +27,20 @@
       <span class="txt">Carrito</span>
     </router-link>
 
-    <router-link to="/account/orders" class="item" :class="{ active: isActive('/account/orders') }">
+    <router-link
+      to="/account/orders"
+      class="item"
+      :class="{ active: isActive('/account/orders') }"
+    >
       <span class="icon">📦</span>
       <span class="txt">Pedidos</span>
     </router-link>
 
-    <router-link to="/account" class="item" :class="{ active: isActive('/account') }">
+    <router-link
+      to="/account"
+      class="item"
+      :class="{ active: isActive('/account') }"
+    >
       <span class="icon">👤</span>
       <span class="txt">Perfil</span>
     </router-link>
@@ -35,18 +51,20 @@
 import { useRoute } from "vue-router"
 
 defineProps({
-  total: { type: Number, default: 0 }
+  total: { type: Number, default: 0 },
 })
 
 const route = useRoute()
 
 function isActive(path) {
-  return route.path === path
+  // ✅ Para que funcione en subrutas tipo /account/orders/ID
+  if (path === "/") return route.path === "/"
+  return route.path.startsWith(path)
 }
 </script>
 
 <style scoped>
-.bottom-nav{
+.bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -61,7 +79,7 @@ function isActive(path) {
   padding: 6px 8px;
 }
 
-.item{
+.item {
   text-decoration: none;
   color: #9ca3af;
   display: flex;
@@ -72,13 +90,19 @@ function isActive(path) {
   gap: 2px;
 }
 
-.item .icon{ font-size: 20px; }
+.item .icon {
+  font-size: 20px;
+}
 
-.item.active{ color: #28a745; }
+.item.active {
+  color: #28a745;
+}
 
-.center{ transform: translateY(-18px); }
+.center {
+  transform: translateY(-18px);
+}
 
-.center .circle{
+.center .circle {
   width: 58px;
   height: 58px;
   background: #28a745;
@@ -87,14 +111,16 @@ function isActive(path) {
   display: grid;
   place-items: center;
   font-size: 24px;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
   border: 5px solid white;
   position: relative;
 }
 
-.center .txt{ margin-top: 2px; }
+.center .txt {
+  margin-top: 2px;
+}
 
-.badge{
+.badge {
   position: absolute;
   top: -6px;
   right: -6px;
@@ -112,7 +138,9 @@ function isActive(path) {
 }
 
 /* SOLO MÓVIL */
-@media (min-width: 900px){
-  .bottom-nav{ display:none; }
+@media (min-width: 900px) {
+  .bottom-nav {
+    display: none;
+  }
 }
 </style>
