@@ -1,33 +1,40 @@
 <template>
   <div class="app">
     <!-- HEADER ÚNICO -->
-  <Header :total="totalItems" @buscar="texto = $event" />
-<!-- YA NO HAY NAV AQUÍ -->
+    <Header :total="totalItems" @buscar="texto = $event" />
 
     <!-- PÁGINAS -->
-    <router-view
-      :busqueda="texto"
-      :key="$route.fullPath"
-      :productos="productos"
-      :categorias="categorias"
-      :carrito="carrito"
-      @agregar="agregarAlCarrito"
-      @eliminar="eliminar"
-      
-    />
-    <Footer />   <!-- 👈 AQUÍ -->
+    <main class="content">
+      <router-view
+        :busqueda="texto"
+        :key="$route.fullPath"
+        :productos="productos"
+        :categorias="categorias"
+        :carrito="carrito"
+        @agregar="agregarAlCarrito"
+        @eliminar="eliminar"
+      />
+    </main>
+
+    <!-- FOOTER (solo escritorio) -->
+    <Footer class="footer-desktop" />
+
+    <!-- BOTTOM NAV (solo móvil) -->
+    <BottomNav :total="totalItems" />
   </div>
 </template>
+
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue"
 import Header from "./components/Header.vue"
-import { productos as productosData } from "./data/productos.js"
 import Footer from "./components/Footer.vue"
+import BottomNav from "./components/BottomNav.vue"
+import { productos as productosData } from "./data/productos.js"
 
 const texto = ref("")
 const productos = ref(productosData)
 
-// ✅ Estado del carrito (solo se carga desde una función)
+// ✅ Estado del carrito
 const carrito = ref([])
 
 function cargarCarrito() {
@@ -46,7 +53,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("carrito-actualizado", cargarCarrito)
 })
 
-// ✅ Mantener localStorage sincronizado cuando el usuario cambia el carrito desde la UI
+// ✅ Mantener localStorage sincronizado
 watch(
   carrito,
   (nuevoCarrito) => {
@@ -55,31 +62,23 @@ watch(
   { deep: true }
 )
 
-const categorias = ["Todos", ...new Set(productos.value.map(p => p.categoria))]
+const categorias = ["Todos", ...new Set(productos.value.map((p) => p.categoria))]
 
 function agregarAlCarrito(producto) {
-  const item = carrito.value.find(p => p.id === producto.id)
+  const item = carrito.value.find((p) => p.id === producto.id)
 
   if (item) {
     item.cantidad += producto.cantidad
   } else {
     carrito.value.push({
       ...producto,
-      cantidad: producto.cantidad || 1
+      cantidad: producto.cantidad || 1,
     })
   }
 }
 
-function aumentar(i) {
-  i.cantidad++
-}
-
-function disminuir(i) {
-  i.cantidad > 1 ? i.cantidad-- : eliminar(i)
-}
-
 function eliminar(i) {
-  carrito.value = carrito.value.filter(p => p.id !== i.id)
+  carrito.value = carrito.value.filter((p) => p.id !== i.id)
 }
 
 const totalItems = computed(() =>
@@ -95,5 +94,21 @@ const totalItems = computed(() =>
   padding: 8px 12px;
   background: #f5f6f8;
   box-sizing: border-box;
+}
+
+/* para que el contenido no quede tapado por el menú inferior */
+.content {
+  padding-bottom: 90px;
+}
+
+/* footer solo escritorio */
+.footer-desktop {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .footer-desktop {
+    display: none;
+  }
 }
 </style>
