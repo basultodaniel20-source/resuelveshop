@@ -1,159 +1,146 @@
-
 <template>
-  <nav class="bottom-nav" aria-label="Navegación inferior">
+  <nav class="bottom-nav">
     <router-link to="/" class="item" :class="{ active: isActive('/') }">
-      <Home class="icon" />
+      <span class="icon">🏠</span>
       <span class="txt">Inicio</span>
     </router-link>
 
-    <router-link to="/" class="item" :class="{ active: isActive('/categoria') }">
-      <LayoutGrid class="icon" />
+    <router-link
+      to="/catalogo"
+      class="item"
+      :class="{ active: isActive('/catalogo') }"
+    >
+      <span class="icon">🗂️</span>
       <span class="txt">Catálogo</span>
     </router-link>
 
     <!-- BOTÓN CENTRAL -->
-    <router-link to="/carrito" class="item center" :class="{ active: isActive('/carrito') }">
-      <div class="circle" aria-label="Carrito">
-        <ShoppingCart class="iconCenter" />
+    <router-link
+      to="/carrito"
+      class="item center"
+      :class="{ active: isActive('/carrito') }"
+    >
+      <div class="circle">
+        🛒
         <span v-if="total > 0" class="badge">{{ total }}</span>
       </div>
       <span class="txt">Carrito</span>
     </router-link>
 
-    <router-link to="/account/orders" class="item" :class="{ active: isActive('/account/orders') }">
-      <Package class="icon" />
+    <router-link
+      to="/account/orders"
+      class="item"
+      :class="{ active: isActive('/account/orders') }"
+    >
+      <span class="icon">📦</span>
       <span class="txt">Pedidos</span>
     </router-link>
 
-    <router-link to="/account" class="item" :class="{ active: isActive('/account') }">
-      <User class="icon" />
-      <span class="txt">Cuenta</span>
+    <router-link
+      to="/account"
+      class="item"
+      :class="{ active: isActive('/account') }"
+    >
+      <span class="icon">👤</span>
+      <span class="txt">Perfil</span>
     </router-link>
   </nav>
 </template>
 
 <script setup>
-import { useRoute, useRouter } from "vue-router"
-import { Home, LayoutGrid, ShoppingCart, Package, User } from "lucide-vue-next"
+import { useRoute } from "vue-router"
 
 defineProps({
-  total: { type: Number, default: 0 }
+  total: { type: Number, default: 0 },
 })
 
 const route = useRoute()
-const router = useRouter()
 
 function isActive(path) {
+  // ✅ Para que funcione en subrutas tipo /account/orders/ID
   if (path === "/") return route.path === "/"
   return route.path.startsWith(path)
 }
 </script>
 
 <style scoped>
-.bottom-nav{
+.bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-
-  height: 78px;
-  padding: 10px 12px 14px;
-
+  height: 74px;
+  background: white;
+  border-top: 1px solid #eee;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  align-items: end;
-
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border-top: 1px solid rgba(0,0,0,0.06);
+  align-items: center;
   z-index: 9999;
+  padding: 6px 8px;
 }
 
-.item{
+.item {
   text-decoration: none;
   color: #9ca3af;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-
   font-weight: 900;
   font-size: 11px;
-  letter-spacing: 0.2px;
-  user-select: none;
+  gap: 2px;
 }
 
-.icon{
-  width: 22px;
-  height: 22px;
-  stroke-width: 2.2;
-  opacity: 0.9;
+.item .icon {
+  font-size: 20px;
 }
 
-.item.active{
+.item.active {
   color: #28a745;
 }
 
-.item:active{
-  transform: scale(0.98);
-}
-
-/* Botón central */
-.center{
+.center {
   transform: translateY(-18px);
 }
 
-.circle{
-  width: 60px;
-  height: 60px;
-  border-radius: 999px;
+.center .circle {
+  width: 58px;
+  height: 58px;
   background: #28a745;
+  color: white;
+  border-radius: 50%;
   display: grid;
   place-items: center;
+  font-size: 24px;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
+  border: 5px solid white;
   position: relative;
-  border: 5px solid rgba(255,255,255,0.95);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.20);
-  transition: transform .15s ease;
 }
 
-.center:active .circle{
-  transform: scale(0.97);
+.center .txt {
+  margin-top: 2px;
 }
 
-.iconCenter{
-  width: 26px;
-  height: 26px;
-  color: white;
-  stroke-width: 2.4;
-}
-
-/* Badge */
-.badge{
+.badge {
   position: absolute;
   top: -6px;
   right: -6px;
-
   min-width: 22px;
   height: 22px;
-  padding: 0 7px;
-
+  padding: 0 6px;
   border-radius: 999px;
   background: #111;
-  color: #fff;
-
+  color: white;
   font-size: 12px;
   font-weight: 1000;
-
   display: grid;
   place-items: center;
-
-  border: 2px solid rgba(255,255,255,0.95);
+  border: 2px solid white;
 }
 
 /* SOLO MÓVIL */
-@media (min-width: 900px){
-  .bottom-nav{ display:none; }
+@media (min-width: 900px) {
+  .bottom-nav {
+    display: none;
+  }
 }
 </style>
