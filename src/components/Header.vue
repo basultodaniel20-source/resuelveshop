@@ -494,6 +494,14 @@ onBeforeUnmount(() => {
   .carrito-indicador .n{
     display:none;
   }
+
+  /* 📱 En móvil ocultar botones de arriba (Mi cuenta y Carrito) */
+@media (max-width: 900px) {
+  .acciones {
+    display: none;
+  }
+}
+
 }
 
 </style>
