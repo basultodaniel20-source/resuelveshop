@@ -114,12 +114,16 @@ async function guardar() {
 
 <style scoped>
 .page{
-  min-height: calc(100vh - 140px);
-  display:grid;
-  place-items:center;
-  padding:18px;
+  min-height: 100dvh; /* iPhone OK */
   background:#f5f6f8;
+
+  /* NO centrar vertical */
+  display:block;
+
+  padding: 12px 18px;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom)); /* espacio bottom nav */
 }
+
 .card{
   width:100%;
   max-width:520px;

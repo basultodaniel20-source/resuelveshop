@@ -71,55 +71,66 @@ async function logout() {
 </script>
 
 <style scoped>
-.account-page {
-  min-height: calc(100vh - 140px);
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  background: #f5f6f8;
+.account-page{
+  min-height: 100dvh; /* iPhone OK */
+  background:#f5f6f8;
+
+  /* NO centrar vertical */
+  display:block;
+
+  padding: 12px 18px;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom)); /* espacio bottom nav */
 }
-.card {
-  width: 100%;
-  max-width: 420px;
-  background: white;
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+
+.card{
+  width:100%;
+  max-width:420px;
+  margin: 0 auto; /* centra horizontal */
+  background:white;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 10px 28px rgba(0,0,0,0.08);
 }
-.muted {
-  margin-top: 4px;
-  color: #6b7280;
-  font-size: 13px;
+
+.muted{
+  margin-top:4px;
+  color:#6b7280;
+  font-size:13px;
 }
-.menu {
-  margin-top: 14px;
-  display: grid;
-  gap: 12px;
+
+.menu{
+  margin-top:14px;
+  display:grid;
+  gap:12px;
 }
-.item {
-  text-decoration: none;
-  border: 1px solid #eee;
-  background: white;
-  padding: 14px;
-  border-radius: 14px;
-  font-weight: 900;
-  color: #111;
-  text-align: left;
-  cursor: pointer;
+
+.item{
+  text-decoration:none;
+  border:1px solid #eee;
+  background:white;
+  padding:14px;
+  border-radius:14px;
+  font-weight:900;
+  color:#111;
+  text-align:left;
+  cursor:pointer;
 }
+
 .item.admin{
-  border-color: #bfdbfe;
-  background: #eff6ff;
+  border-color:#bfdbfe;
+  background:#eff6ff;
 }
-.item.danger {
-  border-color: #fecaca;
-  background: #fff1f2;
-  color: #991b1b;
+
+.item.danger{
+  border-color:#fecaca;
+  background:#fff1f2;
+  color:#991b1b;
 }
+
 .hint{
-  margin-top: 12px;
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 800;
+  margin-top:12px;
+  font-size:12px;
+  color:#6b7280;
+  font-weight:800;
 }
 </style>
