@@ -57,9 +57,23 @@ defineProps({
 const route = useRoute()
 
 function isActive(path) {
-  if (path === "/") return route.path === "/"
-  return route.path.startsWith(path)
+  const p = route.path
+
+  // Inicio exacto
+  if (path === "/") return p === "/"
+
+  // Pedidos (account/orders) -> todo lo que cuelgue de aquí
+  if (path === "/account/orders") return p.startsWith("/account/orders")
+
+  // Perfil (/account) -> /account y sus subrutas, PERO excluye /account/orders
+  if (path === "/account") {
+    return p === "/account" || (p.startsWith("/account/") && !p.startsWith("/account/orders"))
+  }
+
+  // Resto normal
+  return p.startsWith(path)
 }
+
 </script>
 
 <style scoped>
