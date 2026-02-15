@@ -1,7 +1,9 @@
 <template>
   <div class="app">
     <!-- HEADER ÚNICO -->
-    <Header :total="totalItems" @buscar="texto = $event" />
+    <div id="app-header">
+      <Header :total="totalItems" @buscar="texto = $event" />
+    </div>
 
     <!-- PÁGINAS -->
     <main class="content">
@@ -41,18 +43,6 @@ function cargarCarrito() {
   carrito.value = JSON.parse(localStorage.getItem("carrito")) || []
 }
 
-// ✅ Cargar al iniciar
-cargarCarrito()
-
-// ✅ Escuchar cambios externos (pago / repetir compra / etc.)
-onMounted(() => {
-  window.addEventListener("carrito-actualizado", cargarCarrito)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener("carrito-actualizado", cargarCarrito)
-})
-
 // ✅ Mantener localStorage sincronizado
 watch(
   carrito,
@@ -67,14 +57,8 @@ const categorias = ["Todos", ...new Set(productos.value.map((p) => p.categoria))
 function agregarAlCarrito(producto) {
   const item = carrito.value.find((p) => p.id === producto.id)
 
-  if (item) {
-    item.cantidad += producto.cantidad
-  } else {
-    carrito.value.push({
-      ...producto,
-      cantidad: producto.cantidad || 1,
-    })
-  }
+  if (item) item.cantidad += producto.cantidad
+  else carrito.value.push({ ...producto, cantidad: producto.cantidad || 1 })
 }
 
 function eliminar(i) {
@@ -84,15 +68,50 @@ function eliminar(i) {
 const totalItems = computed(() =>
   carrito.value.reduce((t, i) => t + i.cantidad, 0)
 )
+
+/* ✅ Header height auto */
+function updateHeaderHeight() {
+  const el = document.getElementById("app-header")
+  if (!el) return
+
+  const h = Math.round(el.getBoundingClientRect().height || 0)
+  document.documentElement.style.setProperty("--header-h", `${h}px`)
+}
+
+let ro = null
+
+onMounted(() => {
+  // carrito
+  cargarCarrito()
+  window.addEventListener("carrito-actualizado", cargarCarrito)
+
+  // header
+  updateHeaderHeight()
+  requestAnimationFrame(updateHeaderHeight)
+  setTimeout(updateHeaderHeight, 200)
+  window.addEventListener("resize", updateHeaderHeight, { passive: true })
+
+  const el = document.getElementById("app-header")
+  if (el && window.ResizeObserver) {
+    ro = new ResizeObserver(() => updateHeaderHeight())
+    ro.observe(el)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("carrito-actualizado", cargarCarrito)
+  window.removeEventListener("resize", updateHeaderHeight)
+  if (ro) ro.disconnect()
+})
 </script>
 
 <style>
 :root{
-  --bottom-nav-h: 76px;  /* altura real del menú inferior */
-  --header-h: 120px;     /* altura aproximada del header */
+  --header-h: 120px;     /* fallback */
+  --bottom-nav-h: 76px;  /* pon 64px si tu bottom nav mide 64px */
 }
 
-.app {
+.app{
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
@@ -101,8 +120,7 @@ const totalItems = computed(() =>
   box-sizing: border-box;
 }
 
-.content {
+.content{
   padding-bottom: 0;
 }
-
 </style>

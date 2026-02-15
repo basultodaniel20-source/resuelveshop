@@ -160,7 +160,7 @@ onMounted(() => {
   display:block;
 
   padding: 18px;
-  padding-top: 18px;
+  padding-top: calc(var(--header-h) + 10px);
 
   /* móvil: espacio para bottom nav */
   padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));

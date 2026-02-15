@@ -76,7 +76,7 @@ async function logout() {
   background:#f5f6f8;
 
   padding: 12px 18px;
-  padding-top: calc(var(--header-h) - 40px);
+  padding-top: calc(var(--header-h) + 10px);
   padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
 }
 
