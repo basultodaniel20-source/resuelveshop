@@ -91,10 +91,16 @@ const totalItems = computed(() =>
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 12px 110px; /* 👈 padding abajo para el menú */
+  padding: 8px 12px calc(76px + env(safe-area-inset-bottom)); /* 👈 ajusta al menú */
   background: #f5f6f8;
   box-sizing: border-box;
 }
+
+/* ✅ ya no hace falta duplicar */
+.content {
+  padding-bottom: 0;
+}
+
 
 /* para que el contenido no quede tapado por el menú inferior */
 .content {

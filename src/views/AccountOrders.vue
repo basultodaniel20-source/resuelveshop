@@ -144,12 +144,15 @@ onMounted(() => {
 
 <style scoped>
 .page{
-  min-height: calc(100vh - 140px);
-  display:grid;
-  place-items:center;
-  padding:18px;
+  min-height: 100dvh;                 /* iPhone friendly */
+  display: block;                     /* NO centrar */
+  padding: 12px 18px;                 /* menos aire */
   background:#f5f6f8;
+
+  /* deja espacio real para la bottom bar */
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
 }
+
 .card{
   width:100%;
   max-width:680px;
