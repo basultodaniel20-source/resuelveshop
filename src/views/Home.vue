@@ -6,74 +6,70 @@
         <div class="heroLeft">
           <h1>Envía combos a tu familia en Cuba</h1>
           <p>Compra fácil · Entrega rápida · Seguimiento desde tu cuenta</p>
-
-          <div class="heroActions">
-            <router-link class="btn primary" to="/catalogo">Ver catálogo</router-link>
-            <a class="btn ghost" href="#como-funciona">Cómo funciona</a>
-          </div>
-
-          <div class="heroBadges">
-            <span class="badge">🚚 3–10 días</span>
-            <span class="badge">💬 Soporte rápido</span>
-            <span class="badge">🔒 Compra segura</span>
-          </div>
-        </div>
-
-        <div class="heroRight">
-          <div class="miniPanel">
-            <div class="mpTitle">Compra en 1 minuto</div>
-            <div class="mpText">Elige un combo, paga online y lo entregamos en Cuba.</div>
-            <div class="mpSteps">
-              <div class="step">1) Elige</div>
-              <div class="step">2) Paga</div>
-              <div class="step">3) Entregamos</div>
-            </div>
-          </div>
-
-          <div class="miniPanel soft">
-            <div class="mpTitle">¿Necesitas ayuda?</div>
-            <div class="mpText">Atención rápida por WhatsApp.</div>
-            <a class="btn mini" :href="whatsLink" target="_blank" rel="noreferrer">
-              Abrir WhatsApp
-            </a>
-          </div>
         </div>
       </div>
     </section>
 
+    <!-- NAV STICKY (SE QUEDA ARRIBA + TAB ACTIVA) -->
+    <div class="stickyNavTop">
+      <div class="tabsTop">
+        <a class="tabBtn" :class="{ active: activeTab==='categorias' }" href="#categorias">Categorías 📁💡</a>
+        <a class="tabBtn" :class="{ active: activeTab==='mas-vendidos' }" href="#mas-vendidos">Más Vendidos 🥇💸</a>
+        <a class="tabBtn" :class="{ active: activeTab==='novedades' }" href="#novedades">Novedades ✨🔝</a>
+        <a class="tabBtn" :class="{ active: activeTab==='ofertas-destacadas' }" href="#ofertas-destacadas">Ofertas Destacadas ⚡💰</a>
+        <a class="tabBtn" :class="{ active: activeTab==='como-funciona' }" href="#como-funciona">Cómo funciona ⚙️📝</a>
+        <a class="tabBtn" :class="{ active: activeTab==='opiniones' }" href="#opiniones">Opiniones 🗣️💬</a>
+        <a class="tabBtn" :class="{ active: activeTab==='listo-para-enviar' }" href="#listo-para-enviar">Listo para enviar 📦➡️🚚</a>
+      </div>
+    </div>
+    
     <!-- 2) CATEGORÍAS -->
-    <section class="section">
-      <div class="sectionHead">
+<section class="section" id="categorias">
+  <div class="sectionBanner bannerCats">
+    <div class="bannerOverlay"></div>
+
+    <div class="bannerContent">
+      <div class="bannerLeft">
         <h2>Categorías</h2>
-        <router-link class="link" to="/catalogo">Ver todo</router-link>
+        <p>Explora rápido y encuentra el combo ideal</p>
+
+        <div class="bannerActions">
+          <router-link class="btn primary" to="/catalogo">Ver todo</router-link>
+        </div>
       </div>
 
-      <div class="cats">
-        <router-link class="cat" to="/catalogo">
-          <div class="catIco">🛍️</div>
-          <div class="catTxt">
-            <div class="catTitle">Todos</div>
-            <div class="catSub">Explorar catálogo</div>
-          </div>
-        </router-link>
-
-        <router-link
-          v-for="cat in categoriasTop"
-          :key="cat"
-          class="cat"
-          :to="`/catalogo/${cat}`"
-        >
-          <div class="catIco">{{ iconForCat(cat) }}</div>
-          <div class="catTxt">
-            <div class="catTitle">{{ cat }}</div>
-            <div class="catSub">Ver productos</div>
-          </div>
-        </router-link>
+      <div class="bannerRight">
+        <div class="miniFloat">🗂️ Explorar</div>
       </div>
-    </section>
+    </div>
+  </div>
+
+  <div class="cats">
+    <router-link class="cat" to="/catalogo">
+      <div class="catIco">🛍️</div>
+      <div class="catTxt">
+        <div class="catTitle">Todos</div>
+        <div class="catSub">Explorar catálogo</div>
+      </div>
+    </router-link>
+
+    <router-link
+      v-for="cat in categoriasTop"
+      :key="cat"
+      class="cat"
+      :to="`/catalogo/${cat}`"
+    >
+      <div class="catIco">{{ iconForCat(cat) }}</div>
+      <div class="catTxt">
+        <div class="catTitle">{{ cat }}</div>
+        <div class="catSub">Ver productos</div>
+      </div>
+    </router-link>
+  </div>
+</section>
 
     <!-- 3) MÁS VENDIDOS -->
-    <section class="section" v-if="bestSellers.length">
+    <section class="section" id="mas-vendidos" v-if="bestSellers.length">
       <div class="sectionBanner bannerBest">
         <div class="bannerOverlay"></div>
 
@@ -104,7 +100,7 @@
     </section>
 
     <!-- 3.1) NOVEDADES -->
-    <section class="section" v-if="novedades.length">
+    <section class="section" id="novedades" v-if="novedades.length">
       <div class="sectionBanner bannerNew">
         <div class="bannerOverlay"></div>
 
@@ -134,8 +130,8 @@
       </section>
     </section>
 
-    <!-- 4) OFERTA DESTACADA (BANNER + CAJAS COOL) -->
-    <section class="section">
+    <!-- 4) OFERTA DESTACADA -->
+    <section class="section" id="ofertas-destacadas">
       <div class="sectionBanner bannerPromo">
         <div class="bannerOverlay"></div>
 
@@ -216,7 +212,7 @@
     </section>
 
     <!-- 6) OPINIONES -->
-    <section class="section">
+    <section class="section" id="opiniones">
       <div class="sectionBanner bannerReviews">
         <div class="bannerOverlay"></div>
 
@@ -283,7 +279,7 @@
     </section>
 
     <!-- 8) CTA FINAL -->
-    <section class="section">
+    <section class="section" id="listo-para-enviar">
       <div class="sectionBanner bannerCta">
         <div class="bannerOverlay"></div>
 
@@ -308,7 +304,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import ProductoCard from "../components/ProductoCard.vue"
 
 defineEmits(["agregar"])
@@ -356,10 +352,106 @@ const promoTitle = computed(() => {
   const first = (props.productos || [])[0]
   return first?.nombre ? `Prueba: ${first.nombre}` : "Combos listos para entregar"
 })
+
+/* ===== NAV STICKY ACTIVO ===== */
+const activeTab = ref("categorias")
+const sectionIds = [
+  "categorias",
+  "mas-vendidos",
+  "novedades",
+  "ofertas-destacadas",
+  "como-funciona",
+  "opiniones",
+  "listo-para-enviar",
+]
+
+let observer
+let onHashChange
+
+onMounted(() => {
+  const els = sectionIds.map((id) => document.getElementById(id)).filter(Boolean)
+
+  // si entra con hash
+  if (window.location.hash) {
+    const id = window.location.hash.replace("#", "")
+    if (sectionIds.includes(id)) activeTab.value = id
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+      if (visible?.target?.id) activeTab.value = visible.target.id
+    },
+    {
+      threshold: [0.25, 0.4, 0.55],
+      // Ajusta si cambias la altura del sticky
+      rootMargin: "-90px 0px -60% 0px",
+    }
+  )
+
+  els.forEach((el) => observer.observe(el))
+
+  onHashChange = () => {
+    const id = window.location.hash.replace("#", "")
+    if (sectionIds.includes(id)) activeTab.value = id
+  }
+  window.addEventListener("hashchange", onHashChange)
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+  if (onHashChange) window.removeEventListener("hashchange", onHashChange)
+})
 </script>
 
 <style scoped>
 .home{ padding: 8px 2px 22px; }
+
+:global(html){ scroll-behavior: smooth; }
+/* altura aprox del sticky, para que no tape el título al saltar */
+:root{ --stickyH: 82px; }
+.section[id]{ scroll-margin-top: calc(var(--stickyH) + 14px); }
+
+/* ===== STICKY NAV TOP ===== */
+.stickyNavTop{
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: rgba(246,247,249,0.78);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 10px 2px;
+  margin: 6px 0 12px;
+}
+.tabsTop{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.88);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.04);
+}
+.tabBtn{
+  text-decoration:none;
+  font-weight: 1000;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(245,246,248,0.85);
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.tabBtn:hover{ transform: translateY(-1px); }
+.tabBtn.active{
+  background: rgba(40,167,69,0.14);
+  border-color: rgba(40,167,69,0.28);
+  color: #14532d;
+}
 
 /* ---------- HERO ---------- */
 .hero{ margin: 10px 0 14px; }
@@ -379,34 +471,6 @@ const promoTitle = computed(() => {
 .heroLeft h1{ margin: 10px 0 0; font-size: 28px; line-height: 1.1; font-weight: 1000; letter-spacing: -0.2px; }
 .heroLeft p{ margin: 10px 0 0; color: #6b7280; font-weight: 900; font-size: 13px; }
 .heroActions{ margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
-.heroBadges{ margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-.badge{
-  display: inline-flex; align-items: center;
-  padding: 7px 10px; border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.75);
-  font-weight: 900; font-size: 12px;
-}
-.heroRight{ display: grid; gap: 10px; }
-.miniPanel{
-  border-radius: 18px;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.85);
-  padding: 12px;
-}
-.miniPanel.soft{ background: rgba(245,246,248,0.85); }
-.mpTitle{ font-weight: 1000; font-size: 13px; }
-.mpText{ margin-top: 6px; color:#6b7280; font-weight: 900; font-size: 12px; line-height: 1.35; }
-.mpSteps{ margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.step{
-  border-radius: 14px;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.85);
-  padding: 10px;
-  font-weight: 1000;
-  font-size: 12px;
-  text-align: center;
-}
 
 /* ---------- GENERALES ---------- */
 .section{ margin-top: 16px; }
@@ -418,14 +482,41 @@ const promoTitle = computed(() => {
   text-decoration:none; font-weight: 1000;
   border: 1px solid transparent; cursor: pointer;
 }
-.btn.primary{ background:#28a745; color: white; }
+.btn.primary{ 
+  background:white;
+  color: #111; 
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 10px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+ .btn.primary:hover{
+ background: #45b748;
+ transform: translateY(-1px); 
+}
+
+.btn.primary:active{
+transform:transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
 .btn.ghost{ background: white; border-color: #eee; color: #111; }
 .btn.mini{ padding: 10px 12px; border-radius: 12px; background:#28a745; color:#fff; }
 
 .link{ text-decoration: none; font-weight: 1000; color: #28a745; font-size: 12px; }
-.muted{ color:#6b7280; font-weight: 900; font-size: 12px; }
 
 /* ---------- CATEGORÍAS ---------- */
+.sectionHead{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.sectionHead h2{ margin: 0; font-size: 16px; font-weight: 1000; }
+
 .cats{ display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .cat{
   text-decoration:none; color:#111;
@@ -471,6 +562,8 @@ const promoTitle = computed(() => {
 .bannerHow{ background-image: url("/img/banners/funcion1.png"); }
 .bannerReviews{ background-image: url("/img/banners/opiniones1.png"); }
 .bannerCta{ background-image: url("/img/banners/envio1.png"); }
+.bannerCats{ background-image: url("/img/banners/categorias1.png"); }
+
 
 .bannerOverlay{
   position: absolute;
@@ -494,7 +587,6 @@ const promoTitle = computed(() => {
 }
 
 .bannerLeft{ max-width: 520px; }
-
 .bannerLeft h2{
   margin: 0;
   color: #fff;
@@ -502,14 +594,12 @@ const promoTitle = computed(() => {
   font-size: 26px;
   line-height: 1.05;
 }
-
 .bannerLeft p{
   margin-top: 10px;
   color: rgba(255,255,255,0.9);
   font-weight: 900;
   font-size: 13px;
 }
-
 .bannerActions{ margin-top: 12px; display:flex; gap:10px; flex-wrap:wrap; }
 .bannerRight{ display:flex; justify-content:flex-end; }
 
@@ -631,5 +721,8 @@ const promoTitle = computed(() => {
   .reviews{ grid-template-columns: 1fr; }
   .trustGrid{ grid-template-columns: 1fr; }
   .promoCool{ grid-template-columns: 1fr; }
+
+  :root{ --stickyH: 120px; } /* en móvil el sticky ocupa más filas */
+  .tabsTop{ justify-content: flex-start; }
 }
 </style>
