@@ -214,3 +214,147 @@ const total = computed(() => {
   transform: translateX(20px);
 }
 </style>
+<style scoped>
+.carrito {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+/* RESUMEN */
+
+/* ITEM */
+.item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 16px;
+  align-items: center;
+
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+/* IMAGEN */
+.thumb {
+  width: 90px;
+  height: 90px;
+  background: #fafafa;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* INFO */
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.detalle {
+  font-size: 14px;
+  color: #555;
+}
+
+/* ACCIONES */
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acciones button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: #e0e0e0;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.15s ease;
+}
+
+/* efecto hover */
+.acciones button:hover {
+  background: #cfcfcf;
+  transform: scale(1.1);
+}
+
+/* efecto presionado */
+.acciones button:active {
+  transform: scale(1.1);
+}
+
+.eliminar {
+  background: #dc3545 !important;
+  color: white;
+  border: none !important;
+}
+
+.cantidad {
+  min-width: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* TOTAL */
+.total {
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+/* BOTÓN WHATSAPP */
+.whatsapp-flotante {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transition: all 0.15s ease;
+}
+
+/* ✅ SOLO MÓVIL: subirlo por encima del menú inferior */
+@media (max-width: 900px) {
+  .whatsapp-flotante {
+    bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom) + 12px);
+  }
+}
+
+/* efecto hover */
+.whatsapp-flotante:hover {
+  background: #218838;
+  transform: scale(1.01);
+}
+
+/* efecto presionado */
+.whatsapp-flotante:active {
+  transform: scale(0.95);
+}
+
+/* ANIMACIÓN */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+</style>
