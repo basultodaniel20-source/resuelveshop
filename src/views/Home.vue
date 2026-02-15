@@ -72,7 +72,7 @@
       </div>
     </section>
 
-    <!-- 3) MÁS VENDIDOS (BANNER) -->
+    <!-- 3) MÁS VENDIDOS -->
     <section class="section" v-if="bestSellers.length">
       <div class="sectionBanner bannerBest">
         <div class="bannerOverlay"></div>
@@ -103,18 +103,25 @@
       </section>
     </section>
 
-    <!-- 3.1) NOVEDADES (SIN BANNER, PERO HEAD COOL) -->
+    <!-- 3.1) NOVEDADES -->
     <section class="section" v-if="novedades.length">
-      <div class="sectionHeadCool">
-        <div class="shLeft">
-          <div class="shKicker">✨</div>
-          <div>
+      <div class="sectionBanner bannerNew">
+        <div class="bannerOverlay"></div>
+
+        <div class="bannerContent">
+          <div class="bannerLeft">
             <h2>Novedades</h2>
-            <div class="shSub">Lo último que añadimos</div>
+            <p>Lo último que añadimos a ResuelveShop</p>
+
+            <div class="bannerActions">
+              <router-link class="btn primary" to="/catalogo">Ver catálogo</router-link>
+            </div>
+          </div>
+
+          <div class="bannerRight">
+            <div class="miniFloat">✨ Nuevo</div>
           </div>
         </div>
-
-        <router-link class="shLink" to="/catalogo">Ver catálogo</router-link>
       </div>
 
       <section class="grid">
@@ -165,11 +172,26 @@
       </div>
     </section>
 
-    <!-- 5) CÓMO FUNCIONA (NORMAL) -->
+    <!-- 5) CÓMO FUNCIONA -->
     <section class="section" id="como-funciona">
-      <div class="sectionHead">
-        <h2>Cómo funciona</h2>
-        <span class="muted">Simple, rápido y claro</span>
+      <div class="sectionBanner bannerHow">
+        <div class="bannerOverlay"></div>
+
+        <div class="bannerContent">
+          <div class="bannerLeft">
+            <h2>Cómo funciona</h2>
+            <p>Simple, rápido y claro</p>
+
+            <div class="bannerActions">
+              <router-link class="btn primary" to="/catalogo">Empezar</router-link>
+              <a class="btn ghost" :href="whatsLink" target="_blank" rel="noreferrer">Ayuda</a>
+            </div>
+          </div>
+
+          <div class="bannerRight">
+            <div class="miniFloat">⚡ 1 minuto</div>
+          </div>
+        </div>
       </div>
 
       <div class="how howCool">
@@ -193,18 +215,21 @@
       </div>
     </section>
 
-    <!-- 6) OPINIONES (SIN BANNER, PERO HEAD COOL) -->
+    <!-- 6) OPINIONES -->
     <section class="section">
-      <div class="sectionHeadCool">
-        <div class="shLeft">
-          <div class="shKicker">⭐</div>
-          <div>
+      <div class="sectionBanner bannerReviews">
+        <div class="bannerOverlay"></div>
+
+        <div class="bannerContent">
+          <div class="bannerLeft">
             <h2>Opiniones</h2>
-            <div class="shSub">Lo que dicen nuestros clientes</div>
+            <p>Lo que dicen nuestros clientes</p>
+          </div>
+
+          <div class="bannerRight">
+            <div class="miniFloat">⭐ 5/5</div>
           </div>
         </div>
-
-        <span class="shPill">5.0 • Clientes felices</span>
       </div>
 
       <div class="reviews reviewsCool">
@@ -257,7 +282,7 @@
       </div>
     </section>
 
-    <!-- 8) CTA FINAL (BANNER) -->
+    <!-- 8) CTA FINAL -->
     <section class="section">
       <div class="sectionBanner bannerCta">
         <div class="bannerOverlay"></div>
@@ -385,59 +410,6 @@ const promoTitle = computed(() => {
 
 /* ---------- GENERALES ---------- */
 .section{ margin-top: 16px; }
-.sectionHead{
-  display:flex; align-items:baseline; justify-content:space-between;
-  gap: 10px; margin-bottom: 10px;
-}
-.sectionHead h2{ margin: 0; font-size: 16px; font-weight: 1000; }
-.muted{ color:#6b7280; font-weight: 900; font-size: 12px; }
-.link{ text-decoration: none; font-weight: 1000; color: #28a745; font-size: 12px; }
-
-/* ---------- SECTION HEAD COOL (NOVEDADES + OPINIONES) ---------- */
-.sectionHeadCool{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.06);
-  background:
-    radial-gradient(700px 200px at 10% 0%, rgba(40,167,69,0.14), transparent 60%),
-    #ffffff;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.04);
-  margin-bottom: 12px;
-}
-.shLeft{ display:flex; align-items:center; gap: 10px; }
-.shKicker{
-  width: 38px; height: 38px;
-  border-radius: 14px;
-  display:grid; place-items:center;
-  background: rgba(40,167,69,0.12);
-  border: 1px solid rgba(40,167,69,0.20);
-  font-size: 18px;
-}
-.sectionHeadCool h2{ margin: 0; font-size: 16px; font-weight: 1000; }
-.shSub{ margin-top: 2px; color:#6b7280; font-weight: 900; font-size: 12px; }
-.shLink{
-  text-decoration:none;
-  font-weight: 1000;
-  font-size: 12px;
-  color: #28a745;
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(40,167,69,0.22);
-  background: rgba(40,167,69,0.08);
-}
-.shPill{
-  font-weight: 1000;
-  font-size: 12px;
-  color: #111;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.9);
-}
 
 /* ---------- BOTONES ---------- */
 .btn{
@@ -449,6 +421,9 @@ const promoTitle = computed(() => {
 .btn.primary{ background:#28a745; color: white; }
 .btn.ghost{ background: white; border-color: #eee; color: #111; }
 .btn.mini{ padding: 10px 12px; border-radius: 12px; background:#28a745; color:#fff; }
+
+.link{ text-decoration: none; font-weight: 1000; color: #28a745; font-size: 12px; }
+.muted{ color:#6b7280; font-weight: 900; font-size: 12px; }
 
 /* ---------- CATEGORÍAS ---------- */
 .cats{ display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
@@ -476,7 +451,7 @@ const promoTitle = computed(() => {
   gap: 16px;
 }
 
-/* ---------- BANNERS (3) ---------- */
+/* ---------- BANNERS ---------- */
 .sectionBanner{
   position: relative;
   border-radius: 20px;
@@ -489,8 +464,12 @@ const promoTitle = computed(() => {
   background-position: center;
   background-repeat: no-repeat;
 }
+
 .bannerBest{ background-image: url("/img/banners/masVendido1.png"); }
+.bannerNew{ background-image: url("/img/banners/novedades1.png"); }
 .bannerPromo{ background-image: url("/img/banners/oferta1.png"); }
+.bannerHow{ background-image: url("/img/banners/funcion1.png"); }
+.bannerReviews{ background-image: url("/img/banners/opiniones1.png"); }
 .bannerCta{ background-image: url("/img/banners/envio1.png"); }
 
 .bannerOverlay{
@@ -503,6 +482,7 @@ const promoTitle = computed(() => {
     rgba(0,0,0,0.08)
   );
 }
+
 .bannerContent{
   position: relative;
   z-index: 1;
@@ -512,7 +492,9 @@ const promoTitle = computed(() => {
   gap: 14px;
   align-items: center;
 }
+
 .bannerLeft{ max-width: 520px; }
+
 .bannerLeft h2{
   margin: 0;
   color: #fff;
@@ -520,14 +502,17 @@ const promoTitle = computed(() => {
   font-size: 26px;
   line-height: 1.05;
 }
+
 .bannerLeft p{
   margin-top: 10px;
   color: rgba(255,255,255,0.9);
   font-weight: 900;
   font-size: 13px;
 }
+
 .bannerActions{ margin-top: 12px; display:flex; gap:10px; flex-wrap:wrap; }
 .bannerRight{ display:flex; justify-content:flex-end; }
+
 .miniFloat{
   background: rgba(255,255,255,0.92);
   border: 1px solid rgba(255,255,255,0.45);
@@ -646,8 +631,5 @@ const promoTitle = computed(() => {
   .reviews{ grid-template-columns: 1fr; }
   .trustGrid{ grid-template-columns: 1fr; }
   .promoCool{ grid-template-columns: 1fr; }
-
-  .sectionHeadCool{ padding: 10px 12px; }
-  .shLink{ display:none; }
 }
 </style>
