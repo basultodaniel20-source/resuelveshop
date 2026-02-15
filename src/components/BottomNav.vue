@@ -57,7 +57,6 @@ defineProps({
 const route = useRoute()
 
 function isActive(path) {
-  // ✅ Para que funcione en subrutas tipo /account/orders/ID
   if (path === "/") return route.path === "/"
   return route.path.startsWith(path)
 }
@@ -66,18 +65,24 @@ function isActive(path) {
 <style scoped>
 .bottom-nav{
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
-  height: 90px;
-  background: white;
+  bottom: 0;
+
+  /* ✅ Más compacta */
+  height: 64px;
+
+  /* ✅ Respeta el “home indicator” del iPhone sin agrandar demasiado */
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+
+  background: #fff;
   border-top: 1px solid #eee;
+
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
-  z-index: 9999;
-  padding: 10px 10px;
 
+  z-index: 9999;
   box-shadow: 0 -10px 25px rgba(0,0,0,0.08);
 }
 
@@ -88,13 +93,14 @@ function isActive(path) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
-  font-size: 13px;
-  gap: 5px;
+
+  font-weight: 800;
+  font-size: 12px;
+  gap: 2px;
 }
 
 .item .icon{
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1;
 }
 
@@ -104,44 +110,55 @@ function isActive(path) {
 
 /* BOTÓN CENTRAL */
 .center{
-  transform: translateY(-28px);
+  /* ✅ Menos “salto” hacia arriba */
+  transform: translateY(-18px);
 }
 
 .center .circle{
-  width: 72px;
-  height: 72px;
+  /* ✅ Botón central más pequeño */
+  width: 56px;
+  height: 56px;
+
   background: #28a745;
-  color: white;
+  color: #fff;
   border-radius: 50%;
+
   display: grid;
   place-items: center;
-  font-size: 30px;
-  box-shadow: 0 14px 30px rgba(0,0,0,0.20);
-  border: 6px solid white;
+  font-size: 24px;
+
+  box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+
+  /* ✅ Borde más fino */
+  border: 4px solid #fff;
   position: relative;
 }
 
 .center .txt{
-  margin-top: 5px;
-  font-size: 13px;
-  font-weight: 1000;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .badge{
   position: absolute;
   top: -6px;
   right: -6px;
-  min-width: 26px;
-  height: 26px;
-  padding: 0 7px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+
   border-radius: 999px;
   background: #111;
-  color: white;
-  font-size: 13px;
-  font-weight: 1000;
+  color: #fff;
+
+  font-size: 12px;
+  font-weight: 900;
+
   display: grid;
   place-items: center;
-  border: 3px solid white;
+
+  border: 3px solid #fff;
 }
 
 /* SOLO PC */
