@@ -72,18 +72,16 @@ async function logout() {
 
 <style scoped>
 .account-page{
-  min-height: 100dvh;
   background:#f5f6f8;
   display:block;
 
-  /* ✅ pegado arriba */
-  padding: 18px;
-  padding-top: 0px;
+  /* ✅ arriba */
+  padding: 18px 18px 18px;
+  padding-top: 0;
 
-  /* espacio para bottom nav */
- 
+  /* ✅ quita el min-height para evitar scroll fantasma en móvil */
+  min-height: auto;
 }
-
 
 .card{
   width:100%;
@@ -137,11 +135,11 @@ async function logout() {
   font-weight:800;
 }
 
-/* PC */
+/* ✅ PC: que no quede pegado arriba */
 @media (min-width: 900px){
   .account-page{
-    padding-top: calc(var(--header-h) - 20px);
-    padding-bottom: 20px;
+    padding-top: 18px;
   }
 }
+
 </style>

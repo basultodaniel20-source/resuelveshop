@@ -153,25 +153,23 @@ onMounted(() => {
 
 <style scoped>
 .page{
-  min-height: 100dvh;
   background:#f5f6f8;
   display:block;
 
   padding: 18px;
   padding-top: 0;
 
-  /* ✅ SUBE la tarjeta pegándola al buscador (el hueco viene del Header) */
- 
+  /* ✅ evita scroll vacío */
+  min-height: auto;
 }
 
-/* PC: sin trucos, normal */
+/* PC */
 @media (min-width: 900px){
   .page{
-    margin-top: 0;
     padding-top: 18px;
-    padding-bottom: 24px;
   }
 }
+
 
 .card{
   width:100%;

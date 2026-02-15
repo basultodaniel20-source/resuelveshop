@@ -114,16 +114,22 @@ async function guardar() {
 
 <style scoped>
 .page{
-  min-height: 100dvh;
   background:#f5f6f8;
   display:block;
 
-  /* ✅ pegado arriba */
   padding: 18px;
-  padding-top: 0px;
+  padding-top: 0;
 
-  /* espacio para bottom nav */
+  /* ✅ evita scroll vacío */
+  min-height: auto;
+}
 
+/* PC */
+@media (min-width: 900px){
+  .page{
+    padding-top: 18px;
+    padding-bottom: 0;
+  }
 }
 
 .card{
