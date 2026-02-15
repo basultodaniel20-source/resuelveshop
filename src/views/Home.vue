@@ -120,7 +120,6 @@
 
           <div class="promoActions">
             <router-link class="btn primary" to="/catalogo">Ver ofertas</router-link>
-            <router-link class="btn ghost" to="/carrito">Ir al carrito</router-link>
           </div>
         </div>
 
@@ -180,19 +179,19 @@
 
       <div class="reviews">
         <div class="review">
-          <div class="stars">★★★★★</div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
           <div class="rText">“Llegó rápido y todo perfecto. Repetiré seguro.”</div>
           <div class="rWho">— Cliente verificado</div>
         </div>
 
         <div class="review">
-          <div class="stars">★★★★★</div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
           <div class="rText">“Muy fácil comprar y el soporte responde rápido.”</div>
           <div class="rWho">— Cliente verificado</div>
         </div>
 
         <div class="review">
-          <div class="stars">★★★★★</div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
           <div class="rText">“Buen servicio y seguimiento desde la cuenta.”</div>
           <div class="rWho">— Cliente verificado</div>
         </div>
