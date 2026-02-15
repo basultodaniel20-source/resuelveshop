@@ -253,7 +253,7 @@ const props = defineProps({
 })
 
 /** WhatsApp */
-const whatsPhone = "34643170184"
+const whatsPhone = "34624569359"
 
 const whatsLink = computed(() =>
   `https://wa.me/${whatsPhone}?text=${encodeURIComponent(
