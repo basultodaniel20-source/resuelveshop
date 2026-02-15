@@ -157,18 +157,20 @@ onMounted(() => {
   background:#f5f6f8;
   display:block;
 
-  /* ✅ pegado arriba */
   padding: 18px;
-  padding-top: 0px;
+  padding-top: 0;
 
-  /* espacio para bottom nav */
+  /* ✅ SUBE la tarjeta pegándola al buscador (el hueco viene del Header) */
+  margin-top: -70px;
+
   padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
 }
 
-
-/* PC: no hace falta tanto espacio abajo */
+/* PC: sin trucos, normal */
 @media (min-width: 900px){
   .page{
+    margin-top: 0;
+    padding-top: 18px;
     padding-bottom: 24px;
   }
 }
