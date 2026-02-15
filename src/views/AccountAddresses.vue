@@ -114,30 +114,31 @@ async function guardar() {
 
 <style scoped>
 .page{
-  min-height: 100dvh; /* iPhone OK */
+  min-height: 100dvh;
   background:#f5f6f8;
 
-  /* NO centrar vertical */
-  display:block;
-
   padding: 12px 18px;
-  padding-bottom: calc(76px + env(safe-area-inset-bottom)); /* espacio bottom nav */
+  padding-top: calc(var(--header-h) - 40px);
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
 }
 
 .card{
   width:100%;
   max-width:520px;
+  margin: 0 auto;
   background:white;
   border-radius:16px;
   padding:18px;
   box-shadow:0 10px 28px rgba(0,0,0,0.08);
 }
+
 .head{
   display:flex;
   gap:12px;
   align-items:flex-start;
   margin-bottom:12px;
 }
+
 .back{
   width:42px;
   height:42px;
@@ -149,11 +150,25 @@ async function guardar() {
   color:#111;
   font-weight:900;
 }
+
 h2{ margin:0; }
-.muted{ margin:4px 0 0 0; color:#6b7280; font-size:13px; }
+
+.muted{
+  margin:4px 0 0 0;
+  color:#6b7280;
+  font-size:13px;
+}
 
 .form{ margin-top:12px; display:grid; gap:12px; }
-.field label{ display:block; font-size:12px; font-weight:900; color:#374151; margin-bottom:6px; }
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#374151;
+  margin-bottom:6px;
+}
+
 .field input, .field textarea{
   width:100%;
   padding:12px;
@@ -162,7 +177,10 @@ h2{ margin:0; }
   outline:none;
   font-size:15px;
 }
-.field input:focus, .field textarea:focus{ border-color:#28a745; }
+
+.field input:focus, .field textarea:focus{
+  border-color:#28a745;
+}
 
 .btn{
   margin-top:6px;
@@ -179,15 +197,18 @@ h2{ margin:0; }
   justify-content:center;
   gap:10px;
 }
+
 .btn:disabled{ opacity:.75; cursor:not-allowed; }
 
 .spinner{
-  width:16px; height:16px;
+  width:16px;
+  height:16px;
   border-radius:50%;
   border:2px solid rgba(255,255,255,0.45);
   border-top-color:white;
   animation:spin .7s linear infinite;
 }
+
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
 .ok{
@@ -198,6 +219,7 @@ h2{ margin:0; }
   padding:10px 12px;
   border-radius:12px;
 }
+
 .err{
   color:#991b1b;
   font-weight:900;
@@ -206,4 +228,13 @@ h2{ margin:0; }
   padding:10px 12px;
   border-radius:12px;
 }
+
+/* PC */
+@media (min-width: 900px){
+  .page{
+    padding-top: calc(var(--header-h) - 20px);
+    padding-bottom: 20px;
+  }
+}
+
 </style>

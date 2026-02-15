@@ -87,34 +87,22 @@ const totalItems = computed(() =>
 </script>
 
 <style>
+:root{
+  --bottom-nav-h: 76px;  /* altura real del menú inferior */
+  --header-h: 120px;     /* altura aproximada del header */
+}
+
 .app {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 12px calc(76px + env(safe-area-inset-bottom)); /* 👈 ajusta al menú */
+  padding: 8px 12px calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
   background: #f5f6f8;
   box-sizing: border-box;
 }
 
-/* ✅ ya no hace falta duplicar */
 .content {
   padding-bottom: 0;
 }
 
-
-/* para que el contenido no quede tapado por el menú inferior */
-.content {
-  padding-bottom: 90px;
-}
-
-/* footer solo escritorio */
-.footer-desktop {
-  display: block;
-}
-
-@media (max-width: 900px) {
-  .footer-desktop {
-    display: none;
-  }
-}
 </style>

@@ -72,20 +72,18 @@ async function logout() {
 
 <style scoped>
 .account-page{
-  min-height: 100dvh; /* iPhone OK */
+  min-height: 100dvh;
   background:#f5f6f8;
 
-  /* NO centrar vertical */
-  display:block;
-
   padding: 12px 18px;
-  padding-bottom: calc(76px + env(safe-area-inset-bottom)); /* espacio bottom nav */
+  padding-top: calc(var(--header-h) - 40px);
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
 }
 
 .card{
   width:100%;
   max-width:420px;
-  margin: 0 auto; /* centra horizontal */
+  margin: 0 auto;
   background:white;
   border-radius:16px;
   padding:18px;
@@ -132,5 +130,13 @@ async function logout() {
   font-size:12px;
   color:#6b7280;
   font-weight:800;
+}
+
+/* PC */
+@media (min-width: 900px){
+  .account-page{
+    padding-top: calc(var(--header-h) - 20px);
+    padding-bottom: 20px;
+  }
 }
 </style>

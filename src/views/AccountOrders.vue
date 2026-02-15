@@ -34,7 +34,6 @@
       <!-- List -->
       <div v-else class="list">
         <div v-for="o in orders" :key="o.id" class="order">
-          <!-- 👉 Ahora todo el pedido es un link al detalle -->
           <router-link class="order-top" :to="`/account/orders/${o.id}`">
             <div class="left">
               <div class="oid">#{{ shortId(o.id) }}</div>
@@ -76,17 +75,19 @@ function shortId(id) {
 
 function statusLabel(s) {
   const v = (s || "").toLowerCase()
-  if (v === "Pagado") return "Pagado"
-  if (v === "Pendiente") return "Pendiente"
-  if (v === "Cancelado") return "Cancelado"
+  if (v === "pagado") return "Pagado"
+  if (v === "pendiente") return "Pendiente"
+  if (v === "cancelado") return "Cancelado"
+  if (v === "preparado") return "Preparado"
   return s || "Estado"
 }
 
 function statusClass(s) {
   const v = (s || "").toLowerCase()
-  if (v === "Pagado") return "ok"
-  if (v === "Pendiente") return "warn"
-  if (v === "Cancelado") return "bad"
+  if (v === "pagado") return "ok"
+  if (v === "pendiente") return "warn"
+  if (v === "cancelado") return "bad"
+  if (v === "preparado") return "info"
   return ""
 }
 
@@ -94,7 +95,11 @@ function formatDate(iso) {
   if (!iso) return "-"
   try {
     const d = new Date(iso)
-    return d.toLocaleString("es-ES", { year: "numeric", month: "short", day: "2-digit" })
+    return d.toLocaleString("es-ES", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    })
   } catch {
     return "-"
   }
@@ -103,7 +108,10 @@ function formatDate(iso) {
 function money(n, cur = "EUR") {
   const num = Number(n || 0)
   try {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: cur }).format(num)
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency",
+      currency: cur,
+    }).format(num)
   } catch {
     return `${num.toFixed(2)} ${cur}`
   }
@@ -115,6 +123,7 @@ async function cargar() {
 
   const { data: u } = await supabase.auth.getUser()
   const user = u.user
+
   if (!user) {
     router.push({ path: "/login", query: { redirect: "/account/orders" } })
     return
@@ -144,13 +153,24 @@ onMounted(() => {
 
 <style scoped>
 .page{
-  min-height: 100dvh;                 /* iPhone friendly */
-  display: block;                     /* NO centrar */
-  padding: 12px 18px;                 /* menos aire */
+  min-height: 100dvh;
   background:#f5f6f8;
 
-  /* deja espacio real para la bottom bar */
-  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  /* ✅ siempre arriba */
+  display:block;
+
+  padding: 18px;
+  padding-top: 18px;
+
+  /* móvil: espacio para bottom nav */
+  padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
+}
+
+/* PC: no hace falta tanto espacio abajo */
+@media (min-width: 900px){
+  .page{
+    padding-bottom: 24px;
+  }
 }
 
 .card{
@@ -160,13 +180,18 @@ onMounted(() => {
   border-radius:16px;
   padding:18px;
   box-shadow:0 10px 28px rgba(0,0,0,0.08);
+
+  /* ✅ centra horizontal */
+  margin: 0 auto;
 }
+
 .head{
   display:flex;
   gap:12px;
   align-items:flex-start;
   margin-bottom:12px;
 }
+
 .back{
   width:42px;
   height:42px;
@@ -178,8 +203,14 @@ onMounted(() => {
   color:#111;
   font-weight:900;
 }
+
 h2{ margin:0; }
-.muted{ margin:4px 0 0 0; color:#6b7280; font-size:13px; }
+
+.muted{
+  margin:4px 0 0 0;
+  color:#6b7280;
+  font-size:13px;
+}
 
 /* states */
 .state{
@@ -189,17 +220,33 @@ h2{ margin:0; }
   padding:18px;
   text-align:center;
 }
+
 .errBox{
   border-style: solid;
   border-color:#fecaca;
   background:#fff1f2;
 }
+
 .ico{ font-size:34px; }
-.t1{ font-weight:900; margin-top:6px; }
-.t2{ color:#6b7280; font-size:13px; margin-top:6px; }
+
+.t1{
+  font-weight:900;
+  margin-top:6px;
+}
+
+.t2{
+  color:#6b7280;
+  font-size:13px;
+  margin-top:6px;
+}
 
 /* list */
-.list{ margin-top:10px; display:grid; gap:12px; }
+.list{
+  margin-top:10px;
+  display:grid;
+  gap:12px;
+}
+
 .order{
   border:1px solid #eee;
   border-radius:16px;
@@ -218,16 +265,44 @@ h2{ margin:0; }
   color:#111;
   background:white;
 }
-.order-top:hover{ background:#fafafa; }
 
-.left{ display:flex; flex-direction:column; gap:6px; }
+.order-top:hover{
+  background:#fafafa;
+}
+
+.left{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
 .oid{ font-weight:900; }
-.meta{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-.date{ color:#6b7280; font-size:12px; font-weight:700; }
 
-.right{ display:flex; align-items:center; gap:10px; }
+.meta{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.date{
+  color:#6b7280;
+  font-size:12px;
+  font-weight:700;
+}
+
+.right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
 .total{ font-weight:900; }
-.chev{ opacity:.6; font-size:18px; }
+
+.chev{
+  opacity:.6;
+  font-size:18px;
+}
 
 /* status pill */
 .pill{
@@ -241,9 +316,30 @@ h2{ margin:0; }
   background:#f3f4f6;
   color:#111;
 }
-.pill.ok{ background:#ecfdf5; border-color:#bbf7d0; color:#166534; }
-.pill.warn{ background:#fffbeb; border-color:#fde68a; color:#92400e; }
-.pill.bad{ background:#fff1f2; border-color:#fecaca; color:#991b1b; }
+
+.pill.ok{
+  background:#ecfdf5;
+  border-color:#bbf7d0;
+  color:#166534;
+}
+
+.pill.warn{
+  background:#fffbeb;
+  border-color:#fde68a;
+  color:#92400e;
+}
+
+.pill.bad{
+  background:#fff1f2;
+  border-color:#fecaca;
+  color:#991b1b;
+}
+
+.pill.info{
+  background:#eff6ff;
+  border-color:#bfdbfe;
+  color:#1d4ed8;
+}
 
 .btn{
   display:inline-block;
