@@ -161,7 +161,7 @@ onMounted(() => {
   padding-top: 0;
 
   /* ✅ SUBE la tarjeta pegándola al buscador (el hueco viene del Header) */
-  margin-top: 8px;
+  margin-top: 6px;
 
   padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
 }
