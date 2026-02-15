@@ -74,11 +74,16 @@ async function logout() {
 .account-page{
   min-height: 100dvh;
   background:#f5f6f8;
+  display:block;
 
-  padding: 12px 18px;
-  padding-top: calc(var(--header-h) + 10px);
-  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  /* ✅ pegado arriba */
+  padding: 18px;
+  padding-top: 0px;
+
+  /* espacio para bottom nav */
+  padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
 }
+
 
 .card{
   width:100%;
