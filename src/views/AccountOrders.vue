@@ -155,16 +155,16 @@ onMounted(() => {
 .page{
   min-height: 100dvh;
   background:#f5f6f8;
-
-  /* ✅ siempre arriba */
   display:block;
 
+  /* ✅ pegado arriba */
   padding: 18px;
-  padding-top: calc(var(--header-h) + 10px);
+  padding-top: 0px;
 
-  /* móvil: espacio para bottom nav */
+  /* espacio para bottom nav */
   padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
 }
+
 
 /* PC: no hace falta tanto espacio abajo */
 @media (min-width: 900px){
