@@ -13,10 +13,20 @@ import AccountOrders from "../views/AccountOrders.vue"
 import { supabase } from "../supabase"
 import AccountOrderDetail from "../views/AccountOrderDetail.vue"
 import AdminOrders from "../views/AdminOrders.vue"
+import Catalogo from "../views/Catalogo.vue"
 
 const routes = [
   { path: "/", component: Home },
-  { path: "/categoria/:categoria", component: Home, props: true },
+
+  { path: "/catalogo/:categoria", component: Catalogo, props: true },
+  { path: "/catalogo", component: Catalogo, props: true },
+
+  // compatibilidad por si ya tienes links viejos:
+  {
+    path: "/categoria/:categoria",
+    redirect: (to) => `/catalogo/${to.params.categoria}`,
+  },
+
   { path: "/carrito", component: CarritoView },
 
   {
@@ -33,12 +43,23 @@ const routes = [
   { path: "/reset-password", component: ResetPassword },
 
   // ✅ Subrutas de "Mi cuenta" (primero)
-  { path: "/account/addresses", component: AccountAddresses, meta: { requiresAuth: true } },
-  { path: "/account/orders", component: AccountOrders, meta: { requiresAuth: true } },
-  
-   // Detalle de orden
-  { path: "/account/orders/:id", component: AccountOrderDetail, meta: { requiresAuth: true } },
+  {
+    path: "/account/addresses",
+    component: AccountAddresses,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/account/orders",
+    component: AccountOrders,
+    meta: { requiresAuth: true },
+  },
 
+  // Detalle de orden
+  {
+    path: "/account/orders/:id",
+    component: AccountOrderDetail,
+    meta: { requiresAuth: true },
+  },
 
   // ✅ Mi cuenta
   { path: "/account", component: Perfil, meta: { requiresAuth: true } },
@@ -50,8 +71,11 @@ const routes = [
   { path: "/pago", component: Pago, meta: { requiresAuth: true } },
 
   // ✅ Rutas de admin
-  { path: "/admin/orders", component: AdminOrders, meta: { requiresAuth: true, requiresAdmin: true } },
-
+  {
+    path: "/admin/orders",
+    component: AdminOrders,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
 ]
 
 const router = createRouter({
@@ -65,6 +89,7 @@ router.beforeEach(async (to) => {
 
   const { data } = await supabase.auth.getSession()
   const user = data.session?.user
+
   if (!user) return { path: "/login", query: { redirect: to.fullPath } }
 
   if (to.meta.requiresAdmin) {
@@ -79,6 +104,5 @@ router.beforeEach(async (to) => {
 
   return true
 })
-
 
 export default router

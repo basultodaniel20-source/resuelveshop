@@ -3,7 +3,7 @@
     <router-link
       v-for="cat in categorias"
       :key="cat"
-      :to="cat === 'Todos' ? '/' : `/categoria/${cat}`"
+      :to="cat === 'Todos' ? '/catalogo' : `/catalogo/${cat}`"
       class="btn"
       :class="{ activa: cat === categoriaActual }"
     >
@@ -17,10 +17,12 @@ import { computed } from "vue"
 import { useRoute } from "vue-router"
 
 defineProps({
-  categorias: Array
+  categorias: Array,
 })
+
 // obtener la ruta actual
 const route = useRoute()
+
 // categoría actual desde la ruta
 const categoriaActual = computed(() => {
   return route.params.categoria || "Todos"
@@ -28,7 +30,7 @@ const categoriaActual = computed(() => {
 </script>
 
 <style scoped>
-  /* CONTENEDOR DE CATEGORÍAS */
+/* CONTENEDOR DE CATEGORÍAS */
 .categorias {
   display: flex;
   gap: 12px;
@@ -36,10 +38,12 @@ const categoriaActual = computed(() => {
   flex-wrap: wrap;
   transition: all 0.15s ease;
 }
+
 /* efecto presionado */
 .categorias .btn:active {
-  transform: scale(0.95); 
+  transform: scale(0.95);
 }
+
 /* BOTONES DE CATEGORÍAS */
 .btn {
   padding: 8px 16px;
@@ -49,6 +53,7 @@ const categoriaActual = computed(() => {
   color: #333;
   font-weight: 600;
 }
+
 /* categoría activa */
 .btn.activa {
   background: #28a745;

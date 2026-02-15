@@ -1,239 +1,144 @@
-
 <template>
-  <div class="home">
-    <!-- HERO PRO -->
-    <section class="hero">
-      <div class="hero-card">
-        <div class="hero-left">
-          <h1>Envía combos a tu familia en Cuba</h1>
-          <p>Compra fácil · Entrega rápida · Seguimiento desde tu cuenta</p>
+  <div class="page">
+    <div class="hero">
+      <div class="left">
+        <h1 class="t">ResuelveShop</h1>
+        <p class="s">Envía combos a tu familia en Cuba. Compra fácil y entrega rápida.</p>
 
-          <div class="hero-badges">
-            <span class="badge">🚚 3–10 días</span>
-            <span class="badge">💬 Soporte rápido</span>
-            <span class="badge">🔒 Compra segura</span>
+        <div class="actions">
+          <router-link class="btn" to="/catalogo">Ver catálogo</router-link>
+          <router-link class="btn ghost" to="/account">Mi cuenta</router-link>
+        </div>
+
+        <div class="badges">
+          <span class="badge">🚚 3–10 días</span>
+          <span class="badge">💬 Soporte rápido</span>
+          <span class="badge">🔒 Compra segura</span>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="box">
+          <div class="boxTitle">¿Cómo funciona?</div>
+          <div class="steps">
+            <div class="step">1) Elige un combo</div>
+            <div class="step">2) Paga online</div>
+            <div class="step">3) Entrega en Cuba</div>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- CATEGORÍAS -->
-    <Categorias :categorias="categorias" class="cats" />
-
-    <!-- PRODUCTOS -->
-    <section class="productos">
-      <ProductoCard
-        v-for="p in productosFiltrados"
-        :key="p.id"
-        :producto="p"
-        @agregar="$emit('agregar', $event)"
-      />
-    </section>
-
-    <p v-if="productosFiltrados.length === 0" class="sin">No se encontraron productos</p>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { computed } from "vue"
-import { useRoute } from "vue-router"
-import Categorias from "../components/Categorias.vue"
-import ProductoCard from "../components/ProductoCard.vue"
-
-defineEmits(["agregar"])
-
-const props = defineProps({
-  productos: { type: Array, default: () => [] },
-  categorias: { type: Array, default: () => [] },
-  busqueda: { type: String, default: "" },
-})
-
-const route = useRoute()
-const categoria = computed(() => route.params.categoria || "Todos")
-
-const productosFiltrados = computed(() => {
-  const q = (props.busqueda || "").toLowerCase()
-  return props.productos.filter((p) => {
-    const pasaCategoria = categoria.value === "Todos" || p.categoria === categoria.value
-    const pasaTexto = (p.nombre || "").toLowerCase().includes(q)
-    return pasaCategoria && pasaTexto
-  })
-})
-</script>
-
 <style scoped>
-.home{
-  padding: 8px 2px 22px;
+.page{
+  padding: 18px 2px 22px;
 }
 
-/* HERO */
-.hero{ margin: 10px 0 14px; }
-
-.hero-card{
+.hero{
+  max-width: 1100px;
+  margin: 0 auto;
+  background: white;
   border-radius: 20px;
-  padding: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
   border: 1px solid rgba(0,0,0,0.06);
-  background:
-    radial-gradient(900px 260px at 15% 0%, rgba(40,167,69,0.16), transparent 60%),
-    radial-gradient(750px 260px at 95% 35%, rgba(16,185,129,0.12), transparent 60%),
-    #ffffff;
-  box-shadow: 0 14px 34px rgba(0,0,0,0.06);
+
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 14px;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
 }
 
-.kicker{
-  display:inline-flex;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 1000;
-  font-size: 12px;
-  border: 1px solid rgba(40,167,69,0.22);
-  background: rgba(40,167,69,0.10);
-  color: #14532d;
-}
-
-.hero-left h1{
-  margin: 10px 0 0;
-  font-size: 24px;
-  line-height: 1.12;
+.t{
+  margin: 0;
+  font-size: 28px;
   font-weight: 1000;
   letter-spacing: -0.2px;
 }
 
-.hero-left p{
+.s{
   margin: 8px 0 0;
-  color: #6b7280;
+  color:#6b7280;
   font-weight: 900;
   font-size: 13px;
 }
 
-.hero-badges{
-  margin-top: 12px;
+.actions{
+  margin-top: 14px;
   display: flex;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+.btn{
+  display:inline-block;
+  background:#28a745;
+  color:white;
+  text-decoration:none;
+  font-weight: 900;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.btn.ghost{
+  background: white;
+  color: #111;
+  border: 1px solid #eee;
+}
+
+.badges{
+  margin-top: 14px;
+  display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .badge{
-  display: inline-flex;
-  align-items: center;
+  display:inline-flex;
+  align-items:center;
   padding: 7px 10px;
   border-radius: 999px;
   border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.75);
+  background: rgba(245,246,248,0.9);
   font-weight: 900;
   font-size: 12px;
 }
 
-/* TIP */
-.tip{
+.right .box{
   border-radius: 18px;
   border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.85);
-  padding: 12px;
+  background: rgba(245,246,248,0.9);
+  padding: 14px;
 }
 
-.tip-top{
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.tip-ico{
-  width: 36px;
-  height: 36px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: rgba(40,167,69,0.12);
-  border: 1px solid rgba(40,167,69,0.18);
-}
-
-.tip-title{
+.boxTitle{
   font-weight: 1000;
-  font-size: 13px;
+  margin-bottom: 10px;
 }
 
-.tip-text{
-  margin-top: 4px;
-  color: #6b7280;
-  font-weight: 900;
-  font-size: 12px;
-  line-height: 1.35;
-}
-
-.tip-steps{
-  margin-top: 10px;
+.steps{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
 .step{
-  border-radius: 14px;
+  background: white;
   border: 1px solid rgba(0,0,0,0.08);
-  background: rgba(255,255,255,0.8);
+  border-radius: 14px;
   padding: 10px;
-  font-weight: 1000;
+  font-weight: 900;
   font-size: 12px;
-  text-align: center;
 }
 
-.cats{ margin-top: 10px; }
-
-/* PRODUCTOS */
-.productos{
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-  margin-top: 10px;
-}
-
-.sin{
-  margin-top: 20px;
-  font-weight: 1000;
-  color: #6b7280;
-  text-align: center;
-}
-
-/* Responsive */
+/* móvil */
 @media (max-width: 900px){
-  .hero-card{
+  .hero{
     grid-template-columns: 1fr;
-    padding: 12px;
+    padding: 14px;
     border-radius: 18px;
   }
-
-  .hero-left h1{
-    font-size: 20px;
-    line-height: 1.1;
-  }
-
-  .hero-left p{
-    font-size: 12px;
-  }
-
-  .badge{
-    padding: 6px 9px;
-    font-size: 11px;
-  }
-
-  .tip{
-    padding: 10px;
-    border-radius: 16px;
-  }
-
-  .tip-text{
-    font-size: 12px;
-  }
-
-  .step{
-    padding: 8px;
-    font-size: 11px;
-    border-radius: 12px;
-  }
+  .t{ font-size: 22px; }
 }
-
 </style>
