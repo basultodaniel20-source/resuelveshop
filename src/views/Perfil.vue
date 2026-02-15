@@ -81,7 +81,7 @@ async function logout() {
   padding-top: 0px;
 
   /* espacio para bottom nav */
-  padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
+ 
 }
 
 

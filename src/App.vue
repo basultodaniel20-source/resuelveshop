@@ -115,12 +115,14 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 12px calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  padding: 8px 12px;          /* ✅ sin padding-bottom aquí */
   background: #f5f6f8;
   box-sizing: border-box;
 }
 
+/* ✅ aquí va el espacio del bottom nav */
 .content{
-  padding-bottom: 0;
+  padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
 }
+
 </style>
