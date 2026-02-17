@@ -11,62 +11,117 @@
     </section>
 
     <!-- NAV STICKY (SE QUEDA ARRIBA + TAB ACTIVA) -->
-    <div class="stickyNavTop">
+    <div class="stickyNavTop" ref="stickyRef">
       <div class="tabsTop">
-        <a class="tabBtn" :class="{ active: activeTab==='categorias' }" href="#categorias">Categorías 📁💡</a>
-        <a class="tabBtn" :class="{ active: activeTab==='mas-vendidos' }" href="#mas-vendidos">Más Vendidos 🥇💸</a>
-        <a class="tabBtn" :class="{ active: activeTab==='novedades' }" href="#novedades">Novedades ✨🔝</a>
-        <a class="tabBtn" :class="{ active: activeTab==='ofertas-destacadas' }" href="#ofertas-destacadas">Ofertas Destacadas ⚡💰</a>
-        <a class="tabBtn" :class="{ active: activeTab==='como-funciona' }" href="#como-funciona">Cómo funciona ⚙️📝</a>
-        <a class="tabBtn" :class="{ active: activeTab==='opiniones' }" href="#opiniones">Opiniones 🗣️💬</a>
-        <a class="tabBtn" :class="{ active: activeTab==='listo-para-enviar' }" href="#listo-para-enviar">Listo para enviar 📦➡️🚚</a>
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'categorias' }"
+          href="#categorias"
+          @click.prevent="scrollToSection('categorias')"
+        >
+          Categorías 📁💡
+        </a>
+
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'mas-vendidos' }"
+          href="#mas-vendidos"
+          @click.prevent="scrollToSection('mas-vendidos')"
+        >
+          Más Vendidos 🥇💸
+        </a>
+
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'novedades' }"
+          href="#novedades"
+          @click.prevent="scrollToSection('novedades')"
+        >
+          Novedades ✨🔝
+        </a>
+
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'ofertas-destacadas' }"
+          href="#ofertas-destacadas"
+          @click.prevent="scrollToSection('ofertas-destacadas')"
+        >
+          Ofertas Destacadas ⚡💰
+        </a>
+
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'como-funciona' }"
+          href="#como-funciona"
+          @click.prevent="scrollToSection('como-funciona')"
+        >
+          Cómo funciona ⚙️📝
+        </a>
+
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'opiniones' }"
+          href="#opiniones"
+          @click.prevent="scrollToSection('opiniones')"
+        >
+          Opiniones 🗣️💬
+        </a>
+
+        <a
+          class="tabBtn"
+          :class="{ active: activeTab === 'listo-para-enviar' }"
+          href="#listo-para-enviar"
+          @click.prevent="scrollToSection('listo-para-enviar')"
+        >
+          Listo para enviar 📦➡️🚚
+        </a>
       </div>
     </div>
-    
+
     <!-- 2) CATEGORÍAS -->
-<section class="section" id="categorias">
-  <div class="sectionBanner bannerCats">
-    <div class="bannerOverlay"></div>
+    <section class="section" id="categorias">
+      <div class="sectionBanner bannerCats">
+        <div class="bannerOverlay"></div>
 
-    <div class="bannerContent">
-      <div class="bannerLeft">
-        <h2>Categorías</h2>
-        <p>Explora rápido y encuentra el combo ideal</p>
+        <div class="bannerContent">
+          <div class="bannerLeft">
+            <h2>Categorías</h2>
+            <p>Explora rápido y encuentra el combo ideal</p>
 
-        <div class="bannerActions">
-          <router-link class="btn primary" to="/catalogo">Ver todo</router-link>
+            <div class="bannerActions">
+              <router-link class="btn primary" to="/catalogo">Ver todo</router-link>
+            </div>
+          </div>
+
+          <div class="bannerRight">
+            <div class="miniFloat">🗂️ Explorar</div>
+          </div>
         </div>
       </div>
 
-      <div class="bannerRight">
-        <div class="miniFloat">🗂️ Explorar</div>
-      </div>
-    </div>
-  </div>
+      <div class="cats">
+        <router-link class="cat" to="/catalogo">
+          <div class="catIco">🛍️</div>
+          <div class="catTxt">
+            <div class="catTitle">Todos</div>
+            <div class="catSub">Explorar catálogo</div>
+          </div>
+        </router-link>
 
-  <div class="cats">
-    <router-link class="cat" to="/catalogo">
-      <div class="catIco">🛍️</div>
-      <div class="catTxt">
-        <div class="catTitle">Todos</div>
-        <div class="catSub">Explorar catálogo</div>
+        <router-link
+          v-for="cat in categoriasTop"
+          :key="cat"
+          class="cat"
+          :to="`/catalogo/${cat}`"
+        >
+          <div class="catIco">{{ iconForCat(cat) }}</div>
+          <div class="catTxt">
+            <div class="catTitle">{{ cat }}</div>
+            <div class="catSub">Ver productos</div>
+          </div>
+        </router-link>
       </div>
-    </router-link>
-
-    <router-link
-      v-for="cat in categoriasTop"
-      :key="cat"
-      class="cat"
-      :to="`/catalogo/${cat}`"
-    >
-      <div class="catIco">{{ iconForCat(cat) }}</div>
-      <div class="catTxt">
-        <div class="catTitle">{{ cat }}</div>
-        <div class="catSub">Ver productos</div>
-      </div>
-    </router-link>
-  </div>
-</section>
+    </section>
 
     <!-- 3) MÁS VENDIDOS -->
     <section class="section" id="mas-vendidos" v-if="bestSellers.length">
@@ -300,11 +355,14 @@
         </div>
       </div>
     </section>
+
+    <!-- Spacer real (para que la última sección suba bien bajo el sticky) -->
+    <div class="bottomSpacer" aria-hidden="true"></div>
   </div>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, nextTick } from "vue"
 import ProductoCard from "../components/ProductoCard.vue"
 
 defineEmits(["agregar"])
@@ -353,8 +411,10 @@ const promoTitle = computed(() => {
   return first?.nombre ? `Prueba: ${first.nombre}` : "Combos listos para entregar"
 })
 
-/* ===== NAV STICKY ACTIVO ===== */
+/* ===== NAV STICKY + SCROLL OFFSET REAL ===== */
 const activeTab = ref("categorias")
+const stickyRef = ref(null)
+
 const sectionIds = [
   "categorias",
   "mas-vendidos",
@@ -367,52 +427,93 @@ const sectionIds = [
 
 let observer
 let onHashChange
+let onResize
 
-onMounted(() => {
-  const els = sectionIds.map((id) => document.getElementById(id)).filter(Boolean)
+function getStickyHeight() {
+  return stickyRef.value?.offsetHeight || 0
+}
 
-  // si entra con hash
-  if (window.location.hash) {
-    const id = window.location.hash.replace("#", "")
-    if (sectionIds.includes(id)) activeTab.value = id
-  }
+function scrollToSection(id) {
+  // marcar instantáneo
+  activeTab.value = id
+
+  const el = document.getElementById(id)
+  if (!el) return
+
+  // hash sin recargar
+  history.replaceState(null, "", `#${id}`)
+
+  // scroll exacto debajo del sticky
+  const stickyH = getStickyHeight()
+  const extraGap = 14
+  const targetTop = window.scrollY + el.getBoundingClientRect().top - stickyH - extraGap
+
+  window.scrollTo({
+    top: Math.max(0, targetTop),
+    behavior: "auto", // instantáneo (cámbialo a "smooth" si quieres animación)
+  })
+}
+
+function setupObserver() {
+  if (observer) observer.disconnect()
+
+  const stickyH = getStickyHeight()
 
   observer = new IntersectionObserver(
     (entries) => {
       const visible = entries
         .filter((e) => e.isIntersecting)
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+
       if (visible?.target?.id) activeTab.value = visible.target.id
     },
     {
-      threshold: [0.25, 0.4, 0.55],
-      // Ajusta si cambias la altura del sticky
-      rootMargin: "-90px 0px -60% 0px",
+      threshold: [0.2, 0.35, 0.5],
+      rootMargin: `-${stickyH + 12}px 0px -55% 0px`,
     }
   )
 
-  els.forEach((el) => observer.observe(el))
+  sectionIds
+    .map((id) => document.getElementById(id))
+    .filter(Boolean)
+    .forEach((el) => observer.observe(el))
+}
+
+onMounted(async () => {
+  await nextTick()
+
+  // si entra con hash, saltar exacto
+  if (window.location.hash) {
+    const id = window.location.hash.replace("#", "")
+    if (sectionIds.includes(id)) {
+      // espera un tick para medir sticky bien
+      setTimeout(() => scrollToSection(id), 0)
+    }
+  }
+
+  setupObserver()
 
   onHashChange = () => {
     const id = window.location.hash.replace("#", "")
-    if (sectionIds.includes(id)) activeTab.value = id
+    if (sectionIds.includes(id)) scrollToSection(id)
   }
   window.addEventListener("hashchange", onHashChange)
+
+  onResize = () => setupObserver()
+  window.addEventListener("resize", onResize)
 })
 
 onBeforeUnmount(() => {
   if (observer) observer.disconnect()
   if (onHashChange) window.removeEventListener("hashchange", onHashChange)
+  if (onResize) window.removeEventListener("resize", onResize)
 })
 </script>
 
 <style scoped>
-.home{ padding: 8px 2px 22px; }
-
-:global(html){ scroll-behavior: smooth; }
-/* altura aprox del sticky, para que no tape el título al saltar */
-:root{ --stickyH: 82px; }
-.section[id]{ scroll-margin-top: calc(var(--stickyH) + 14px); }
+.home{
+  padding: 8px 2px 22px;
+}
 
 /* ===== STICKY NAV TOP ===== */
 .stickyNavTop{
@@ -425,6 +526,7 @@ onBeforeUnmount(() => {
   padding: 10px 2px;
   margin: 6px 0 12px;
 }
+
 .tabsTop{
   display:flex;
   gap: 10px;
@@ -435,6 +537,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(0,0,0,0.08);
   box-shadow: 0 10px 22px rgba(0,0,0,0.04);
 }
+
 .tabBtn{
   text-decoration:none;
   font-weight: 1000;
@@ -453,6 +556,11 @@ onBeforeUnmount(() => {
   color: #14532d;
 }
 
+/* Spacer real para que la última sección suba */
+.bottomSpacer{
+  height: 320px;
+}
+
 /* ---------- HERO ---------- */
 .hero{ margin: 10px 0 14px; }
 .heroCard{
@@ -468,9 +576,8 @@ onBeforeUnmount(() => {
   grid-template-columns: 1.2fr 1fr;
   gap: 14px;
 }
-.heroLeft h1{ margin: 10px 0 0; font-size: 28px; line-height: 1.1; font-weight: 1000; letter-spacing: -0.2px; }
+.heroLeft h1{ margin: 10px 0 0; font-size: 28px; line-height: 1.1; font-weight: 1000; }
 .heroLeft p{ margin: 10px 0 0; color: #6b7280; font-weight: 900; font-size: 13px; }
-.heroActions{ margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ---------- GENERALES ---------- */
 .section{ margin-top: 16px; }
@@ -482,41 +589,26 @@ onBeforeUnmount(() => {
   text-decoration:none; font-weight: 1000;
   border: 1px solid transparent; cursor: pointer;
 }
-.btn.primary{ 
+.btn.primary{
   background:white;
-  color: #111; 
+  color: #111;
   border: 1px solid rgba(0,0,0,0.08);
   padding: 10px 12px;
   border-radius: 999px;
-  cursor: pointer;
   font-size: 12px;
-  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+  transition: transform .12s ease, background .12s ease;
 }
-
- .btn.primary:hover{
- background: #45b748;
- transform: translateY(-1px); 
+.btn.primary:hover{ background: #45b748; transform: translateY(-1px); }
+.btn.ghost{
+  background: white;
+  border: 1px solid rgba(0,0,0,0.10);
+  color: #111;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: 12px;
 }
-
-.btn.primary:active{
-transform:transform .12s ease, background .12s ease, border-color .12s ease;
-}
-
-.btn.ghost{ background: white; border-color: #eee; color: #111; }
-.btn.mini{ padding: 10px 12px; border-radius: 12px; background:#28a745; color:#fff; }
-
-.link{ text-decoration: none; font-weight: 1000; color: #28a745; font-size: 12px; }
 
 /* ---------- CATEGORÍAS ---------- */
-.sectionHead{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.sectionHead h2{ margin: 0; font-size: 16px; font-weight: 1000; }
-
 .cats{ display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .cat{
   text-decoration:none; color:#111;
@@ -555,7 +647,6 @@ transform:transform .12s ease, background .12s ease, border-color .12s ease;
   background-position: center;
   background-repeat: no-repeat;
 }
-
 .bannerBest{ background-image: url("/img/banners/masVendido1.png"); }
 .bannerNew{ background-image: url("/img/banners/novedades1.png"); }
 .bannerPromo{ background-image: url("/img/banners/oferta1.png"); }
@@ -563,7 +654,6 @@ transform:transform .12s ease, background .12s ease, border-color .12s ease;
 .bannerReviews{ background-image: url("/img/banners/opiniones1.png"); }
 .bannerCta{ background-image: url("/img/banners/envio1.png"); }
 .bannerCats{ background-image: url("/img/banners/categorias1.png"); }
-
 
 .bannerOverlay{
   position: absolute;
@@ -585,7 +675,6 @@ transform:transform .12s ease, background .12s ease, border-color .12s ease;
   gap: 14px;
   align-items: center;
 }
-
 .bannerLeft{ max-width: 520px; }
 .bannerLeft h2{
   margin: 0;
@@ -602,7 +691,6 @@ transform:transform .12s ease, background .12s ease, border-color .12s ease;
 }
 .bannerActions{ margin-top: 12px; display:flex; gap:10px; flex-wrap:wrap; }
 .bannerRight{ display:flex; justify-content:flex-end; }
-
 .miniFloat{
   background: rgba(255,255,255,0.92);
   border: 1px solid rgba(255,255,255,0.45);
@@ -722,7 +810,7 @@ transform:transform .12s ease, background .12s ease, border-color .12s ease;
   .trustGrid{ grid-template-columns: 1fr; }
   .promoCool{ grid-template-columns: 1fr; }
 
-  :root{ --stickyH: 120px; } /* en móvil el sticky ocupa más filas */
-  .tabsTop{ justify-content: flex-start; }
+  /* En móvil el sticky suele ser más alto, por eso el spacer más grande */
+  .bottomSpacer{ height: 420px; }
 }
 </style>
