@@ -12,10 +12,11 @@
 
     <!-- NAV STICKY (SE QUEDA ARRIBA + TAB ACTIVA) -->
     <div class="stickyNavTop" ref="stickyRef">
-      <div class="tabsTop">
+      <div class="tabsTop" ref="tabsContainer">
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'categorias' }"
+          :data-id="'categorias'"
           href="#categorias"
           @click.prevent="scrollToSection('categorias')"
         >
@@ -25,6 +26,7 @@
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'mas-vendidos' }"
+          :data-id="'mas-vendidos'"
           href="#mas-vendidos"
           @click.prevent="scrollToSection('mas-vendidos')"
         >
@@ -34,6 +36,7 @@
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'novedades' }"
+          :data-id="'novedades'"
           href="#novedades"
           @click.prevent="scrollToSection('novedades')"
         >
@@ -43,6 +46,7 @@
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'ofertas-destacadas' }"
+          :data-id="'ofertas-destacadas'"
           href="#ofertas-destacadas"
           @click.prevent="scrollToSection('ofertas-destacadas')"
         >
@@ -52,6 +56,7 @@
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'como-funciona' }"
+          :data-id="'como-funciona'"
           href="#como-funciona"
           @click.prevent="scrollToSection('como-funciona')"
         >
@@ -61,6 +66,7 @@
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'opiniones' }"
+          :data-id="'opiniones'"
           href="#opiniones"
           @click.prevent="scrollToSection('opiniones')"
         >
@@ -70,6 +76,7 @@
         <a
           class="tabBtn"
           :class="{ active: activeTab === 'listo-para-enviar' }"
+          :data-id="'listo-para-enviar'"
           href="#listo-para-enviar"
           @click.prevent="scrollToSection('listo-para-enviar')"
         >
@@ -362,7 +369,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, nextTick } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, nextTick, watch } from "vue"
 import ProductoCard from "../components/ProductoCard.vue"
 
 defineEmits(["agregar"])
@@ -415,6 +422,9 @@ const promoTitle = computed(() => {
 const activeTab = ref("categorias")
 const stickyRef = ref(null)
 
+/* ✅ nuevo: contenedor scrolleable de tabs */
+const tabsContainer = ref(null)
+
 const sectionIds = [
   "categorias",
   "mas-vendidos",
@@ -434,25 +444,48 @@ function getStickyHeight() {
 }
 
 function scrollToSection(id) {
-  // marcar instantáneo
   activeTab.value = id
 
   const el = document.getElementById(id)
   if (!el) return
 
-  // hash sin recargar
   history.replaceState(null, "", `#${id}`)
 
-  // scroll exacto debajo del sticky
   const stickyH = getStickyHeight()
   const extraGap = 14
   const targetTop = window.scrollY + el.getBoundingClientRect().top - stickyH - extraGap
 
   window.scrollTo({
     top: Math.max(0, targetTop),
-    behavior: "auto", // instantáneo (cámbialo a "smooth" si quieres animación)
+    behavior: "auto",
   })
 }
+
+/* ✅ nuevo: centra el tab activo dentro del scroll horizontal */
+function ensureActiveTabVisible(id) {
+  const container = tabsContainer.value
+  if (!container) return
+
+  const btn = container.querySelector(`[data-id="${id}"]`)
+  if (!btn) return
+
+  const containerRect = container.getBoundingClientRect()
+  const btnRect = btn.getBoundingClientRect()
+
+  const offset =
+    btnRect.left - containerRect.left - container.clientWidth / 2 + btnRect.width / 2
+
+  container.scrollBy({
+    left: offset,
+    behavior: "smooth",
+  })
+}
+
+/* ✅ cuando cambia activeTab (por scroll o click), movemos el scroll horizontal */
+watch(activeTab, async (newVal) => {
+  await nextTick()
+  ensureActiveTabVisible(newVal)
+})
 
 function setupObserver() {
   if (observer) observer.disconnect()
@@ -482,13 +515,14 @@ function setupObserver() {
 onMounted(async () => {
   await nextTick()
 
-  // si entra con hash, saltar exacto
   if (window.location.hash) {
     const id = window.location.hash.replace("#", "")
     if (sectionIds.includes(id)) {
-      // espera un tick para medir sticky bien
       setTimeout(() => scrollToSection(id), 0)
+      setTimeout(() => ensureActiveTabVisible(id), 60)
     }
+  } else {
+    setTimeout(() => ensureActiveTabVisible(activeTab.value), 60)
   }
 
   setupObserver()
@@ -523,8 +557,8 @@ onBeforeUnmount(() => {
   background: rgba(246,247,249,0.78);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0,0,0,0.06);
-  padding: 8px 2px;          /* ⬅️ antes 10px 2px (más compacto) */
-  margin: 6px 0 10px;        /* ⬅️ un poco menos */
+  padding: 8px 2px;
+  margin: 6px 0 10px;
 }
 
 /* Contenedor de tabs */
@@ -550,7 +584,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(0,0,0,0.08);
   background: rgba(245,246,248,0.85);
   transition: transform .12s ease, background .12s ease, border-color .12s ease;
-  white-space: nowrap;       /* ⬅️ evita que se partan y crezcan en alto */
+  white-space: nowrap;
 }
 .tabBtn:hover{ transform: translateY(-1px); }
 .tabBtn.active{
@@ -813,9 +847,7 @@ onBeforeUnmount(() => {
   .trustGrid{ grid-template-columns: 1fr; }
   .promoCool{ grid-template-columns: 1fr; }
 
-  /* ✅ AQUÍ ESTÁ EL CAMBIO CLAVE:
-     En móvil: tabs en 1 sola fila con scroll horizontal
-     + botones más pequeños para que no ocupen tanto alto */
+  /* ✅ Tabs en 1 fila + scroll horizontal (móvil) */
   .stickyNavTop{
     padding: 6px 2px;
     margin: 6px 0 10px;
@@ -827,9 +859,10 @@ onBeforeUnmount(() => {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 
-    padding: 8px;
+    padding: 8px 14px; /* un pelín más para que se note el scroll */
     gap: 8px;
     border-radius: 14px;
+    scroll-snap-type: x mandatory;
   }
   .tabsTop::-webkit-scrollbar{ display:none; }
 
@@ -837,6 +870,7 @@ onBeforeUnmount(() => {
     padding: 8px 10px;
     font-size: 11px;
     border-radius: 14px;
+    scroll-snap-align: center;
   }
 
   /* En móvil el sticky suele ser más alto, por eso el spacer más grande */
