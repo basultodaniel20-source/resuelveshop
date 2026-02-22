@@ -523,10 +523,11 @@ onBeforeUnmount(() => {
   background: rgba(246,247,249,0.78);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0,0,0,0.06);
-  padding: 10px 2px;
-  margin: 6px 0 12px;
+  padding: 8px 2px;          /* ⬅️ antes 10px 2px (más compacto) */
+  margin: 6px 0 10px;        /* ⬅️ un poco menos */
 }
 
+/* Contenedor de tabs */
 .tabsTop{
   display:flex;
   gap: 10px;
@@ -538,6 +539,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 10px 22px rgba(0,0,0,0.04);
 }
 
+/* Botón/tab */
 .tabBtn{
   text-decoration:none;
   font-weight: 1000;
@@ -548,6 +550,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(0,0,0,0.08);
   background: rgba(245,246,248,0.85);
   transition: transform .12s ease, background .12s ease, border-color .12s ease;
+  white-space: nowrap;       /* ⬅️ evita que se partan y crezcan en alto */
 }
 .tabBtn:hover{ transform: translateY(-1px); }
 .tabBtn.active{
@@ -809,6 +812,32 @@ onBeforeUnmount(() => {
   .reviews{ grid-template-columns: 1fr; }
   .trustGrid{ grid-template-columns: 1fr; }
   .promoCool{ grid-template-columns: 1fr; }
+
+  /* ✅ AQUÍ ESTÁ EL CAMBIO CLAVE:
+     En móvil: tabs en 1 sola fila con scroll horizontal
+     + botones más pequeños para que no ocupen tanto alto */
+  .stickyNavTop{
+    padding: 6px 2px;
+    margin: 6px 0 10px;
+  }
+
+  .tabsTop{
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    padding: 8px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+  .tabsTop::-webkit-scrollbar{ display:none; }
+
+  .tabBtn{
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: 14px;
+  }
 
   /* En móvil el sticky suele ser más alto, por eso el spacer más grande */
   .bottomSpacer{ height: 420px; }
