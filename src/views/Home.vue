@@ -421,8 +421,6 @@ const promoTitle = computed(() => {
 /* ===== NAV STICKY + SCROLL OFFSET REAL ===== */
 const activeTab = ref("categorias")
 const stickyRef = ref(null)
-
-/* ✅ nuevo: contenedor scrolleable de tabs */
 const tabsContainer = ref(null)
 
 const sectionIds = [
@@ -461,7 +459,7 @@ function scrollToSection(id) {
   })
 }
 
-/* ✅ nuevo: centra el tab activo dentro del scroll horizontal */
+/* ✅ FIX: centrar tab activo SIN pasarse del inicio/fin (evita el hueco blanco) */
 function ensureActiveTabVisible(id) {
   const container = tabsContainer.value
   if (!container) return
@@ -469,22 +467,45 @@ function ensureActiveTabVisible(id) {
   const btn = container.querySelector(`[data-id="${id}"]`)
   if (!btn) return
 
-  const containerRect = container.getBoundingClientRect()
-  const btnRect = btn.getBoundingClientRect()
+  const maxScroll = container.scrollWidth - container.clientWidth
 
-  const offset =
-    btnRect.left - containerRect.left - container.clientWidth / 2 + btnRect.width / 2
+  // objetivo: centrar el botón
+  const target = btn.offsetLeft - container.clientWidth / 2 + btn.offsetWidth / 2
 
-  container.scrollBy({
-    left: offset,
+  // clamp (0..maxScroll)
+  const clamped = Math.max(0, Math.min(maxScroll, target))
+
+  container.scrollTo({
+    left: clamped,
     behavior: "smooth",
   })
 }
 
-/* ✅ cuando cambia activeTab (por scroll o click), movemos el scroll horizontal */
+/* ✅ EXTRA: solo animar si está realmente fuera de vista (más natural) */
+function ensureActiveTabVisibleIfNeeded(id) {
+  const container = tabsContainer.value
+  if (!container) return
+
+  const btn = container.querySelector(`[data-id="${id}"]`)
+  if (!btn) return
+
+  const cLeft = container.scrollLeft
+  const cRight = cLeft + container.clientWidth
+
+  const bLeft = btn.offsetLeft
+  const bRight = bLeft + btn.offsetWidth
+
+  const padding = 12
+  const isOut =
+    bLeft < cLeft + padding || bRight > cRight - padding
+
+  if (isOut) ensureActiveTabVisible(id)
+}
+
+/* cuando cambia activeTab (scroll o click), ajusta el scroll horizontal */
 watch(activeTab, async (newVal) => {
   await nextTick()
-  ensureActiveTabVisible(newVal)
+  ensureActiveTabVisibleIfNeeded(newVal)
 })
 
 function setupObserver() {
@@ -522,7 +543,7 @@ onMounted(async () => {
       setTimeout(() => ensureActiveTabVisible(id), 60)
     }
   } else {
-    setTimeout(() => ensureActiveTabVisible(activeTab.value), 60)
+    setTimeout(() => ensureActiveTabVisible("categorias"), 60)
   }
 
   setupObserver()
@@ -847,7 +868,7 @@ onBeforeUnmount(() => {
   .trustGrid{ grid-template-columns: 1fr; }
   .promoCool{ grid-template-columns: 1fr; }
 
-  /* ✅ Tabs en 1 fila + scroll horizontal (móvil) */
+  /* ✅ Móvil: 1 fila + scroll horizontal (SIN scroll-snap para evitar huecos) */
   .stickyNavTop{
     padding: 6px 2px;
     margin: 6px 0 10px;
@@ -859,10 +880,9 @@ onBeforeUnmount(() => {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 
-    padding: 8px 14px; /* un pelín más para que se note el scroll */
+    padding: 8px 14px;
     gap: 8px;
     border-radius: 14px;
-    scroll-snap-type: x mandatory;
   }
   .tabsTop::-webkit-scrollbar{ display:none; }
 
@@ -870,7 +890,6 @@ onBeforeUnmount(() => {
     padding: 8px 10px;
     font-size: 11px;
     border-radius: 14px;
-    scroll-snap-align: center;
   }
 
   /* En móvil el sticky suele ser más alto, por eso el spacer más grande */
