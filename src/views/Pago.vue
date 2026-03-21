@@ -1,4 +1,3 @@
-
 <template>
   <div class="payment-page">
     <div class="payment-wrap">
@@ -239,6 +238,7 @@ async function pagarBizum() {
 .payment-wrap{
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 18px;
 }
 
 .payment-head{
@@ -619,54 +619,224 @@ async function pagarBizum() {
 @media (max-width: 980px){
   .payment-layout{
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .payment-summary{
     position: static;
     order: -1;
+    padding: 18px;
+  }
+
+  .payment-main{
+    padding: 20px;
   }
 }
 
 @media (max-width: 640px){
   .payment-page{
-    padding: 14px;
+    padding: 10px;
+  }
+
+  .payment-wrap{
+    padding-top: 6px;
+  }
+
+  .payment-head{
+    margin-bottom: 12px;
   }
 
   .payment-main,
   .payment-summary,
   .empty{
-    padding: 18px;
-    border-radius: 22px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .card{
+    border: 1px solid rgba(229,231,235,0.95);
+    box-shadow:
+      0 10px 24px rgba(0,0,0,0.06),
+      0 3px 8px rgba(0,0,0,0.03);
+  }
+
+  .eyebrow,
+  .badge{
+    font-size: 11px;
+    margin-bottom: 6px;
   }
 
   .payment-head h2{
-    font-size: 28px;
+    font-size: 22px;
+    line-height: 1.08;
+    letter-spacing: -0.4px;
+  }
+
+  .muted,
+  .summary-muted,
+  .secure-note,
+  .status-banner p,
+  .method-left p{
+    font-size: 12.5px;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  .status-banner{
+    padding: 12px;
+    border-radius: 16px;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .status-icon{
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    font-size: 16px;
+    flex: 0 0 36px;
+  }
+
+  .status-banner strong{
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .info-section + .info-section{
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .info-section h3,
+  .summary-title{
+    font-size: 20px;
+  }
+
+  .info-card{
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 16px;
+    gap: 10px;
   }
 
   .info-row{
     flex-direction: column;
     align-items: flex-start;
+    gap: 4px;
+  }
+
+  .info-row span{
+    font-size: 12px;
   }
 
   .info-row strong{
+    font-size: 15px;
     text-align: left;
   }
 
   .payment-method{
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 16px;
     flex-direction: column;
     align-items: stretch;
   }
 
+  .method-left{
+    gap: 10px;
+  }
+
+  .method-icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 17px;
+  }
+
+  .method-pill{
+    min-height: 28px;
+    font-size: 11px;
+    padding: 0 10px;
+    align-self: flex-start;
+  }
+
+  .pay-btn{
+    margin-top: 14px;
+    min-height: 46px;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .summary-products{
+    margin-top: 10px;
+  }
+
   .summary-product{
-    grid-template-columns: 54px 1fr;
+    grid-template-columns: 46px 1fr auto;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .product-thumb{
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .product-info h4{
+    font-size: 14px;
+    margin: 0 0 2px;
+  }
+
+  .product-info p{
+    font-size: 12px;
+    margin: 1px 0;
   }
 
   .product-total{
-    grid-column: 2;
+    font-size: 14px;
+  }
+
+  .summary-lines{
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  .summary-line{
+    font-size: 14px;
+  }
+
+  .summary-total{
+    margin-top: 12px;
+    padding: 14px;
+    border-top: 1px solid #e5e7eb;
+    background: #f8fafc;
+    border-radius: 14px;
+  }
+
+  .summary-total span:first-child{
+    font-size: 16px;
   }
 
   .summary-total span:last-child{
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .summary-box{
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .summary-box p{
+    font-size: 12px;
+    margin: 5px 0;
+  }
+
+  .back-btn{
+    min-height: 42px;
+    border-radius: 12px;
+    font-size: 14px;
   }
 }
 </style>
