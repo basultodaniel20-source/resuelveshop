@@ -100,14 +100,28 @@
         </section>
 
         <aside class="payment-summary card">
-          <h3 class="summary-title">Resumen final</h3>
-          <p class="summary-muted">Detalles de tu compra</p>
+          <div class="summary-top">
+            <div>
+              <h3 class="summary-title">Resumen final</h3>
+              <p class="summary-muted">Detalles de tu compra</p>
+            </div>
+
+            <button type="button" class="edit-cart-btn" @click="irAlCarrito">
+              Editar carrito
+            </button>
+          </div>
+
+          <p class="summary-help">
+            Toca cualquier producto para volver al carrito y cambiar cantidades o combos.
+          </p>
 
           <div class="summary-products">
-            <div
+            <button
               v-for="item in pedido.productos || []"
               :key="item.id"
-              class="summary-product"
+              type="button"
+              class="summary-product clickable-product"
+              @click="irAlCarrito"
             >
               <img
                 v-if="item.imagen"
@@ -126,7 +140,7 @@
               <div class="product-total">
                 {{ Number(item.precio) * Number(item.cantidad) }} €
               </div>
-            </div>
+            </button>
           </div>
 
           <div class="summary-lines">
@@ -194,6 +208,10 @@ const total = computed(() => Number(pedido.value?.total || subtotal.value + envi
 const cantidadTotal = computed(() =>
   (pedido.value?.productos || []).reduce((s, i) => s + Number(i.cantidad || 0), 0)
 )
+
+function irAlCarrito() {
+  router.push("/carrito")
+}
 
 async function pagarBizum() {
   if (!pedido.value?.order_id) {
@@ -281,7 +299,8 @@ async function pagarBizum() {
 .summary-muted,
 .secure-note,
 .status-banner p,
-.method-left p{
+.method-left p,
+.summary-help{
   margin: 6px 0 0;
   color: #6b7280;
   font-size: 14px;
@@ -481,8 +500,49 @@ async function pagarBizum() {
   transform: none;
 }
 
+.summary-top{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.edit-cart-btn{
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #166534;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.edit-cart-btn:hover{
+  transform: translateY(-1px);
+  background: #f0fdf4;
+  box-shadow: 0 10px 20px rgba(34,197,94,0.10);
+}
+
 .summary-products{
   margin-top: 18px;
+}
+
+.clickable-product{
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.clickable-product:hover{
+  background: #f8fafc;
+  transform: translateY(-1px);
+  border-radius: 16px;
 }
 
 .summary-product{
@@ -675,7 +735,8 @@ async function pagarBizum() {
   .summary-muted,
   .secure-note,
   .status-banner p,
-  .method-left p{
+  .method-left p,
+  .summary-help{
     font-size: 12px;
     line-height: 1.4;
     margin-top: 4px;
@@ -764,6 +825,18 @@ async function pagarBizum() {
     min-height: 46px;
     border-radius: 14px;
     font-size: 14px;
+  }
+
+  .summary-top{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .edit-cart-btn{
+    min-height: 38px;
+    border-radius: 12px;
+    font-size: 12px;
   }
 
   .summary-products{

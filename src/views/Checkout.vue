@@ -12,7 +12,6 @@
       </div>
 
       <div class="checkout-layout">
-        <!-- IZQUIERDA -->
         <section class="checkout-main card">
           <form class="form" @submit.prevent="continuar">
             <div class="section">
@@ -73,7 +72,10 @@
                   </select>
                 </div>
 
-                <div v-if="shippingAddresses.length && selectedAddressPreview" class="saved-preview full">
+                <div
+                  v-if="shippingAddresses.length && selectedAddressPreview"
+                  class="saved-preview full"
+                >
                   <div class="saved-preview-head">
                     <strong>{{ selectedAddressPreview.alias || "Dirección seleccionada" }}</strong>
                     <span v-if="selectedAddressPreview.predeterminada" class="pill success">
@@ -154,13 +156,31 @@
           </form>
         </section>
 
-        <!-- DERECHA -->
         <aside class="checkout-summary card">
-          <h3 class="summary-title">Resumen del pedido</h3>
-          <p class="summary-muted">Verifica tu compra antes de pagar</p>
+          <div class="summary-top">
+            <div>
+              <h3 class="summary-title">Resumen del pedido</h3>
+              <p class="summary-muted">Verifica tu compra antes de pagar</p>
+            </div>
+
+            <button type="button" class="edit-cart-btn" @click="irAlCarrito">
+              <span class="edit-cart-icon"></span>
+              <span>Editar carrito</span>
+            </button>
+          </div>
+
+          <p class="summary-help">
+            Toca cualquier producto para volver al carrito y cambiar cantidades o combos.
+          </p>
 
           <div v-if="carrito.length" class="summary-products">
-            <div v-for="item in carrito" :key="item.id" class="summary-product">
+            <button
+              v-for="item in carrito"
+              :key="item.id"
+              type="button"
+              class="summary-product clickable-product"
+              @click="irAlCarrito"
+            >
               <img
                 v-if="item.imagen"
                 :src="item.imagen"
@@ -178,7 +198,7 @@
               <div class="product-total">
                 {{ item.precio * item.cantidad }} €
               </div>
-            </div>
+            </button>
           </div>
 
           <div class="summary-lines">
@@ -327,6 +347,10 @@ function aplicarDireccion(item) {
   destinatarioDireccion.value = item.direccion || ""
 }
 
+function irAlCarrito() {
+  router.push("/carrito")
+}
+
 async function continuar() {
   const { data } = await supabase.auth.getUser()
   const user = data.user
@@ -439,18 +463,23 @@ async function continuar() {
 .checkout-wrap{
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 18px;
 }
 
 .checkout-head{
   margin-bottom: 18px;
 }
 
-.eyebrow{
+.eyebrow,
+.badge{
   margin: 0 0 8px;
   font-size: 12px;
   font-weight: 1000;
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+
+.eyebrow{
   color: #16a34a;
 }
 
@@ -508,14 +537,6 @@ async function continuar() {
   margin-bottom: 16px;
 }
 
-.badge{
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 1000;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
 .badge.billing{
   color: #2563eb;
 }
@@ -533,7 +554,9 @@ async function continuar() {
 }
 
 .section-muted,
-.summary-muted{
+.summary-muted,
+.summary-note,
+.summary-help{
   margin: 6px 0 0;
   color: #6b7280;
   font-size: 14px;
@@ -643,8 +666,68 @@ async function continuar() {
   color: #166534;
 }
 
+.summary-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.edit-cart-btn{
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #166534;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.edit-cart-btn:hover{
+  transform: translateY(-1px);
+  background: #f0fdf4;
+  box-shadow: 0 10px 20px rgba(34,197,94,0.10);
+}
+
+.edit-cart-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transform: rotate(-8deg);
+  transition: transform .16s ease;
+}
+
+.edit-cart-btn:hover .edit-cart-icon{
+  transform: rotate(0deg) scale(1.05);
+}
+
 .summary-products{
   margin-top: 18px;
+}
+
+.clickable-product{
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.clickable-product:hover{
+  background: #f8fafc;
+  transform: translateY(-1px);
+  border-radius: 16px;
 }
 
 .summary-product{
@@ -732,10 +815,7 @@ async function continuar() {
 
 .summary-note{
   margin-top: 16px;
-  color: #6b7280;
   font-size: 13px;
-  line-height: 1.5;
-  font-weight: 700;
 }
 
 .mobile-summary{
@@ -792,18 +872,24 @@ async function continuar() {
 @media (max-width: 980px){
   .checkout-layout{
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .checkout-summary{
     position: static;
     order: -1;
+    padding: 18px;
+  }
+
+  .checkout-main{
+    padding: 20px;
   }
 
   .mobile-summary{
     display: block;
     margin-top: 18px;
-    padding: 16px;
-    border-radius: 18px;
+    padding: 14px;
+    border-radius: 16px;
     background: #f8fafc;
     border: 1px solid #e5e7eb;
   }
@@ -811,47 +897,198 @@ async function continuar() {
 
 @media (max-width: 640px){
   .checkout-page{
-    padding: 14px;
+    padding: 10px;
+    padding-bottom: 150px;
+  }
+
+  .checkout-wrap{
+    padding-top: 6px;
+  }
+
+  .checkout-head{
+    margin-bottom: 12px;
   }
 
   .checkout-main,
   .checkout-summary{
-    padding: 18px;
-    border-radius: 22px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .card{
+    border: 1px solid rgba(229,231,235,0.95);
+    box-shadow:
+      0 10px 24px rgba(0,0,0,0.06),
+      0 3px 8px rgba(0,0,0,0.03);
+  }
+
+  .eyebrow,
+  .badge{
+    font-size: 11px;
+    margin-bottom: 6px;
   }
 
   .checkout-head h2{
-    font-size: 28px;
+    font-size: 20px;
+    line-height: 1.08;
+    letter-spacing: -0.4px;
+  }
+
+  .muted,
+  .section-muted,
+  .summary-muted,
+  .summary-note,
+  .summary-help{
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  .section + .section{
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .section-head{
+    margin-bottom: 12px;
+  }
+
+  .section-head h3,
+  .summary-title{
+    font-size: 20px;
   }
 
   .field-grid{
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .field label{
+    font-size: 12px;
+    margin-bottom: 6px;
   }
 
   .field input,
   .field textarea,
   .field select{
     font-size: 15px;
-    padding: 14px;
+    padding: 13px 14px;
     border-radius: 14px;
   }
 
-  .pagar-btn{
-    min-height: 50px;
+  .field textarea{
+    min-height: 96px;
+  }
+
+  .saved-preview{
+    padding: 12px;
     border-radius: 16px;
-    font-size: 15px;
+  }
+
+  .saved-preview-head{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .saved-preview p{
+    font-size: 12px;
+    margin: 3px 0;
+  }
+
+  .pill{
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .summary-top{
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .edit-cart-btn{
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    width: fit-content;
+    gap: 5px;
+  }
+
+  .edit-cart-icon{
+    font-size: 11px;
+  }
+
+  .mobile-summary{
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .summary-products{
+    margin-top: 10px;
   }
 
   .summary-product{
-    grid-template-columns: 54px 1fr;
+    grid-template-columns: 42px 1fr auto;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .product-thumb{
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+  }
+
+  .product-info h4{
+    font-size: 13px;
+    margin: 0 0 2px;
+  }
+
+  .product-info p{
+    font-size: 11px;
+    margin: 1px 0;
   }
 
   .product-total{
-    grid-column: 2;
+    font-size: 13px;
+  }
+
+  .summary-lines{
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  .summary-line{
+    font-size: 14px;
+  }
+
+  .summary-total{
+    margin-top: 12px;
+    padding: 14px;
+    border-top: 1px solid #e5e7eb;
+    background: #f8fafc;
+    border-radius: 14px;
+  }
+
+  .summary-total span:first-child{
+    font-size: 16px;
   }
 
   .summary-total span:last-child{
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .pagar-btn{
+    margin-top: 16px;
+    min-height: 46px;
+    border-radius: 14px;
+    font-size: 14px;
   }
 }
 </style>
