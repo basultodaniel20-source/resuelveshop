@@ -12,7 +12,6 @@
       </div>
 
       <div v-if="pedido" class="payment-layout">
-        <!-- IZQUIERDA -->
         <section class="payment-main card">
           <div class="status-banner">
             <div class="status-icon">✓</div>
@@ -100,7 +99,6 @@
           </div>
         </section>
 
-        <!-- DERECHA -->
         <aside class="payment-summary card">
           <h3 class="summary-title">Resumen final</h3>
           <p class="summary-muted">Detalles de tu compra</p>
@@ -636,6 +634,7 @@ async function pagarBizum() {
 @media (max-width: 640px){
   .payment-page{
     padding: 10px;
+    padding-bottom: 150px;
   }
 
   .payment-wrap{
@@ -667,7 +666,7 @@ async function pagarBizum() {
   }
 
   .payment-head h2{
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1.08;
     letter-spacing: -0.4px;
   }
@@ -677,7 +676,7 @@ async function pagarBizum() {
   .secure-note,
   .status-banner p,
   .method-left p{
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.4;
     margin-top: 4px;
   }
@@ -714,9 +713,9 @@ async function pagarBizum() {
 
   .info-card{
     margin-top: 12px;
-    padding: 14px;
+    padding: 12px;
     border-radius: 16px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .info-row{
@@ -726,11 +725,11 @@ async function pagarBizum() {
   }
 
   .info-row span{
-    font-size: 12px;
+    font-size: 11.5px;
   }
 
   .info-row strong{
-    font-size: 15px;
+    font-size: 14px;
     text-align: left;
   }
 
@@ -772,29 +771,29 @@ async function pagarBizum() {
   }
 
   .summary-product{
-    grid-template-columns: 46px 1fr auto;
+    grid-template-columns: 42px 1fr auto;
     gap: 8px;
-    padding: 10px 0;
+    padding: 8px 0;
   }
 
   .product-thumb{
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
   }
 
   .product-info h4{
-    font-size: 14px;
+    font-size: 13px;
     margin: 0 0 2px;
   }
 
   .product-info p{
-    font-size: 12px;
+    font-size: 11px;
     margin: 1px 0;
   }
 
   .product-total{
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .summary-lines{
