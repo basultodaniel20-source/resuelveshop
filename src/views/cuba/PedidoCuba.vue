@@ -1,15 +1,6 @@
 <template>
-  <div class="page">
-    <h1>Pedidos</h1>
+  <div style="padding:20px">
+    <h1>Pedidos Cuba</h1>
+    <p>Aquí verás tus pedidos cuando conectemos esta sección.</p>
   </div>
 </template>
-
-<script setup>
-// lógica aquí
-</script>
-
-<style scoped>
-.page{
-  padding:20px;
-}
-</style>

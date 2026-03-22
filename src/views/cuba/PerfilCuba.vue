@@ -1,15 +1,6 @@
 <template>
-  <div class="page">
-    <h1>Perfil</h1>
+  <div style="padding:20px">
+    <h1>Perfil Cuba</h1>
+    <p>Mi cuenta dentro de la tienda Cuba.</p>
   </div>
 </template>
-
-<script setup>
-// lógica aquí
-</script>
-
-<style scoped>
-.page{
-  padding:20px;
-}
-</style>
