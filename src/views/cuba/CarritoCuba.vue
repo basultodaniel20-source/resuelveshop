@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <h1>Nombre de la página</h1>
+    <h1>Carrito</h1>
   </div>
 </template>
 
