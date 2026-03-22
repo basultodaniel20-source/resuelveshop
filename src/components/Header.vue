@@ -4,7 +4,7 @@
     <button class="hamb" @click="drawer = true" aria-label="Abrir menú">☰</button>
 
     <!-- LOGO -->
-    <router-link to="/" class="brand" @click="resetBuscar">
+    <router-link :to="homePath" class="brand" @click="resetBuscar">
       <img :src="logo" alt="Logo" class="logo" />
     </router-link>
 
@@ -36,7 +36,7 @@
           :class="{ activa: i === seleccion }"
           @mousedown.prevent="seleccionar(s)"
         >
-          <img :src="s.imagen" />
+          <img :src="s.imagen" alt="" />
           <span>{{ s.nombre }}</span>
         </div>
       </div>
@@ -44,15 +44,29 @@
 
     <!-- ACCIONES -->
     <div class="acciones">
-      <router-link v-if="user" to="/account" class="cuenta-icon" aria-label="Mi cuenta">
+      <router-link
+        v-if="user"
+        :to="accountPath"
+        class="cuenta-icon"
+        aria-label="Mi cuenta"
+      >
         👤
       </router-link>
 
-      <router-link v-else to="/login" class="cuenta-icon" aria-label="Login">
+      <router-link
+        v-else
+        to="/login"
+        class="cuenta-icon"
+        aria-label="Login"
+      >
         🔑
       </router-link>
 
-      <router-link to="/carrito" class="carrito-indicador" aria-label="Carrito">
+      <router-link
+        :to="carritoPath"
+        class="carrito-indicador"
+        aria-label="Carrito"
+      >
         🛒 <span class="n">{{ total }}</span>
       </router-link>
     </div>
@@ -66,14 +80,14 @@
           <div class="avatar">{{ iniciales }}</div>
           <div class="drawer-info">
             <div class="drawer-email">{{ user.email }}</div>
-            <div class="drawer-sub">Cuenta</div>
+            <div class="drawer-sub">{{ tiendaLabel }}</div>
           </div>
         </div>
 
         <div class="drawer-user" v-else>
           <div class="avatar">RS</div>
           <div class="drawer-info">
-            <div class="drawer-email">ResuelveShop</div>
+            <div class="drawer-email">{{ tiendaLabel }}</div>
             <div class="drawer-sub">Menú</div>
           </div>
         </div>
@@ -84,18 +98,38 @@
       </div>
 
       <nav class="drawer-nav">
-        <router-link class="nav-link" to="/" @click="goClose">🏠 Inicio</router-link>
+        <router-link class="nav-link" :to="homePath" @click="goClose">
+          🏠 Inicio
+        </router-link>
 
-        <router-link class="nav-link" to="/carrito" @click="goClose">
+        <router-link class="nav-link" :to="catalogoPath" @click="goClose">
+          🗂️ Catálogo
+        </router-link>
+
+        <router-link class="nav-link" :to="carritoPath" @click="goClose">
           🛒 Carrito ({{ total }})
         </router-link>
 
-        <router-link v-if="user" class="nav-link" to="/account" @click="goClose">
+        <router-link
+          v-if="user"
+          class="nav-link"
+          :to="accountPath"
+          @click="goClose"
+        >
           👤 Mi cuenta
         </router-link>
 
-        <router-link v-else class="nav-link" to="/login" @click="goClose">
+        <router-link
+          v-else
+          class="nav-link"
+          to="/login"
+          @click="goClose"
+        >
           🔑 Iniciar sesión
+        </router-link>
+
+        <router-link class="nav-link" to="/" @click="goClose">
+          🔄 Cambiar tienda
         </router-link>
 
         <button v-if="user" class="nav-link danger" @click="logout">
@@ -108,9 +142,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue"
-import { useRouter } from "vue-router"
+import { useRouter, useRoute } from "vue-router"
 import logo from "../assets/logo.png"
-import { productos } from "../data/productos.js"
+import { productos as productosInternacional } from "../data/productosInternacional.js"
+import { productos as productosCuba } from "../data/productosCuba.js"
 import { supabase } from "../supabase"
 
 defineProps({
@@ -119,6 +154,7 @@ defineProps({
 
 const emit = defineEmits(["buscar"])
 const router = useRouter()
+const route = useRoute()
 
 const search = ref("")
 const abierto = ref(false)
@@ -128,6 +164,45 @@ const searchBox = ref(null)
 const drawer = ref(false)
 const user = ref(null)
 let unsubAuth = null
+
+const isInternacional = computed(() => route.path.startsWith("/internacional"))
+const isCuba = computed(() => route.path.startsWith("/cuba"))
+
+const homePath = computed(() => {
+  if (isInternacional.value) return "/internacional"
+  if (isCuba.value) return "/cuba"
+  return "/"
+})
+
+const catalogoPath = computed(() => {
+  if (isInternacional.value) return "/internacional/catalogo"
+  if (isCuba.value) return "/cuba/catalogo"
+  return "/"
+})
+
+const carritoPath = computed(() => {
+  if (isInternacional.value) return "/internacional/carrito"
+  if (isCuba.value) return "/cuba/carrito"
+  return "/"
+})
+
+const accountPath = computed(() => {
+  if (isInternacional.value) return "/internacional/account"
+  if (isCuba.value) return "/cuba/account"
+  return "/login"
+})
+
+const tiendaLabel = computed(() => {
+  if (isInternacional.value) return "ResuelveShop Internacional"
+  if (isCuba.value) return "ResuelveShop Cuba"
+  return "ResuelveShop"
+})
+
+const productosActuales = computed(() => {
+  if (isInternacional.value) return productosInternacional
+  if (isCuba.value) return productosCuba
+  return []
+})
 
 const iniciales = computed(() => {
   const email = (user.value?.email || "").trim()
@@ -140,17 +215,17 @@ async function cargarUsuario() {
   user.value = data.user ?? null
 }
 
-/* 🔄 RESET BUSCAR AL HACER CLIC EN LOGO */
 function resetBuscar() {
   search.value = ""
   emit("buscar", "")
 }
 
-/* 🔎 FILTRAR SUGERENCIAS */
 const sugerencias = computed(() => {
   if (!search.value.trim()) return []
-  return productos
-    .filter(p => p.nombre.toLowerCase().includes(search.value.toLowerCase()))
+  return productosActuales.value
+    .filter((p) =>
+      String(p.nombre || "").toLowerCase().includes(search.value.toLowerCase())
+    )
     .slice(0, 5)
 })
 
@@ -168,18 +243,22 @@ function onEnter() {
 
   abierto.value = false
   emit("buscar", search.value)
-  document.activeElement.blur()
+  document.activeElement?.blur?.()
 
-  if (router.currentRoute.value.path !== "/") router.push("/")
+  if (router.currentRoute.value.path !== homePath.value) {
+    router.push(homePath.value)
+  }
 }
 
 function seleccionar(producto) {
   search.value = producto.nombre
   emit("buscar", producto.nombre)
   abierto.value = false
-  document.activeElement.blur()
+  document.activeElement?.blur?.()
 
-  if (router.currentRoute.value.path !== "/") router.push("/")
+  if (router.currentRoute.value.path !== homePath.value) {
+    router.push(homePath.value)
+  }
 }
 
 function limpiar() {
@@ -188,7 +267,6 @@ function limpiar() {
   abierto.value = false
 }
 
-/* 👇 CLICK FUERA CIERRA */
 function clickFuera(e) {
   if (!searchBox.value?.contains(e.target)) {
     abierto.value = false
@@ -209,7 +287,6 @@ function goClose() {
   drawer.value = false
 }
 
-/* 🚪 LOGOUT */
 async function logout() {
   await supabase.auth.signOut()
   drawer.value = false
@@ -455,19 +532,16 @@ onBeforeUnmount(() => {
     padding: 10px 12px;
   }
 
-  /* Hamburguesa más grande */
   .hamb{
     padding: 14px 18px;
     font-size: 20px;
   }
 
-  /* Logo más visible pero controlado */
   .logo{
     height: 70px;
     border-radius: 14px;
   }
 
-  /* Buscador abajo ocupando todo */
   .search-box{
     grid-column: 1 / -1;
     order: 3;
@@ -478,7 +552,6 @@ onBeforeUnmount(() => {
     padding: 12px 40px 12px 40px;
   }
 
-  /* ✅ En móvil ocultar botones de arriba (Perfil/Login y Carrito) */
   .acciones{
     display:none;
   }

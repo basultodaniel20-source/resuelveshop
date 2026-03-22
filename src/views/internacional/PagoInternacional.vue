@@ -185,12 +185,12 @@
 <script setup>
 import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
-import { supabase } from "../supabase"
+import { supabase } from "../../supabase"
 
 const router = useRouter()
 const procesando = ref(false)
 
-const pedido = ref(JSON.parse(localStorage.getItem("checkout")) || null)
+const pedido = ref(JSON.parse(localStorage.getItem("checkout_pending")) || null)
 
 const subtotal = computed(() => {
   if (!pedido.value) return 0
@@ -209,36 +209,65 @@ const cantidadTotal = computed(() =>
   (pedido.value?.productos || []).reduce((s, i) => s + Number(i.cantidad || 0), 0)
 )
 
+if (!pedido.value) {
+  router.push("/checkout")
+}
+
 function irAlCarrito() {
   router.push("/carrito")
 }
 
 async function pagarBizum() {
-  if (!pedido.value?.order_id) {
-    alert("No se encontró el pedido.")
+  if (!pedido.value) {
+    alert("No se encontró la información del checkout.")
+    router.push("/checkout")
+    return
+  }
+
+  const { data } = await supabase.auth.getUser()
+  const user = data.user
+
+  if (!user) {
+    alert("Debes iniciar sesión")
+    router.push({ path: "/login", query: { redirect: "/checkout" } })
     return
   }
 
   procesando.value = true
 
-  const { error } = await supabase
+const orderPayload = {
+  user_id: user.id,
+  status: "paid",
+  payment_status: "paid",
+  payment_method: "bizum",
+  paid_at: new Date().toISOString(),
+  total: Number(pedido.value.total || 0),
+  currency: "EUR",
+  items: pedido.value.productos || [],
+  shipping: {
+    facturacion: pedido.value.facturacion || {},
+    entrega: pedido.value.entrega || {},
+  },
+}
+
+  const { data: order, error } = await supabase
     .from("orders")
-    .update({
-      status: "paid",
-      paid_at: new Date().toISOString(),
-    })
-    .eq("id", pedido.value.order_id)
+    .insert(orderPayload)
+    .select("id")
+    .single()
 
   procesando.value = false
 
   if (error) {
     console.error(error)
-    alert("No se pudo actualizar el pago. Intenta de nuevo.")
+    alert("No se pudo registrar el pago. Intenta de nuevo.")
     return
   }
 
   localStorage.removeItem("carrito")
-  router.push("/gracias")
+  localStorage.removeItem("checkout_pending")
+
+  router.push(`/gracias?order=${order.id}`)
 }
 </script>
 

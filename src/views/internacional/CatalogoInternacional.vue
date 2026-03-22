@@ -36,8 +36,8 @@
 <script setup>
 import { computed } from "vue"
 import { useRoute } from "vue-router"
-import Categorias from "../components/Categorias.vue"
-import ProductoCard from "../components/ProductoCard.vue"
+import Categorias from "../../components/Categorias.vue"
+import ProductoCard from "../../components/ProductoCard.vue"
 
 defineEmits(["agregar"])
 

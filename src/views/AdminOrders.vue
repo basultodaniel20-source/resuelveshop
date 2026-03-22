@@ -242,7 +242,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from "vue"
 import { supabase } from "../supabase"
-import { productos as productosData } from "../data/productos.js"
+import { productos as productosData } from "../data/productosInternacional.js"
 
 const loading = ref(true)
 const errorMsg = ref("")

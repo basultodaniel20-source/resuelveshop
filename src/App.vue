@@ -1,78 +1,151 @@
 <template>
   <div class="app">
-    <!-- HEADER ÚNICO -->
-    <div id="app-header">
+    <!-- HEADER SOLO EN TIENDAS -->
+    <div v-if="showShell" id="app-header">
       <Header :total="totalItems" @buscar="texto = $event" />
     </div>
 
     <!-- PÁGINAS -->
-    <main class="content">
+    <main class="content" :class="{ noShell: !showShell }">
       <router-view
         :busqueda="texto"
         :key="$route.fullPath"
-        :productos="productos"
-        :categorias="categorias"
-        :carrito="carrito"
+        :productos="productosActuales"
+        :categorias="categoriasActuales"
+        :carrito="carritoActual"
         @agregar="agregarAlCarrito"
         @eliminar="eliminar"
       />
     </main>
 
-    <!-- FOOTER (solo escritorio) -->
-    <Footer class="footer-desktop" />
+    <!-- FOOTER SOLO EN TIENDAS -->
+    <Footer v-if="showShell" class="footer-desktop" />
 
-    <!-- BOTTOM NAV (solo móvil) -->
-    <BottomNav :total="totalItems" />
+    <!-- BOTTOM NAV SOLO EN TIENDAS -->
+    <BottomNav v-if="showShell" :total="totalItems" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue"
+import { useRoute } from "vue-router"
+
 import Header from "./components/Header.vue"
 import Footer from "./components/Footer.vue"
 import BottomNav from "./components/BottomNav.vue"
-import { productos as productosData } from "./data/productos.js"
 
+import { productos as productosInternacionalData } from "./data/productosInternacional.js"
+import { productos as productosCubaData } from "./data/productosCuba.js"
+
+const route = useRoute()
 const texto = ref("")
-const productos = ref(productosData)
 
-// ✅ Estado del carrito
-const carrito = ref([])
+/* =========================
+   DETECTAR TIENDA ACTUAL
+========================= */
+const isInternacional = computed(() => route.path.startsWith("/internacional"))
+const isCuba = computed(() => route.path.startsWith("/cuba"))
 
-function cargarCarrito() {
-  carrito.value = JSON.parse(localStorage.getItem("carrito")) || []
+const showShell = computed(() => {
+  return isInternacional.value || isCuba.value
+})
+
+/* =========================
+   PRODUCTOS Y CATEGORÍAS
+========================= */
+const productosInternacional = ref(productosInternacionalData || [])
+const productosCuba = ref(productosCubaData || [])
+
+const productosActuales = computed(() => {
+  if (isInternacional.value) return productosInternacional.value
+  if (isCuba.value) return productosCuba.value
+  return []
+})
+
+const categoriasActuales = computed(() => {
+  return ["Todos", ...new Set(productosActuales.value.map((p) => p.categoria).filter(Boolean))]
+})
+
+/* =========================
+   CARRITOS SEPARADOS
+========================= */
+const carritoInternacional = ref([])
+const carritoCuba = ref([])
+
+function cargarCarritoInternacional() {
+  carritoInternacional.value =
+    JSON.parse(localStorage.getItem("carrito_internacional")) || []
 }
 
-// ✅ Mantener localStorage sincronizado
+function cargarCarritoCuba() {
+  carritoCuba.value =
+    JSON.parse(localStorage.getItem("carrito_cuba")) || []
+}
+
+const carritoActual = computed(() => {
+  if (isInternacional.value) return carritoInternacional.value
+  if (isCuba.value) return carritoCuba.value
+  return []
+})
+
 watch(
-  carrito,
-  (nuevoCarrito) => {
-    localStorage.setItem("carrito", JSON.stringify(nuevoCarrito))
+  carritoInternacional,
+  (nuevo) => {
+    localStorage.setItem("carrito_internacional", JSON.stringify(nuevo))
   },
   { deep: true }
 )
 
-const categorias = ["Todos", ...new Set(productos.value.map((p) => p.categoria))]
+watch(
+  carritoCuba,
+  (nuevo) => {
+    localStorage.setItem("carrito_cuba", JSON.stringify(nuevo))
+  },
+  { deep: true }
+)
 
+/* =========================
+   ACCIONES CARRITO
+========================= */
 function agregarAlCarrito(producto) {
-  const item = carrito.value.find((p) => p.id === producto.id)
+  if (isInternacional.value) {
+    const item = carritoInternacional.value.find((p) => p.id === producto.id)
+    if (item) item.cantidad += producto.cantidad || 1
+    else carritoInternacional.value.push({ ...producto, cantidad: producto.cantidad || 1 })
+    return
+  }
 
-  if (item) item.cantidad += producto.cantidad
-  else carrito.value.push({ ...producto, cantidad: producto.cantidad || 1 })
+  if (isCuba.value) {
+    const item = carritoCuba.value.find((p) => p.id === producto.id)
+    if (item) item.cantidad += producto.cantidad || 1
+    else carritoCuba.value.push({ ...producto, cantidad: producto.cantidad || 1 })
+  }
 }
 
 function eliminar(i) {
-  carrito.value = carrito.value.filter((p) => p.id !== i.id)
+  if (isInternacional.value) {
+    carritoInternacional.value = carritoInternacional.value.filter((p) => p.id !== i.id)
+    return
+  }
+
+  if (isCuba.value) {
+    carritoCuba.value = carritoCuba.value.filter((p) => p.id !== i.id)
+  }
 }
 
 const totalItems = computed(() =>
-  carrito.value.reduce((t, i) => t + i.cantidad, 0)
+  carritoActual.value.reduce((t, i) => t + (Number(i.cantidad) || 0), 0)
 )
 
-/* ✅ Header height auto */
+/* =========================
+   HEADER HEIGHT AUTO
+========================= */
 function updateHeaderHeight() {
   const el = document.getElementById("app-header")
-  if (!el) return
+  if (!el) {
+    document.documentElement.style.setProperty("--header-h", `0px`)
+    return
+  }
 
   const h = Math.round(el.getBoundingClientRect().height || 0)
   document.documentElement.style.setProperty("--header-h", `${h}px`)
@@ -80,12 +153,15 @@ function updateHeaderHeight() {
 
 let ro = null
 
-onMounted(() => {
-  // carrito
-  cargarCarrito()
-  window.addEventListener("carrito-actualizado", cargarCarrito)
+function recargarCarritos() {
+  cargarCarritoInternacional()
+  cargarCarritoCuba()
+}
 
-  // header
+onMounted(() => {
+  recargarCarritos()
+  window.addEventListener("carrito-actualizado", recargarCarritos)
+
   updateHeaderHeight()
   requestAnimationFrame(updateHeaderHeight)
   setTimeout(updateHeaderHeight, 200)
@@ -99,30 +175,47 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener("carrito-actualizado", cargarCarrito)
+  window.removeEventListener("carrito-actualizado", recargarCarritos)
   window.removeEventListener("resize", updateHeaderHeight)
   if (ro) ro.disconnect()
 })
+
+watch(
+  () => route.fullPath,
+  () => {
+    texto.value = ""
+    recargarCarritos()
+    requestAnimationFrame(updateHeaderHeight)
+  }
+)
 </script>
 
 <style>
 :root{
-  --header-h: 120px;     /* fallback */
-  --bottom-nav-h: 76px;  /* pon 64px si tu bottom nav mide 64px */
+  --header-h: 120px;
+  --bottom-nav-h: 76px;
+}
+
+html, body, #app{
+  margin: 0;
+  padding: 0;
+  background: #f5f6f8;
 }
 
 .app{
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 12px;          /* ✅ sin padding-bottom aquí */
+  padding: 8px 12px;
   background: #f5f6f8;
   box-sizing: border-box;
 }
 
-/* ✅ aquí va el espacio del bottom nav */
 .content{
   padding-bottom: calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom));
 }
 
+.content.noShell{
+  padding-bottom: 0;
+}
 </style>

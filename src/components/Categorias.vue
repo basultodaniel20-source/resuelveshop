@@ -3,7 +3,7 @@
     <router-link
       v-for="cat in categorias"
       :key="cat"
-      :to="cat === 'Todos' ? '/catalogo' : `/catalogo/${cat}`"
+      :to="getPath(cat)"
       class="btn"
       :class="{ activa: cat === categoriaActual }"
     >
@@ -20,17 +20,31 @@ defineProps({
   categorias: Array,
 })
 
-// obtener la ruta actual
 const route = useRoute()
 
-// categoría actual desde la ruta
+/* 🔥 detectar tienda */
+const isInternacional = computed(() => route.path.startsWith("/internacional"))
+const isCuba = computed(() => route.path.startsWith("/cuba"))
+
+const basePath = computed(() => {
+  if (isInternacional.value) return "/internacional/catalogo"
+  if (isCuba.value) return "/cuba/catalogo"
+  return "/catalogo"
+})
+
+/* 🔥 construir ruta correcta */
+function getPath(cat) {
+  if (cat === "Todos") return basePath.value
+  return `${basePath.value}/${cat}`
+}
+
+/* categoría activa */
 const categoriaActual = computed(() => {
   return route.params.categoria || "Todos"
 })
 </script>
 
 <style scoped>
-/* CONTENEDOR DE CATEGORÍAS */
 .categorias {
   display: flex;
   gap: 12px;
@@ -39,12 +53,10 @@ const categoriaActual = computed(() => {
   transition: all 0.15s ease;
 }
 
-/* efecto presionado */
 .categorias .btn:active {
   transform: scale(0.95);
 }
 
-/* BOTONES DE CATEGORÍAS */
 .btn {
   padding: 8px 16px;
   border-radius: 18px;
@@ -54,7 +66,6 @@ const categoriaActual = computed(() => {
   font-weight: 600;
 }
 
-/* categoría activa */
 .btn.activa {
   background: #28a745;
   color: white;

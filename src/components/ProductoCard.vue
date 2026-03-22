@@ -1,7 +1,7 @@
 <template>
   <article class="producto">
     <!-- ZONA CLICABLE → VA AL DETALLE -->
-    <router-link :to="`/producto/${producto.id}`" class="link">
+    <router-link :to="detallePath" class="link">
       <div class="img-box">
         <img
           :src="producto.imagen"
@@ -29,15 +29,26 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
+import { useRoute } from "vue-router"
 
 const props = defineProps({
   producto: Object
 })
 
 const emit = defineEmits(["agregar"])
+const route = useRoute()
 
 const cantidad = ref(1)
+
+const isInternacional = computed(() => route.path.startsWith("/internacional"))
+const isCuba = computed(() => route.path.startsWith("/cuba"))
+
+const detallePath = computed(() => {
+  if (isInternacional.value) return `/internacional/producto/${props.producto.id}`
+  if (isCuba.value) return `/cuba/producto/${props.producto.id}`
+  return `/producto/${props.producto.id}`
+})
 
 function mas() {
   cantidad.value++
@@ -69,11 +80,9 @@ function animarAlCarrito(origenElemento) {
   const bola = document.createElement("div")
   bola.className = "particula-carrito"
 
-  // Posición inicial (centro del botón)
   const startX = origenRect.left + origenRect.width / 2
   const startY = origenRect.top + origenRect.height / 2
 
-  // Posición final (centro del carrito)
   const endX = cartRect.left + cartRect.width / 2
   const endY = cartRect.top + cartRect.height / 2
 
@@ -82,20 +91,16 @@ function animarAlCarrito(origenElemento) {
 
   document.body.appendChild(bola)
 
-  // Forzar render
   bola.getBoundingClientRect()
 
-  // Mover al carrito
   bola.style.left = endX + "px"
   bola.style.top = endY + "px"
   bola.style.transform = "scale(0.3)"
   bola.style.opacity = "0.3"
 
-  // Al terminar
   setTimeout(() => {
     bola.remove()
 
-    // Bounce del carrito
     carrito.classList.remove("bounce")
     void carrito.offsetWidth
     carrito.classList.add("bounce")
@@ -110,6 +115,9 @@ function animarAlCarrito(origenElemento) {
   padding: 8px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* LINK DEL PRODUCTO */
@@ -174,14 +182,9 @@ function animarAlCarrito(origenElemento) {
 }
 
 .cantidad-selector button:active {
+  background: #cfcfcf;
   transform: scale(0.95);
 }
-.producto {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 
 /* BOTÓN */
 .btn {

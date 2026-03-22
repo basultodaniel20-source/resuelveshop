@@ -1,0 +1,35 @@
+import reloj from "../assets/reloj.webp"
+import zapato from "../assets/zapato.webp"
+import camiseta from "../assets/camiseta.png"
+import kit from "../assets/kit.jpg"
+
+export const productos = [
+  {
+    id: 1,
+    nombre: "Reloj Deportivo",
+    precio: 25,
+    imagen: reloj,
+    categoria: "Accesorios"
+  },
+  {
+    id: 2,
+    nombre: "Zapatillas Urbanas",
+    precio: 45,
+    imagen: zapato,
+    categoria: "Calzado"
+  },
+  {
+    id: 3,
+    nombre: "Camiseta Básica",
+    precio: 15,
+    imagen: camiseta,
+    categoria: "Ropa"
+  },
+  {
+    id: 4,
+    nombre: "Kit Fitness",
+    precio: 30,
+    imagen: kit,
+    categoria: "Gym"
+  }
+]

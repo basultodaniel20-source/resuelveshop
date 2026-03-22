@@ -370,7 +370,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, nextTick, watch } from "vue"
-import ProductoCard from "../components/ProductoCard.vue"
+import ProductoCard from "../../components/ProductoCard.vue"
 
 defineEmits(["agregar"])
 

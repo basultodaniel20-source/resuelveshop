@@ -235,7 +235,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import { supabase } from "../supabase"
+import { supabase } from "../../supabase"
 
 const router = useRouter()
 
@@ -361,6 +361,12 @@ async function continuar() {
     return
   }
 
+  if (!carrito.value.length) {
+    alert("Tu carrito está vacío.")
+    router.push("/carrito")
+    return
+  }
+
   creandoPedido.value = true
 
   const nowIso = new Date().toISOString()
@@ -384,54 +390,19 @@ async function continuar() {
     return
   }
 
-  const orderPayload = {
+  const pedidoTemporal = {
     user_id: user.id,
-    status: "pending",
-    total: totalFinal.value,
-    currency: "EUR",
-    items: carrito.value.map((i) => ({
+    productos: carrito.value.map((i) => ({
       id: i.id,
       nombre: i.nombre,
-      precio: i.precio,
-      cantidad: i.cantidad,
+      precio: Number(i.precio || 0),
+      cantidad: Number(i.cantidad || 0),
       imagen: i.imagen || null,
     })),
-    shipping: {
-      facturacion: {
-        nombre: nombre.value,
-        telefono: telefono.value,
-        direccion: direccion.value,
-      },
-      entrega: {
-        shipping_address_id: selectedShippingId.value || null,
-        nombre: destinatarioNombre.value,
-        telefono: destinatarioTelefono.value,
-        direccion: destinatarioDireccion.value,
-        notas: notas.value || "",
-      },
-    },
-  }
-
-  const { data: order, error } = await supabase
-    .from("orders")
-    .insert(orderPayload)
-    .select("id")
-    .single()
-
-  creandoPedido.value = false
-
-  if (error) {
-    console.error(error)
-    alert("No se pudo crear el pedido. Intenta de nuevo.")
-    return
-  }
-
-  const pedido = {
-    order_id: order.id,
-    productos: carrito.value,
-    total: totalFinal.value,
     subtotal: total.value,
     envio: envio.value,
+    total: totalFinal.value,
+    currency: "EUR",
     facturacion: {
       nombre: nombre.value,
       telefono: telefono.value,
@@ -442,15 +413,18 @@ async function continuar() {
       nombre: destinatarioNombre.value,
       telefono: destinatarioTelefono.value,
       direccion: destinatarioDireccion.value,
-      notas: notas.value,
+      notas: notas.value || "",
     },
+    payment_method: "bizum",
+    created_at: nowIso,
   }
 
-  localStorage.setItem("checkout", JSON.stringify(pedido))
+  localStorage.setItem("checkout_pending", JSON.stringify(pedidoTemporal))
+
+  creandoPedido.value = false
   router.push("/pago")
 }
 </script>
-
 <style scoped>
 .checkout-page{
   min-height: 100vh;

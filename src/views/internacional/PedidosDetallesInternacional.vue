@@ -77,8 +77,8 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { supabase } from "../supabase"
-import { productos as productosData } from "../data/productos.js"
+import { supabase } from "../../supabase"
+import { productos as productosData } from "../../data/productosInternacional.js"
 
 const route = useRoute()
 const router = useRouter()

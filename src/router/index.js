@@ -1,80 +1,241 @@
 import { createRouter, createWebHistory } from "vue-router"
-import Home from "../views/Home.vue"
-import CarritoView from "../views/CarritoView.vue"
-import ProductoDetalle from "../views/ProductoDetalle.vue"
-import Login from "../views/Login.vue"
-import Register from "../views/Register.vue"
-import Perfil from "../views/Perfil.vue"
-import Checkout from "../views/Checkout.vue"
-import Pago from "../views/Pago.vue"
-import ResetPassword from "../views/ResetPassword.vue"
-import AccountAddresses from "../views/AccountAddresses.vue"
-import AccountOrders from "../views/AccountOrders.vue"
 import { supabase } from "../supabase"
-import AccountOrderDetail from "../views/AccountOrderDetail.vue"
+
+// Selector inicial
+import SelectorInicial from "../views/SelectorInicial.vue"
+
+// Auth común
+import Login from "../views/auth/Login.vue"
+import Register from "../views/auth/Register.vue"
+import ResetPassword from "../views/auth/ResetPassword.vue"
+
+// Internacional
+import HomeInternacional from "../views/internacional/HomeInternacional.vue"
+import CatalogoInternacional from "../views/internacional/CatalogoInternacional.vue"
+import CarritoInternacional from "../views/internacional/CarritoInternacional.vue"
+import ProductoDetalleInternacional from "../views/internacional/ProductoDetalleInternacional.vue"
+import PerfilInternacional from "../views/internacional/PerfilInternacional.vue"
+import CheckoutInternacional from "../views/internacional/CheckoutInternacional.vue"
+import PagoInternacional from "../views/internacional/PagoInternacional.vue"
+import DireccionesInternacional from "../views/internacional/DireccionesInternacional.vue"
+import PedidosInternacional from "../views/internacional/PedidosInternacional.vue"
+import PedidosDetallesInternacional from "../views/internacional/PedidosDetallesInternacional.vue"
+
+// Cuba
+import HomeCuba from "../views/cuba/HomeCuba.vue"
+import CatalogoCuba from "../views/cuba/CatalogoCuba.vue"
+import CarritoCuba from "../views/cuba/CarritoCuba.vue"
+import ProductoCuba from "../views/cuba/ProductoCuba.vue"
+import PerfilCuba from "../views/cuba/PerfilCuba.vue"
+import CheckoutCuba from "../views/cuba/CheckoutCuba.vue"
+import DireccionesCuba from "../views/cuba/DireccionesCuba.vue"
+import PedidoCuba from "../views/cuba/PedidoCuba.vue"
+import PedidoDetalleCuba from "../views/cuba/PedidoDetalleCuba.vue"
+
+// Admin
 import AdminOrders from "../views/AdminOrders.vue"
-import Catalogo from "../views/Catalogo.vue"
 
 const routes = [
-  { path: "/", component: Home },
-
-  { path: "/catalogo/:categoria", component: Catalogo, props: true },
-  { path: "/catalogo", component: Catalogo, props: true },
-
-  // compatibilidad por si ya tienes links viejos:
   {
-    path: "/categoria/:categoria",
-    redirect: (to) => `/catalogo/${to.params.categoria}`,
+    path: "/",
+    name: "selector-inicial",
+    component: SelectorInicial,
   },
 
-  { path: "/carrito", component: CarritoView },
+  {
+    path: "/login",
+    name: "login",
+    component: Login,
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: Register,
+  },
+  {
+    path: "/reset-password",
+    name: "reset-password",
+    component: ResetPassword,
+  },
 
   {
-    path: "/producto/:id",
-    name: "ProductoDetalle",
-    component: ProductoDetalle,
+    path: "/internacional",
+    name: "home-internacional",
+    component: HomeInternacional,
+  },
+  {
+    path: "/internacional/catalogo",
+    name: "catalogo-internacional",
+    component: CatalogoInternacional,
     props: true,
   },
+  {
+    path: "/internacional/catalogo/:categoria",
+    name: "catalogo-internacional-categoria",
+    component: CatalogoInternacional,
+    props: true,
+  },
+  {
+    path: "/internacional/carrito",
+    name: "carrito-internacional",
+    component: CarritoInternacional,
+  },
+  {
+    path: "/internacional/producto/:id",
+    name: "producto-internacional",
+    component: ProductoDetalleInternacional,
+    props: true,
+  },
+  {
+    path: "/internacional/checkout",
+    name: "checkout-internacional",
+    component: CheckoutInternacional,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/internacional/pago",
+    name: "pago-internacional",
+    component: PagoInternacional,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/internacional/account",
+    name: "perfil-internacional",
+    component: PerfilInternacional,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/internacional/account/addresses",
+    name: "direcciones-internacional",
+    component: DireccionesInternacional,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/internacional/account/orders",
+    name: "pedidos-internacional",
+    component: PedidosInternacional,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/internacional/account/orders/:id",
+    name: "pedido-detalle-internacional",
+    component: PedidosDetallesInternacional,
+    meta: { requiresAuth: true },
+  },
 
-  { path: "/login", component: Login },
-  { path: "/register", component: Register },
+  {
+    path: "/cuba",
+    name: "home-cuba",
+    component: HomeCuba,
+  },
+  {
+    path: "/cuba/catalogo",
+    name: "catalogo-cuba",
+    component: CatalogoCuba,
+    props: true,
+  },
+  {
+    path: "/cuba/catalogo/:categoria",
+    name: "catalogo-cuba-categoria",
+    component: CatalogoCuba,
+    props: true,
+  },
+  {
+    path: "/cuba/carrito",
+    name: "carrito-cuba",
+    component: CarritoCuba,
+  },
+  {
+    path: "/cuba/producto/:id",
+    name: "producto-cuba",
+    component: ProductoCuba,
+    props: true,
+  },
+  {
+    path: "/cuba/checkout",
+    name: "checkout-cuba",
+    component: CheckoutCuba,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/cuba/account",
+    name: "perfil-cuba",
+    component: PerfilCuba,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/cuba/account/addresses",
+    name: "direcciones-cuba",
+    component: DireccionesCuba,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/cuba/account/orders",
+    name: "pedidos-cuba",
+    component: PedidoCuba,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/cuba/account/orders/:id",
+    name: "pedido-detalle-cuba",
+    component: PedidoDetalleCuba,
+    meta: { requiresAuth: true },
+  },
 
-  // ✅ Reset público (clave)
-  { path: "/reset-password", component: ResetPassword },
+  {
+    path: "/admin/orders",
+    name: "admin-orders",
+    component: AdminOrders,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
 
-  // ✅ Subrutas de "Mi cuenta" (primero)
+  {
+    path: "/catalogo",
+    redirect: "/internacional/catalogo",
+  },
+  {
+    path: "/catalogo/:categoria",
+    redirect: (to) => `/internacional/catalogo/${to.params.categoria}`,
+  },
+  {
+    path: "/categoria/:categoria",
+    redirect: (to) => `/internacional/catalogo/${to.params.categoria}`,
+  },
+  {
+    path: "/carrito",
+    redirect: "/internacional/carrito",
+  },
+  {
+    path: "/producto/:id",
+    redirect: (to) => `/internacional/producto/${to.params.id}`,
+  },
+  {
+    path: "/checkout",
+    redirect: "/internacional/checkout",
+  },
+  {
+    path: "/pago",
+    redirect: "/internacional/pago",
+  },
+  {
+    path: "/account",
+    redirect: "/internacional/account",
+  },
   {
     path: "/account/addresses",
-    component: AccountAddresses,
-    meta: { requiresAuth: true },
+    redirect: "/internacional/account/addresses",
   },
   {
     path: "/account/orders",
-    component: AccountOrders,
-    meta: { requiresAuth: true },
+    redirect: "/internacional/account/orders",
   },
-
-  // Detalle de orden
   {
     path: "/account/orders/:id",
-    component: AccountOrderDetail,
-    meta: { requiresAuth: true },
+    redirect: (to) => `/internacional/account/orders/${to.params.id}`,
   },
-
-  // ✅ Mi cuenta
-  { path: "/account", component: Perfil, meta: { requiresAuth: true } },
-
-  // ✅ Mantener compatibilidad
-  { path: "/perfil", redirect: "/account" },
-
-  { path: "/checkout", component: Checkout, meta: { requiresAuth: true } },
-  { path: "/pago", component: Pago, meta: { requiresAuth: true } },
-
-  // ✅ Rutas de admin
   {
-    path: "/admin/orders",
-    component: AdminOrders,
-    meta: { requiresAuth: true, requiresAdmin: true },
+    path: "/perfil",
+    redirect: "/internacional/account",
   },
 ]
 
@@ -83,14 +244,15 @@ const router = createRouter({
   routes,
 })
 
-// ✅ Guard: protege solo lo que tiene requiresAuth
 router.beforeEach(async (to) => {
   if (!to.meta.requiresAuth) return true
 
   const { data } = await supabase.auth.getSession()
   const user = data.session?.user
 
-  if (!user) return { path: "/login", query: { redirect: to.fullPath } }
+  if (!user) {
+    return { path: "/login", query: { redirect: to.fullPath } }
+  }
 
   if (to.meta.requiresAdmin) {
     const { data: prof, error } = await supabase

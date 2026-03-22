@@ -198,7 +198,7 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import { supabase } from "../supabase"
+import { supabase } from "../../supabase"
 
 const router = useRouter()
 
@@ -479,12 +479,18 @@ function clearSuccess() {
 </script>
 
 <style scoped>
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+
 .page{
   background:
     radial-gradient(circle at top left, rgba(34,197,94,0.06), transparent 24%),
     #f5f6f8;
   display:block;
-  padding:18px;
+  padding:14px;
   padding-top:0;
   min-height:auto;
 }
@@ -498,14 +504,14 @@ function clearSuccess() {
 .hero-card{
   position:relative;
   overflow:hidden;
-  margin:0 auto 18px;
+  margin:0 auto 16px;
 }
 
 .topGlow{
   position:absolute;
   inset:0 auto auto 0;
-  width:260px;
-  height:260px;
+  width:220px;
+  height:220px;
   background: radial-gradient(circle, rgba(34,197,94,0.11), transparent 65%);
   pointer-events:none;
 }
@@ -516,27 +522,27 @@ function clearSuccess() {
   background:rgba(255,255,255,0.94);
   backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,0.65);
-  border-radius:24px;
+  border-radius:22px;
   box-shadow:
     0 18px 40px rgba(0,0,0,0.08),
     0 6px 16px rgba(0,0,0,0.04);
 }
 
 .hero-card{
-  padding:22px;
+  padding:20px;
 }
 
 .address-grid{
   display:grid;
   grid-template-columns: 0.95fr 1.35fr;
-  gap:18px;
+  gap:16px;
   align-items:start;
 }
 
 .address-card{
   position:relative;
   overflow:hidden;
-  padding:22px;
+  padding:20px;
 }
 
 .head,
@@ -548,29 +554,30 @@ function clearSuccess() {
   position:relative;
   z-index:1;
   display:flex;
-  gap:14px;
+  gap:12px;
   align-items:flex-start;
   justify-content:space-between;
 }
 
 .head-left{
   display:flex;
-  gap:14px;
+  gap:12px;
   align-items:flex-start;
+  min-width:0;
 }
 
 .back{
-  width:48px;
-  height:48px;
-  flex:0 0 48px;
-  border-radius:16px;
+  width:46px;
+  height:46px;
+  flex:0 0 46px;
+  border-radius:15px;
   display:grid;
   place-items:center;
   background:linear-gradient(180deg, #f3f4f6 0%, #e9edf2 100%);
   text-decoration:none;
   color:#111827;
   font-weight:1000;
-  font-size:24px;
+  font-size:22px;
   border:1px solid rgba(0,0,0,0.05);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.85);
   transition:transform .16s ease, box-shadow .16s ease;
@@ -585,8 +592,8 @@ function clearSuccess() {
 
 .eyebrow,
 .badge{
-  margin:0 0 8px;
-  font-size:12px;
+  margin:0 0 6px;
+  font-size:11px;
   font-weight:1000;
   letter-spacing:.08em;
   text-transform:uppercase;
@@ -596,6 +603,10 @@ function clearSuccess() {
 .badge.billing{ color:#2563eb; }
 .badge.shipping{ color:#16a34a; }
 
+.headText{
+  min-width:0;
+}
+
 .headText h2,
 .sectionHead h3{
   margin:0;
@@ -603,17 +614,23 @@ function clearSuccess() {
 }
 
 .headText h2{
-  font-size:30px;
-  line-height:1.03;
+  font-size:clamp(1.45rem, 2.5vw, 2rem);
+  line-height:1.05;
   font-weight:1000;
-  letter-spacing:-0.7px;
+  letter-spacing:-0.6px;
+}
+
+.sectionHead h3{
+  font-size:clamp(1.05rem, 1.8vw, 1.35rem);
+  line-height:1.15;
+  font-weight:1000;
 }
 
 .muted,
 .sectionMuted{
   margin:6px 0 0;
   color:#6b7280;
-  font-size:14px;
+  font-size:13px;
   line-height:1.45;
   font-weight:700;
 }
@@ -627,17 +644,18 @@ function clearSuccess() {
 }
 
 .addBtn{
-  min-height:50px;
-  padding:0 18px;
-  border-radius:18px;
+  min-height:46px;
+  padding:0 16px;
+  border-radius:16px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
+  gap:8px;
   background:linear-gradient(180deg, #2fd160 0%, #24b04f 100%);
   color:white;
   font-weight:1000;
-  font-size:15px;
+  font-size:14px;
+  white-space:nowrap;
   box-shadow:0 14px 28px rgba(34,197,94,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
@@ -648,13 +666,13 @@ function clearSuccess() {
 }
 
 .miniBtn{
-  min-height:40px;
-  padding:0 14px;
-  border-radius:14px;
+  min-height:38px;
+  padding:0 12px;
+  border-radius:13px;
   background:linear-gradient(180deg, #f9fafb 0%, #eef2f7 100%);
   color:#1f2937;
   font-weight:900;
-  font-size:13px;
+  font-size:12px;
   border:1px solid rgba(0,0,0,0.05);
 }
 
@@ -672,17 +690,18 @@ function clearSuccess() {
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:34px;
-  padding:0 12px;
+  min-height:32px;
+  padding:0 11px;
   border-radius:999px;
   font-weight:900;
-  font-size:12px;
+  font-size:11px;
 }
 
 .counter{
   background:#f3f4f6;
   color:#374151;
-  min-height:40px;
+  min-height:36px;
+  flex-shrink:0;
 }
 
 .pill.primary{
@@ -697,28 +716,30 @@ function clearSuccess() {
 
 .addressPreview,
 .shippingItem{
-  margin-top:18px;
+  margin-top:16px;
   border:1px solid #e5e7eb;
-  border-radius:20px;
+  border-radius:18px;
   background:linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
-  padding:18px;
+  padding:16px;
 }
 
 .addressPreview h4,
 .shippingItem h4{
-  margin:0 0 8px;
+  margin:0 0 6px;
   color:#111827;
-  font-size:20px;
+  font-size:18px;
   font-weight:1000;
+  line-height:1.15;
 }
 
 .addressPreview p,
 .shippingBody p,
 .recipient{
-  margin:4px 0;
+  margin:3px 0;
   color:#4b5563;
-  line-height:1.5;
+  line-height:1.45;
   font-weight:700;
+  font-size:14px;
 }
 
 .recipient{
@@ -727,12 +748,13 @@ function clearSuccess() {
 
 .preline{
   white-space:pre-line;
+  word-break:break-word;
 }
 
 .shippingList{
   display:grid;
-  gap:14px;
-  margin-top:18px;
+  gap:12px;
+  margin-top:16px;
 }
 
 .shippingItem.active{
@@ -741,22 +763,22 @@ function clearSuccess() {
 }
 
 .shippingBody{
-  margin:14px 0 16px;
+  margin:12px 0 14px;
 }
 
 .shippingActions{
   flex-wrap:wrap;
   justify-content:flex-start;
-  gap:10px;
+  gap:8px;
 }
 
 .form,
 .modalForm{
   position:relative;
   z-index:1;
-  margin-top:18px;
+  margin-top:16px;
   display:grid;
-  gap:14px;
+  gap:12px;
 }
 
 .modalForm{
@@ -772,17 +794,17 @@ function clearSuccess() {
 
 .field label{
   display:block;
-  font-size:13px;
+  font-size:12px;
   font-weight:1000;
   color:#374151;
-  margin-bottom:8px;
+  margin-bottom:7px;
 }
 
 .field input,
 .field textarea{
   width:100%;
-  padding:15px 16px;
-  border-radius:16px;
+  padding:14px 15px;
+  border-radius:14px;
   border:1px solid #e5e7eb;
   outline:none;
   font-size:16px;
@@ -795,7 +817,7 @@ function clearSuccess() {
 
 .field textarea{
   resize:vertical;
-  min-height:120px;
+  min-height:110px;
 }
 
 .field input::placeholder,
@@ -817,7 +839,7 @@ function clearSuccess() {
   display:flex;
   align-items:center;
   gap:10px;
-  font-size:14px;
+  font-size:13px;
   font-weight:900;
   color:#374151;
 }
@@ -825,13 +847,14 @@ function clearSuccess() {
 .checkRow input{
   width:18px;
   height:18px;
+  flex:0 0 18px;
 }
 
 .btn{
-  margin-top:6px;
+  margin-top:4px;
   width:100%;
-  min-height:52px;
-  border-radius:18px;
+  min-height:48px;
+  border-radius:16px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -839,7 +862,7 @@ function clearSuccess() {
   background:linear-gradient(180deg, #2fd160 0%, #24b04f 100%);
   color:white;
   font-weight:1000;
-  font-size:16px;
+  font-size:15px;
   box-shadow:
     0 14px 28px rgba(34,197,94,0.28),
     inset 0 1px 0 rgba(255,255,255,0.18);
@@ -873,38 +896,41 @@ function clearSuccess() {
   backdrop-filter:blur(5px);
   display:grid;
   place-items:center;
-  padding:18px;
+  padding:14px;
 }
 
 .modalCard{
   width:100%;
-  max-width:760px;
-  padding:22px;
+  max-width:720px;
+  padding:20px;
+  max-height:92vh;
+  overflow:auto;
 }
 
 .emptyState{
-  margin-top:18px;
+  margin-top:16px;
   border:1px dashed #d1d5db;
-  border-radius:20px;
-  padding:22px;
+  border-radius:18px;
+  padding:18px;
   color:#6b7280;
   font-weight:800;
   display:grid;
-  gap:6px;
+  gap:5px;
   text-align:center;
+  font-size:14px;
 }
 
 .globalMsg{
-  margin:16px auto 0;
+  margin:14px auto 0;
   max-width:1160px;
 }
 
 .ok,
 .err{
-  padding:12px 14px;
-  border-radius:16px;
+  padding:11px 13px;
+  border-radius:14px;
   font-weight:900;
-  font-size:14px;
+  font-size:13px;
 }
 
 .ok{
@@ -928,7 +954,7 @@ function clearSuccess() {
   .hero-card,
   .address-card,
   .modalCard{
-    padding:26px;
+    padding:24px;
   }
 
   .headText h2{
@@ -937,8 +963,14 @@ function clearSuccess() {
 }
 
 @media (max-width: 900px){
+  .page{
+    padding:12px;
+    padding-top:0;
+  }
+
   .address-grid{
     grid-template-columns:1fr;
+    gap:14px;
   }
 
   .hero-head{
@@ -950,14 +982,27 @@ function clearSuccess() {
   .counter{
     width:100%;
   }
+
+  .counter{
+    justify-content:center;
+  }
 }
 
 @media (max-width: 640px){
+  .page{
+    padding:10px;
+    padding-top:0;
+  }
+
+  .hero-card{
+    margin-bottom:12px;
+  }
+
   .card,
   .hero-card,
   .modalCard{
-    border-radius:22px;
-    padding:18px;
+    border-radius:18px;
+    padding:14px;
   }
 
   .head,
@@ -965,7 +1010,7 @@ function clearSuccess() {
   .shippingItemHead,
   .shippingActions,
   .modalHead{
-    gap:12px;
+    gap:10px;
   }
 
   .head-left,
@@ -977,45 +1022,204 @@ function clearSuccess() {
   }
 
   .back{
-    width:44px;
-    height:44px;
-    flex-basis:44px;
-    border-radius:14px;
-    font-size:22px;
+    width:40px;
+    height:40px;
+    flex-basis:40px;
+    border-radius:12px;
+    font-size:20px;
+  }
+
+  .eyebrow,
+  .badge{
+    font-size:10px;
+    margin-bottom:5px;
   }
 
   .headText h2{
-    font-size:24px;
+    font-size:22px;
+    line-height:1.08;
+  }
+
+  .sectionHead h3{
+    font-size:18px;
+    line-height:1.15;
   }
 
   .muted,
   .sectionMuted{
+    font-size:12px;
+    line-height:1.4;
+  }
+
+  .addressPreview,
+  .shippingItem,
+  .emptyState{
+    margin-top:14px;
+    padding:13px;
+    border-radius:15px;
+  }
+
+  .addressPreview h4,
+  .shippingItem h4{
+    font-size:16px;
+    margin-bottom:5px;
+  }
+
+  .addressPreview p,
+  .shippingBody p,
+  .recipient{
     font-size:13px;
+    line-height:1.4;
+  }
+
+  .shippingBody{
+    margin:10px 0 12px;
+  }
+
+  .field label{
+    font-size:11px;
+    margin-bottom:6px;
   }
 
   .field input,
   .field textarea{
-    font-size:15px;
-    border-radius:14px;
-    padding:14px;
+    font-size:16px;
+    border-radius:12px;
+    padding:12px 13px;
+  }
+
+  .field textarea{
+    min-height:96px;
   }
 
   .btn,
-  .addBtn,
+  .addBtn{
+    min-height:44px;
+    border-radius:14px;
+    font-size:14px;
+  }
+
   .miniBtn{
-    min-height:48px;
-    border-radius:16px;
-    font-size:15px;
+    min-height:36px;
+    padding:0 10px;
+    border-radius:12px;
+    font-size:12px;
+  }
+
+  .counter,
+  .pill{
+    min-height:30px;
+    font-size:10px;
+    padding:0 10px;
   }
 
   .modalForm{
     grid-template-columns:1fr;
+    gap:10px;
   }
 
   .field.half,
   .field.full,
   .checkRow{
     grid-column:1 / -1;
+  }
+
+  .checkRow{
+    font-size:12px;
+    align-items:flex-start;
+  }
+
+  .modalOverlay{
+    padding:10px;
+  }
+
+  .modalCard{
+    padding:14px;
+    max-height:90vh;
+    border-radius:18px;
+  }
+
+  .globalMsg{
+    margin-top:12px;
+  }
+
+  .ok,
+  .err{
+    font-size:12px;
+    padding:10px 12px;
+    border-radius:12px;
+  }
+}
+
+@media (max-width: 480px){
+  .page{
+    padding:8px;
+    padding-top:0;
+  }
+
+  .hero-card,
+  .address-card{
+    padding:12px;
+  }
+
+  .card,
+  .hero-card,
+  .modalCard{
+    border-radius:16px;
+  }
+
+  .headText h2{
+    font-size:20px;
+  }
+
+  .sectionHead h3{
+    font-size:16px;
+  }
+
+  .muted,
+  .sectionMuted{
+    font-size:11.5px;
+  }
+
+  .addBtn,
+  .btn{
+    min-height:42px;
+    font-size:13px;
+    padding:0 12px;
+  }
+
+  .miniBtn{
+    min-height:34px;
+    font-size:11px;
+    padding:0 9px;
+  }
+
+  .addressPreview,
+  .shippingItem,
+  .emptyState{
+    padding:12px;
+  }
+
+  .addressPreview h4,
+  .shippingItem h4{
+    font-size:15px;
+  }
+
+  .addressPreview p,
+  .shippingBody p,
+  .recipient{
+    font-size:12.5px;
+  }
+
+  .field input,
+  .field textarea{
+    padding:11px 12px;
+    border-radius:11px;
+  }
+
+  .topGlow{
+    width:160px;
+    height:160px;
   }
 }
 </style>

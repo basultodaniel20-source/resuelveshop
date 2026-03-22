@@ -78,7 +78,7 @@
 <script setup>
 import { ref, computed } from "vue"
 import { useRoute } from "vue-router"
-import { productos } from "../data/productos.js"
+import { productos } from "../../data/productosInternacional.js"
 
 const emit = defineEmits(["agregar"])
 

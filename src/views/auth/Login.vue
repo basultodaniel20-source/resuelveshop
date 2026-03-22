@@ -77,7 +77,7 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter, useRoute } from "vue-router"
-import { supabase } from "../supabase"
+import { supabase } from "../../supabase"
 
 const router = useRouter()
 const route = useRoute()

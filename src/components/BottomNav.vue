@@ -1,24 +1,23 @@
 <template>
   <nav class="bottom-nav">
-    <router-link to="/" class="item" :class="{ active: isActive('/') }">
+    <router-link :to="homePath" class="item" :class="{ active: isActive('home') }">
       <span class="icon">🏠</span>
       <span class="txt">Inicio</span>
     </router-link>
 
     <router-link
-      to="/catalogo"
+      :to="catalogoPath"
       class="item"
-      :class="{ active: isActive('/catalogo') }"
+      :class="{ active: isActive('catalogo') }"
     >
       <span class="icon">🗂️</span>
       <span class="txt">Catálogo</span>
     </router-link>
 
-    <!-- BOTÓN CENTRAL -->
     <router-link
-      to="/carrito"
+      :to="carritoPath"
       class="item center"
-      :class="{ active: isActive('/carrito') }"
+      :class="{ active: isActive('carrito') }"
     >
       <div class="circle">
         🛒
@@ -28,18 +27,18 @@
     </router-link>
 
     <router-link
-      to="/account/orders"
+      :to="ordersPath"
       class="item"
-      :class="{ active: isActive('/account/orders') }"
+      :class="{ active: isActive('orders') }"
     >
       <span class="icon">📦</span>
       <span class="txt">Pedidos</span>
     </router-link>
 
     <router-link
-      to="/account"
+      :to="accountPath"
       class="item"
-      :class="{ active: isActive('/account') }"
+      :class="{ active: isActive('account') }"
     >
       <span class="icon">👤</span>
       <span class="txt">Perfil</span>
@@ -48,6 +47,7 @@
 </template>
 
 <script setup>
+import { computed } from "vue"
 import { useRoute } from "vue-router"
 
 defineProps({
@@ -56,24 +56,65 @@ defineProps({
 
 const route = useRoute()
 
-function isActive(path) {
+const isInternacional = computed(() => route.path.startsWith("/internacional"))
+const isCuba = computed(() => route.path.startsWith("/cuba"))
+
+const basePath = computed(() => {
+  if (isInternacional.value) return "/internacional"
+  if (isCuba.value) return "/cuba"
+  return ""
+})
+
+const homePath = computed(() => {
+  if (!basePath.value) return "/"
+  return `${basePath.value}`
+})
+
+const catalogoPath = computed(() => {
+  if (!basePath.value) return "/"
+  return `${basePath.value}/catalogo`
+})
+
+const carritoPath = computed(() => {
+  if (!basePath.value) return "/"
+  return `${basePath.value}/carrito`
+})
+
+const ordersPath = computed(() => {
+  if (!basePath.value) return "/"
+  return `${basePath.value}/account/orders`
+})
+
+const accountPath = computed(() => {
+  if (!basePath.value) return "/login"
+  return `${basePath.value}/account`
+})
+
+function isActive(tipo) {
   const p = route.path
 
-  // Inicio exacto
-  if (path === "/") return p === "/"
-
-  // Pedidos (account/orders) -> todo lo que cuelgue de aquí
-  if (path === "/account/orders") return p.startsWith("/account/orders")
-
-  // Perfil (/account) -> /account y sus subrutas, PERO excluye /account/orders
-  if (path === "/account") {
-    return p === "/account" || (p.startsWith("/account/") && !p.startsWith("/account/orders"))
+  if (tipo === "home") {
+    return p === homePath.value
   }
 
-  // Resto normal
-  return p.startsWith(path)
-}
+  if (tipo === "catalogo") {
+    return p.startsWith(catalogoPath.value)
+  }
 
+  if (tipo === "carrito") {
+    return p.startsWith(carritoPath.value)
+  }
+
+  if (tipo === "orders") {
+    return p.startsWith(ordersPath.value)
+  }
+
+  if (tipo === "account") {
+    return p === accountPath.value || (p.startsWith(`${accountPath.value}/`) && !p.startsWith(ordersPath.value))
+  }
+
+  return false
+}
 </script>
 
 <style scoped>
@@ -82,20 +123,13 @@ function isActive(path) {
   left: 0;
   right: 0;
   bottom: 0;
-
-  /* ✅ Más compacta */
   height: 64px;
-
-  /* ✅ Respeta el “home indicator” del iPhone sin agrandar demasiado */
   padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
-
   background: #fff;
   border-top: 1px solid #eee;
-
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
-
   z-index: 9999;
   box-shadow: 0 -10px 25px rgba(0,0,0,0.08);
 }
@@ -107,7 +141,6 @@ function isActive(path) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   font-weight: 800;
   font-size: 12px;
   gap: 2px;
@@ -124,26 +157,19 @@ function isActive(path) {
 
 /* BOTÓN CENTRAL */
 .center{
-  /* ✅ Menos “salto” hacia arriba */
   transform: translateY(-18px);
 }
 
 .center .circle{
-  /* ✅ Botón central más pequeño */
   width: 56px;
   height: 56px;
-
   background: #28a745;
   color: #fff;
   border-radius: 50%;
-
   display: grid;
   place-items: center;
   font-size: 24px;
-
   box-shadow: 0 12px 24px rgba(0,0,0,0.18);
-
-  /* ✅ Borde más fino */
   border: 4px solid #fff;
   position: relative;
 }
@@ -161,21 +187,16 @@ function isActive(path) {
   min-width: 22px;
   height: 22px;
   padding: 0 6px;
-
   border-radius: 999px;
   background: #111;
   color: #fff;
-
   font-size: 12px;
   font-weight: 900;
-
   display: grid;
   place-items: center;
-
   border: 3px solid #fff;
 }
 
-/* SOLO PC */
 @media (min-width: 900px){
   .bottom-nav{ display:none; }
 }
