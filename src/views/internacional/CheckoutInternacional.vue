@@ -3,7 +3,7 @@
     <div class="checkout-wrap">
       <div class="checkout-head">
         <div>
-          <p class="eyebrow">Checkout · ResuelveShop</p>
+          <p class="eyebrow">Checkout · ResuelveShop Internacional</p>
           <h2>Finalizar pedido</h2>
           <p class="muted">
             Revisa tus datos de facturación y entrega antes de continuar al pago.
@@ -239,10 +239,10 @@ import { supabase } from "../../supabase"
 
 const router = useRouter()
 
-const carrito = ref(JSON.parse(localStorage.getItem("carrito")) || [])
+const carrito = ref(JSON.parse(localStorage.getItem("carrito_internacional")) || [])
 
 if (carrito.value.length === 0) {
-  router.push("/carrito")
+  router.push("/internacional/carrito")
 }
 
 const nombre = ref("")
@@ -286,7 +286,7 @@ onMounted(async () => {
   const user = data.user
 
   if (!user) {
-    router.push({ path: "/login", query: { redirect: "/checkout" } })
+    router.push({ path: "/login", query: { redirect: "/internacional/checkout" } })
     return
   }
 
@@ -348,7 +348,7 @@ function aplicarDireccion(item) {
 }
 
 function irAlCarrito() {
-  router.push("/carrito")
+  router.push("/internacional/carrito")
 }
 
 async function continuar() {
@@ -357,13 +357,13 @@ async function continuar() {
 
   if (!user) {
     alert("Debes iniciar sesión")
-    router.push({ path: "/login", query: { redirect: "/checkout" } })
+    router.push({ path: "/login", query: { redirect: "/internacional/checkout" } })
     return
   }
 
   if (!carrito.value.length) {
     alert("Tu carrito está vacío.")
-    router.push("/carrito")
+    router.push("/internacional/carrito")
     return
   }
 
@@ -391,6 +391,7 @@ async function continuar() {
   }
 
   const pedidoTemporal = {
+    tienda: "internacional",
     user_id: user.id,
     productos: carrito.value.map((i) => ({
       id: i.id,
@@ -419,12 +420,13 @@ async function continuar() {
     created_at: nowIso,
   }
 
-  localStorage.setItem("checkout_pending", JSON.stringify(pedidoTemporal))
+  localStorage.setItem("checkout_pending_internacional", JSON.stringify(pedidoTemporal))
 
   creandoPedido.value = false
-  router.push("/pago")
+  router.push("/internacional/pago")
 }
 </script>
+
 <style scoped>
 .checkout-page{
   min-height: 100vh;

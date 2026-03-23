@@ -17,12 +17,15 @@
             <span class="badge">⚡ Próximamente</span>
           </div>
 
-          <div class="heroActions">
-            <a class="btn primary" :href="whatsLink" target="_blank" rel="noreferrer">
-              Pedir información
-            </a>
-            <router-link class="btn ghost" to="/">Cambiar opción</router-link>
-          </div>
+         <div class="heroActions">
+        <router-link class="btn primary" to="/cuba/catalogo">
+        Ver catálogo
+       </router-link>
+       <a class="btn ghost" :href="whatsLink" target="_blank" rel="noreferrer">
+        Pedir información
+       </a>
+        <router-link class="btn ghost" to="/">Cambiar opción</router-link>
+       </div>
         </div>
 
         <div class="heroRight">
@@ -143,11 +146,14 @@
         </p>
 
         <div class="finalActions">
-          <a class="btn primary" :href="whatsLink" target="_blank" rel="noreferrer">
-            Contactar por WhatsApp
-          </a>
-          <router-link class="btn ghost" to="/">Volver al selector</router-link>
-        </div>
+       <router-link class="btn primary" to="/cuba/catalogo">
+        Ir al catálogo
+       </router-link>
+       <a class="btn ghost" :href="whatsLink" target="_blank" rel="noreferrer">
+       Contactar por WhatsApp
+       </a>
+       <router-link class="btn ghost" to="/">Volver al selector</router-link>
+       </div>
       </div>
     </section>
   </div>

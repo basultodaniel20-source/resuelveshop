@@ -1,14 +1,11 @@
 <template>
   <header class="header">
-    <!-- HAMBURGER -->
     <button class="hamb" @click="drawer = true" aria-label="Abrir menú">☰</button>
 
-    <!-- LOGO -->
     <router-link :to="homePath" class="brand" @click="resetBuscar">
       <img :src="logo" alt="Logo" class="logo" />
     </router-link>
 
-    <!-- BUSCADOR -->
     <div class="search-box" ref="searchBox">
       <div class="input-wrapper">
         <span class="icono">🔍</span>
@@ -42,7 +39,15 @@
       </div>
     </div>
 
-    <!-- ACCIONES -->
+    <button
+      v-if="isCuba"
+      class="province-chip"
+      @click="cambiarProvincia"
+      type="button"
+    >
+      📍 {{ provinciaCuba || "Elegir provincia" }}
+    </button>
+
     <div class="acciones">
       <router-link
         v-if="user"
@@ -71,7 +76,6 @@
       </router-link>
     </div>
 
-    <!-- OVERLAY + DRAWER -->
     <div v-if="drawer" class="overlay" @click="drawer = false"></div>
 
     <aside class="drawer" :class="{ open: drawer }" aria-label="Menú">
@@ -105,6 +109,14 @@
         <router-link class="nav-link" :to="catalogoPath" @click="goClose">
           🗂️ Catálogo
         </router-link>
+
+        <button
+          v-if="isCuba"
+          class="nav-link"
+          @click="cambiarProvinciaDesdeMenu"
+        >
+          📍 Cambiar provincia
+        </button>
 
         <router-link class="nav-link" :to="carritoPath" @click="goClose">
           🛒 Carrito ({{ total }})
@@ -165,6 +177,8 @@ const drawer = ref(false)
 const user = ref(null)
 let unsubAuth = null
 
+const provinciaCuba = ref(localStorage.getItem("provincia_cuba") || "")
+
 const isInternacional = computed(() => route.path.startsWith("/internacional"))
 const isCuba = computed(() => route.path.startsWith("/cuba"))
 
@@ -213,6 +227,23 @@ const iniciales = computed(() => {
 async function cargarUsuario() {
   const { data } = await supabase.auth.getUser()
   user.value = data.user ?? null
+}
+
+function refrescarProvincia() {
+  provinciaCuba.value = localStorage.getItem("provincia_cuba") || ""
+}
+
+function cambiarProvincia() {
+  localStorage.removeItem("provincia_cuba")
+  localStorage.removeItem("carrito_cuba")
+  provinciaCuba.value = ""
+  window.dispatchEvent(new CustomEvent("provincia-cuba-actualizada"))
+  window.dispatchEvent(new CustomEvent("carrito-actualizado"))
+}
+
+function cambiarProvinciaDesdeMenu() {
+  drawer.value = false
+  cambiarProvincia()
 }
 
 function resetBuscar() {
@@ -295,6 +326,7 @@ async function logout() {
 
 onMounted(async () => {
   await cargarUsuario()
+  refrescarProvincia()
 
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null
@@ -302,10 +334,12 @@ onMounted(async () => {
   unsubAuth = data?.subscription
 
   document.addEventListener("mousedown", clickFuera)
+  window.addEventListener("provincia-cuba-actualizada", refrescarProvincia)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", clickFuera)
+  window.removeEventListener("provincia-cuba-actualizada", refrescarProvincia)
   unsubAuth?.unsubscribe?.()
 })
 </script>
@@ -316,14 +350,13 @@ onBeforeUnmount(() => {
   top: 0;
   z-index: 1000;
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto auto;
   align-items: center;
   gap: 14px;
   padding: 10px 16px;
   background: #f5f6f8;
 }
 
-/* HAMB */
 .hamb{
   border:none;
   background:white;
@@ -334,8 +367,8 @@ onBeforeUnmount(() => {
 }
 .hamb:active{ transform:scale(.97); }
 
-/* LOGO */
 .brand { display: flex; align-items: center; }
+
 .logo {
   height: 120px;
   width: auto;
@@ -345,9 +378,9 @@ onBeforeUnmount(() => {
 }
 .logo:active { transform: scale(1.05); }
 
-/* BUSCADOR */
 .search-box { position: relative; display: flex; justify-content: center; }
 .input-wrapper { position: relative; width: 100%; max-width: 520px; }
+
 .input-wrapper input {
   width: 100%;
   padding: 12px 40px 12px 40px;
@@ -356,6 +389,7 @@ onBeforeUnmount(() => {
   font-size: 16px;
   background: white;
 }
+
 .icono {
   position: absolute;
   left: 12px;
@@ -363,6 +397,7 @@ onBeforeUnmount(() => {
   transform: translateY(-50%);
   opacity: 0.6;
 }
+
 .clear {
   position: absolute;
   right: 10px;
@@ -374,7 +409,6 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-/* SUGERENCIAS */
 .sugerencias {
   position: absolute;
   top: 100%;
@@ -387,6 +421,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   z-index: 2000;
 }
+
 .sugerencia {
   display: flex;
   align-items: center;
@@ -394,11 +429,23 @@ onBeforeUnmount(() => {
   padding: 10px 14px;
   cursor: pointer;
 }
+
 .sugerencia:hover { background: #f0f0f0; }
 .sugerencia img { width: 32px; height: 32px; object-fit: contain; }
 .sugerencia.activa { background: #e8f5e9; }
 
-/* ACCIONES */
+.province-chip{
+  border: 1px solid rgba(0,0,0,0.08);
+  background: white;
+  color: #111;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 1000;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .acciones { display: flex; align-items: center; gap: 14px; }
 
 .cuenta-icon{
@@ -426,17 +473,18 @@ onBeforeUnmount(() => {
   align-items:center;
   gap:8px;
 }
+
 .carrito-indicador:hover { background: #218838; }
 .carrito-indicador:active { transform: scale(0.97); }
 .n{ font-weight: 1000; }
 
-/* OVERLAY + DRAWER */
 .overlay{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.35);
   z-index:5000;
 }
+
 .drawer{
   position:fixed;
   top:0; left:0;
@@ -451,6 +499,7 @@ onBeforeUnmount(() => {
   display:flex;
   flex-direction:column;
 }
+
 .drawer.open{ transform:translateX(0); }
 
 .drawer-head{
@@ -461,12 +510,14 @@ onBeforeUnmount(() => {
   justify-content:space-between;
   gap:10px;
 }
+
 .drawer-user{
   display:flex;
   align-items:center;
   gap:12px;
   min-width:0;
 }
+
 .avatar{
   width:44px;
   height:44px;
@@ -478,7 +529,9 @@ onBeforeUnmount(() => {
   color:#14532d;
   border:1px solid rgba(40,167,69,0.25);
 }
+
 .drawer-info{ min-width:0; }
+
 .drawer-email{
   font-weight:900;
   font-size:13px;
@@ -487,6 +540,7 @@ onBeforeUnmount(() => {
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+
 .drawer-sub{ color:#6b7280; font-size:12px; }
 
 .drawer-close{
@@ -523,7 +577,6 @@ onBeforeUnmount(() => {
   color:#991b1b;
 }
 
-/* ===== Mobile Pro Header ===== */
 @media (max-width: 900px) {
   .header{
     grid-template-columns: auto auto 1fr auto;
@@ -546,10 +599,16 @@ onBeforeUnmount(() => {
     grid-column: 1 / -1;
     order: 3;
   }
+
   .input-wrapper{ max-width: 100%; }
+
   .input-wrapper input{
     font-size: 15px;
     padding: 12px 40px 12px 40px;
+  }
+
+  .province-chip{
+    display: none;
   }
 
   .acciones{

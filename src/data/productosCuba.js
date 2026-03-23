@@ -9,27 +9,31 @@ export const productos = [
     nombre: "Reloj Deportivo",
     precio: 25,
     imagen: reloj,
-    categoria: "Accesorios"
+    categoria: "Accesorios",
+    provincias: ["Granma"]
   },
   {
     id: 2,
     nombre: "Zapatillas Urbanas",
     precio: 45,
     imagen: zapato,
-    categoria: "Calzado"
+    categoria: "Calzado",
+    provincias: ["Granma"]
   },
   {
     id: 3,
     nombre: "Camiseta Básica",
     precio: 15,
     imagen: camiseta,
-    categoria: "Ropa"
+    categoria: "Ropa",
+    provincias: ["Granma"]
   },
   {
     id: 4,
     nombre: "Kit Fitness",
     precio: 30,
     imagen: kit,
-    categoria: "Gym"
+    categoria: "Gym",
+    provincias: ["Granma"]
   }
 ]
