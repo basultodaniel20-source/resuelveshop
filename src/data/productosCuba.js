@@ -10,7 +10,8 @@ export const productos = [
     precio: 25,
     imagen: reloj,
     categoria: "Accesorios",
-    provincias: ["Granma"]
+    provincias: ["Granma"],
+    municipios:["Yara"]
   },
   {
     id: 2,
@@ -18,7 +19,8 @@ export const productos = [
     precio: 45,
     imagen: zapato,
     categoria: "Calzado",
-    provincias: ["Granma"]
+    provincias: ["Granma"],
+    municipios:["Yara"]
   },
   {
     id: 3,
@@ -26,7 +28,8 @@ export const productos = [
     precio: 15,
     imagen: camiseta,
     categoria: "Ropa",
-    provincias: ["Granma"]
+    provincias: ["Granma"],
+    municipios:["Yara"]
   },
   {
     id: 4,
@@ -34,6 +37,7 @@ export const productos = [
     precio: 30,
     imagen: kit,
     categoria: "Gym",
-    provincias: ["Granma"]
+    provincias: ["Granma"],
+    municipios:["Yara"]
   }
 ]
