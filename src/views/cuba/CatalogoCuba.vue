@@ -1,41 +1,66 @@
 <template>
   <StoreLayout>
-  <div class="catalogo">
-    <div class="catalogo-head">
-      <div>
-        <h1>Tienda Cuba 🇨🇺</h1>
-        <p>
-          {{ provinciaSeleccionada
-            ? `Productos disponibles en ${provinciaSeleccionada}`
-            : "Selecciona una provincia para ver disponibilidad" }}
-        </p>
+    <div class="catalogo">
+      <div class="catalogo-head">
+        <div>
+          <h1>Tienda Cuba 🇨🇺</h1>
+          <p>
+            {{
+              provinciaSeleccionada && municipioSeleccionado
+                ? `Productos disponibles en ${provinciaSeleccionada} · ${municipioSeleccionado}`
+                : "Selecciona provincia y municipio para ver disponibilidad"
+            }}
+          </p>
+        </div>
+
+        <button class="provBtn" @click="cambiarUbicacion">
+          📍
+          {{
+            provinciaSeleccionada && municipioSeleccionado
+              ? `${provinciaSeleccionada} · ${municipioSeleccionado}`
+              : "Elegir ubicación"
+          }}
+        </button>
       </div>
 
-      <button class="provBtn" @click="cambiarProvincia">
-        📍 {{ provinciaSeleccionada || "Elegir provincia" }}
-      </button>
+      <Categorias :categorias="categoriasDisponibles" />
+
+      <section class="productos">
+        <ProductoCard
+          v-for="p in productosFiltrados"
+          :key="p.id"
+          :producto="p"
+          @agregar="$emit('agregar', $event)"
+        />
+      </section>
+
+      <div
+        v-if="!provinciaSeleccionada || !municipioSeleccionado"
+        class="emptyState"
+      >
+        <p class="sin">
+          Primero selecciona provincia y municipio para ver los productos disponibles.
+        </p>
+        <button class="changeLocation" @click="cambiarUbicacion">
+          Elegir ubicación
+        </button>
+      </div>
+
+      <div
+        v-else-if="productosFiltrados.length === 0"
+        class="emptyState"
+      >
+        <p class="sin">
+          No hay productos disponibles para
+          {{ provinciaSeleccionada }} · {{ municipioSeleccionado }}
+          en esta categoría.
+        </p>
+        <button class="changeLocation" @click="cambiarUbicacion">
+          Cambiar ubicación
+        </button>
+      </div>
     </div>
-
-    <Categorias :categorias="categoriasDisponibles" />
-
-    <section class="productos">
-      <ProductoCard
-        v-for="p in productosFiltrados"
-        :key="p.id"
-        :producto="p"
-        @agregar="$emit('agregar', $event)"
-      />
-    </section>
-
-    <p v-if="!provinciaSeleccionada" class="sin">
-      Primero selecciona una provincia para ver los productos disponibles.
-    </p>
-
-    <p v-else-if="productosFiltrados.length === 0" class="sin">
-      No hay productos disponibles para esta provincia en esta categoría.
-    </p>
-  </div>
-  <</StoreLayout>
+  </StoreLayout>
 </template>
 
 <script setup>
@@ -46,53 +71,65 @@ import ProductoCard from "../../components/ProductoCard.vue"
 import { productos } from "../../data/productosCuba.js"
 import StoreLayout from "@/layouts/StoreLayout.vue"
 
-
-
 defineEmits(["agregar"])
 
 const route = useRoute()
 const categoria = computed(() => route.params.categoria || "Todos")
+
 const provinciaSeleccionada = ref(localStorage.getItem("provincia_cuba") || "")
+const municipioSeleccionado = ref(localStorage.getItem("municipio_cuba") || "")
 
-function refrescarProvincia() {
+function refrescarUbicacion() {
   provinciaSeleccionada.value = localStorage.getItem("provincia_cuba") || ""
+  municipioSeleccionado.value = localStorage.getItem("municipio_cuba") || ""
 }
 
-function cambiarProvincia() {
+function cambiarUbicacion() {
   localStorage.removeItem("provincia_cuba")
-  refrescarProvincia()
+  localStorage.removeItem("municipio_cuba")
+  localStorage.removeItem("carrito_cuba")
+
+  refrescarUbicacion()
+
   window.dispatchEvent(new CustomEvent("provincia-cuba-actualizada"))
+  window.dispatchEvent(new CustomEvent("carrito-actualizado"))
 }
 
-const productosPorProvincia = computed(() => {
-  if (!provinciaSeleccionada.value) return []
+const productosPorZona = computed(() => {
+  if (!provinciaSeleccionada.value || !municipioSeleccionado.value) return []
 
   return productos.filter((p) => {
-    return Array.isArray(p.provincias) && p.provincias.includes(provinciaSeleccionada.value)
+    const okProvincia =
+      !Array.isArray(p.provincias) || p.provincias.includes(provinciaSeleccionada.value)
+
+    const okMunicipio =
+      !Array.isArray(p.municipios) || p.municipios.includes(municipioSeleccionado.value)
+
+    return okProvincia && okMunicipio
   })
 })
 
 const categoriasDisponibles = computed(() => {
   return [
     "Todos",
-    ...new Set(productosPorProvincia.value.map((p) => p.categoria).filter(Boolean))
+    ...new Set(productosPorZona.value.map((p) => p.categoria).filter(Boolean))
   ]
 })
 
 const productosFiltrados = computed(() => {
-  if (!provinciaSeleccionada.value) return []
+  if (!provinciaSeleccionada.value || !municipioSeleccionado.value) return []
 
-  return productosPorProvincia.value.filter((p) => {
+  return productosPorZona.value.filter((p) => {
     return categoria.value === "Todos" || p.categoria === categoria.value
   })
 })
 
 onMounted(() => {
-  window.addEventListener("provincia-cuba-actualizada", refrescarProvincia)
+  window.addEventListener("provincia-cuba-actualizada", refrescarUbicacion)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener("provincia-cuba-actualizada", refrescarProvincia)
+  window.removeEventListener("provincia-cuba-actualizada", refrescarUbicacion)
 })
 </script>
 
@@ -120,6 +157,7 @@ onBeforeUnmount(() => {
   color: #6b7280;
   font-weight: 900;
   font-size: 13px;
+  line-height: 1.4;
 }
 
 .provBtn{
@@ -141,11 +179,30 @@ onBeforeUnmount(() => {
   margin-top: 12px;
 }
 
+.emptyState{
+  margin-top: 22px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
 .sin{
-  margin-top: 20px;
+  margin-top: 0;
   font-weight: 1000;
   color: #6b7280;
   text-align: center;
+  line-height: 1.45;
+}
+
+.changeLocation{
+  border: 1px solid rgba(0,0,0,0.08);
+  background: white;
+  color: #111;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 1000;
+  cursor: pointer;
 }
 
 @media (max-width: 900px){

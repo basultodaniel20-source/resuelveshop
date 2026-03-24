@@ -1,6 +1,7 @@
 <template>
   <StoreLayout>
   <div class="home">
+    <PedidoPendienteBanner />
     <!-- HERO PRO -->
     <section class="hero">
       <div class="hero-card">
@@ -41,6 +42,7 @@ import { useRoute } from "vue-router"
 import Categorias from "../../components/Categorias.vue"
 import ProductoCard from "../../components/ProductoCard.vue"
 import StoreLayout from "@/layouts/StoreLayout.vue"
+import PedidoPendienteBanner from "@/components/PedidoPendienteBanner.vue"
 
 defineEmits(["agregar"])
 

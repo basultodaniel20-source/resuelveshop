@@ -126,19 +126,74 @@
               </div>
             </div>
 
+            <div class="section">
+              <div class="section-head">
+                <div>
+                  <p class="badge payment">Pago</p>
+                  <h3>Método de pago</h3>
+                  <p class="section-muted">
+                    Selecciona cómo quieres pagar antes de pasar a la pantalla de pago.
+                  </p>
+                </div>
+              </div>
+
+              <div class="payment-methods-grid">
+                <button
+                  type="button"
+                  class="payment-option"
+                  :class="{ active: metodoPago === 'bizum' }"
+                  @click="metodoPago = 'bizum'"
+                >
+                  <div class="payment-option-left">
+                    <div class="payment-option-icon bizum">B</div>
+                    <div>
+                      <strong>Bizum</strong>
+                      <p>Pago rápido y cómodo</p>
+                    </div>
+                  </div>
+                  <span v-if="metodoPago === 'bizum'" class="payment-pill">Seleccionado</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="payment-option"
+                  :class="{ active: metodoPago === 'transferencia' }"
+                  @click="metodoPago = 'transferencia'"
+                >
+                  <div class="payment-option-left">
+                    <div class="payment-option-icon transferencia">€</div>
+                    <div>
+                      <strong>Transferencia bancaria</strong>
+                      <p>Recibirás IBAN y concepto en la siguiente pantalla</p>
+                    </div>
+                  </div>
+                  <span
+                    v-if="metodoPago === 'transferencia'"
+                    class="payment-pill transfer"
+                  >
+                    Seleccionado
+                  </span>
+                </button>
+              </div>
+            </div>
+
             <div class="mobile-summary">
               <div class="summary-lines">
                 <div class="summary-line">
                   <span>Subtotal</span>
-                  <span>{{ total }} €</span>
+                  <span>{{ total.toFixed(2) }} €</span>
                 </div>
                 <div class="summary-line">
                   <span>Envío</span>
-                  <span>{{ envio }} €</span>
+                  <span>{{ envio.toFixed(2) }} €</span>
+                </div>
+                <div class="summary-line">
+                  <span>Método</span>
+                  <span>{{ metodoPagoLabel }}</span>
                 </div>
                 <div class="summary-total">
                   <span>Total</span>
-                  <span>{{ totalFinal }} €</span>
+                  <span>{{ totalFinal.toFixed(2) }} €</span>
                 </div>
               </div>
             </div>
@@ -149,8 +204,8 @@
                 cargandoPerfil
                   ? "Cargando datos..."
                   : creandoPedido
-                  ? "Preparando pedido..."
-                  : "Continuar al pago (Bizum)"
+                    ? "Preparando pedido..."
+                    : `Continuar al pago (${metodoPagoLabel})`
               }}
             </button>
           </form>
@@ -196,7 +251,7 @@
               </div>
 
               <div class="product-total">
-                {{ item.precio * item.cantidad }} €
+                {{ (Number(item.precio) * Number(item.cantidad)).toFixed(2) }} €
               </div>
             </button>
           </div>
@@ -204,12 +259,17 @@
           <div class="summary-lines">
             <div class="summary-line">
               <span>Subtotal</span>
-              <span>{{ total }} €</span>
+              <span>{{ total.toFixed(2) }} €</span>
             </div>
 
             <div class="summary-line">
               <span>Envío</span>
-              <span>{{ envio }} €</span>
+              <span>{{ envio.toFixed(2) }} €</span>
+            </div>
+
+            <div class="summary-line">
+              <span>Método</span>
+              <span>{{ metodoPagoLabel }}</span>
             </div>
 
             <div class="summary-line" v-if="cantidadTotal > 0">
@@ -220,7 +280,7 @@
 
           <div class="summary-total">
             <span>Total</span>
-            <span>{{ totalFinal }} €</span>
+            <span>{{ totalFinal.toFixed(2) }} €</span>
           </div>
 
           <div class="summary-note">
@@ -233,7 +293,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, watch } from "vue"
 import { useRouter } from "vue-router"
 import { supabase } from "../../supabase"
 
@@ -260,6 +320,8 @@ const creandoPedido = ref(false)
 const shippingAddresses = ref([])
 const selectedShippingId = ref("")
 
+const metodoPago = ref(localStorage.getItem("metodo_pago_internacional") || "bizum")
+
 const total = computed(() =>
   carrito.value.reduce((s, i) => s + Number(i.precio || 0) * Number(i.cantidad || 0), 0)
 )
@@ -269,8 +331,11 @@ const cantidadTotal = computed(() =>
 )
 
 const envio = computed(() => 0)
-
 const totalFinal = computed(() => total.value + envio.value)
+
+const metodoPagoLabel = computed(() =>
+  metodoPago.value === "bizum" ? "Bizum" : "Transferencia"
+)
 
 const selectedAddressPreview = computed(() => {
   if (!selectedShippingId.value) return null
@@ -279,6 +344,10 @@ const selectedAddressPreview = computed(() => {
       (item) => String(item.id) === String(selectedShippingId.value)
     ) || null
   )
+})
+
+watch(metodoPago, (nuevo) => {
+  localStorage.setItem("metodo_pago_internacional", nuevo)
 })
 
 onMounted(async () => {
@@ -416,11 +485,13 @@ async function continuar() {
       direccion: destinatarioDireccion.value,
       notas: notas.value || "",
     },
-    payment_method: "bizum",
+    payment_method: metodoPago.value,
     created_at: nowIso,
   }
 
   localStorage.setItem("checkout_pending_internacional", JSON.stringify(pedidoTemporal))
+  localStorage.setItem("metodo_pago_internacional", metodoPago.value)
+  window.dispatchEvent(new CustomEvent("pedido-pendiente-actualizado"))
 
   creandoPedido.value = false
   router.push("/internacional/pago")
@@ -519,6 +590,10 @@ async function continuar() {
 
 .badge.shipping{
   color: #16a34a;
+}
+
+.badge.payment{
+  color: #7c3aed;
 }
 
 .section-head h3,
@@ -640,6 +715,95 @@ async function continuar() {
 .pill.success{
   background: #dcfce7;
   color: #166534;
+}
+
+.payment-methods-grid{
+  display: grid;
+  gap: 12px;
+}
+
+.payment-option{
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
+  border-radius: 20px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.payment-option:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15,23,42,0.06);
+}
+
+.payment-option.active{
+  border-color: rgba(124,58,237,0.24);
+  box-shadow: 0 10px 22px rgba(124,58,237,0.08);
+}
+
+.payment-option-left{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.payment-option-icon{
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 1000;
+  font-size: 20px;
+  flex: 0 0 46px;
+}
+
+.payment-option-icon.bizum{
+  background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.payment-option-icon.transferencia{
+  background: linear-gradient(180deg, #0f766e 0%, #0f9f8f 100%);
+}
+
+.payment-option strong{
+  display: block;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 1000;
+}
+
+.payment-option p{
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.payment-pill{
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 12px;
+  font-weight: 1000;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.payment-pill.transfer{
+  background: #ccfbf1;
+  color: #0f766e;
 }
 
 .summary-top{
@@ -977,6 +1141,31 @@ async function continuar() {
     min-height: 28px;
     padding: 0 10px;
     font-size: 11px;
+  }
+
+  .payment-option{
+    padding: 14px;
+    border-radius: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .payment-option-left{
+    gap: 10px;
+  }
+
+  .payment-option-icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 17px;
+  }
+
+  .payment-pill{
+    min-height: 28px;
+    font-size: 11px;
+    padding: 0 10px;
+    align-self: flex-start;
   }
 
   .summary-top{

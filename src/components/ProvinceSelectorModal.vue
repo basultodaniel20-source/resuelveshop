@@ -5,7 +5,7 @@
 
       <h2>Punto de entrega</h2>
       <p>
-        Selecciona tu provincia y municipio para ver los productos disponibles en esa zona.
+        Selecciona tu provincia y municipio para ver los productos disponibles en tu zona.
       </p>
 
       <div class="field">
@@ -22,13 +22,21 @@
         <label>Municipio</label>
         <select v-model="municipioLocal" :disabled="!provinciaLocal">
           <option value="">Selecciona un municipio</option>
-          <option v-for="mun in municipiosDisponibles" :key="mun" :value="mun">
+          <option
+            v-for="mun in municipiosDisponibles"
+            :key="mun"
+            :value="mun"
+          >
             {{ mun }}
           </option>
         </select>
       </div>
 
-      <button class="btn" :disabled="!provinciaLocal || !municipioLocal" @click="confirmar">
+      <button
+        class="btn"
+        :disabled="!provinciaLocal || !municipioLocal"
+        @click="confirmar"
+      >
         Aceptar
       </button>
     </div>
@@ -65,8 +73,10 @@ watch(
   }
 )
 
-watch(provinciaLocal, () => {
-  municipioLocal.value = ""
+watch(provinciaLocal, (nueva, anterior) => {
+  if (nueva !== anterior) {
+    municipioLocal.value = ""
+  }
 })
 
 const municipiosDisponibles = computed(() => {
@@ -89,7 +99,7 @@ function confirmar() {
   position: fixed;
   inset: 0;
   background: rgba(17,24,39,.45);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
   z-index: 10000;
   display: grid;
   place-items: center;
@@ -122,6 +132,7 @@ h2{
   margin: 0;
   font-size: 30px;
   font-weight: 1000;
+  line-height: 1.08;
 }
 
 p{
@@ -154,6 +165,7 @@ p{
   font-weight: 700;
   background: white;
   outline: none;
+  box-sizing: border-box;
 }
 
 .field select:focus{
@@ -164,6 +176,7 @@ p{
 .field select:disabled{
   opacity: .6;
   cursor: not-allowed;
+  background: #f9fafb;
 }
 
 .btn{
@@ -177,17 +190,34 @@ p{
   font-size: 15px;
   font-weight: 1000;
   cursor: pointer;
+  transition: transform .12s ease, opacity .12s ease;
+}
+
+.btn:hover{
+  transform: translateY(-1px);
 }
 
 .btn:disabled{
   opacity: .45;
   cursor: not-allowed;
+  transform: none;
 }
 
 @media (max-width: 640px){
+  .overlay{
+    padding: 12px;
+  }
+
   .modal{
     padding: 18px;
     border-radius: 20px;
+  }
+
+  .imgBox{
+    width: 62px;
+    height: 62px;
+    border-radius: 18px;
+    font-size: 28px;
   }
 
   h2{
@@ -196,6 +226,26 @@ p{
 
   p{
     font-size: 13px;
+  }
+
+  .field{
+    margin-top: 14px;
+  }
+
+  .field label{
+    font-size: 12px;
+  }
+
+  .field select{
+    font-size: 14px;
+    padding: 13px 14px;
+    border-radius: 14px;
+  }
+
+  .btn{
+    min-height: 46px;
+    border-radius: 14px;
+    font-size: 14px;
   }
 }
 </style>

@@ -17,16 +17,29 @@
         </p>
 
         <p class="availability" v-if="producto?.provincias?.length">
-          Disponible en:
+          Provincias:
           <strong>{{ producto.provincias.join(", ") }}</strong>
         </p>
 
+        <p class="availability" v-if="producto?.municipios?.length">
+          Municipios:
+          <strong>{{ producto.municipios.join(", ") }}</strong>
+        </p>
+
         <p
-          v-if="provinciaSeleccionada && producto?.provincias && !producto.provincias.includes(provinciaSeleccionada)"
+          v-if="provinciaSeleccionada && !disponibleEnProvincia"
           class="warning"
         >
           Este producto no está disponible en tu provincia seleccionada:
           {{ provinciaSeleccionada }}.
+        </p>
+
+        <p
+          v-else-if="municipioSeleccionado && !disponibleEnMunicipio"
+          class="warning"
+        >
+          Este producto no está disponible en tu municipio seleccionado:
+          {{ municipioSeleccionado }}.
         </p>
 
         <!-- CANTIDAD -->
@@ -37,8 +50,8 @@
         </div>
 
         <!-- BOTÓN -->
-        <button class="btn" @click="agregar" :disabled="!disponibleEnProvincia">
-          {{ disponibleEnProvincia ? "Agregar al carrito 🛒" : "No disponible en tu provincia" }}
+        <button class="btn" @click="agregar" :disabled="!disponible">
+          {{ disponible ? "Agregar al carrito 🛒" : "No disponible en tu zona" }}
         </button>
 
         <router-link class="volver" to="/cuba/catalogo">
@@ -67,15 +80,27 @@ const producto = computed(() =>
 )
 
 const provinciaSeleccionada = localStorage.getItem("provincia_cuba") || ""
-const cantidad = ref(1)
+const municipioSeleccionado = localStorage.getItem("municipio_cuba") || ""
 
+const cantidad = ref(1)
 const emit = defineEmits(["agregar"])
 
 const disponibleEnProvincia = computed(() => {
   if (!producto.value) return false
   if (!provinciaSeleccionada) return true
-  return Array.isArray(producto.value.provincias) &&
-    producto.value.provincias.includes(provinciaSeleccionada)
+  if (!Array.isArray(producto.value.provincias)) return true
+  return producto.value.provincias.includes(provinciaSeleccionada)
+})
+
+const disponibleEnMunicipio = computed(() => {
+  if (!producto.value) return false
+  if (!municipioSeleccionado) return true
+  if (!Array.isArray(producto.value.municipios)) return true
+  return producto.value.municipios.includes(municipioSeleccionado)
+})
+
+const disponible = computed(() => {
+  return disponibleEnProvincia.value && disponibleEnMunicipio.value
 })
 
 function mas() {
@@ -91,6 +116,11 @@ function agregar() {
 
   if (!disponibleEnProvincia.value) {
     alert(`Este producto no está disponible en ${provinciaSeleccionada}.`)
+    return
+  }
+
+  if (!disponibleEnMunicipio.value) {
+    alert(`Este producto no está disponible en ${municipioSeleccionado}.`)
     return
   }
 

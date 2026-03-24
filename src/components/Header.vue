@@ -42,10 +42,11 @@
     <button
       v-if="isCuba"
       class="province-chip"
-      @click="cambiarProvincia"
+      @click="cambiarUbicacion"
       type="button"
+      :title="ubicacionLabel"
     >
-      📍 {{ provinciaCuba || "Elegir provincia" }}
+      📍 {{ ubicacionLabel }}
     </button>
 
     <div class="acciones">
@@ -110,12 +111,16 @@
           🗂️ Catálogo
         </router-link>
 
+        <div v-if="isCuba" class="nav-link location-info static">
+          📍 {{ ubicacionLabel }}
+        </div>
+
         <button
           v-if="isCuba"
           class="nav-link"
-          @click="cambiarProvinciaDesdeMenu"
+          @click="cambiarUbicacionDesdeMenu"
         >
-          📍 Cambiar provincia
+          📍 Cambiar ubicación
         </button>
 
         <router-link class="nav-link" :to="carritoPath" @click="goClose">
@@ -178,6 +183,7 @@ const user = ref(null)
 let unsubAuth = null
 
 const provinciaCuba = ref(localStorage.getItem("provincia_cuba") || "")
+const municipioCuba = ref(localStorage.getItem("municipio_cuba") || "")
 
 const isInternacional = computed(() => route.path.startsWith("/internacional"))
 const isCuba = computed(() => route.path.startsWith("/cuba"))
@@ -218,6 +224,15 @@ const productosActuales = computed(() => {
   return []
 })
 
+const ubicacionLabel = computed(() => {
+  if (!isCuba.value) return ""
+  if (provinciaCuba.value && municipioCuba.value) {
+    return `${provinciaCuba.value} · ${municipioCuba.value}`
+  }
+  if (provinciaCuba.value) return provinciaCuba.value
+  return "Elegir ubicación"
+})
+
 const iniciales = computed(() => {
   const email = (user.value?.email || "").trim()
   if (!email) return "RS"
@@ -229,21 +244,26 @@ async function cargarUsuario() {
   user.value = data.user ?? null
 }
 
-function refrescarProvincia() {
+function refrescarUbicacion() {
   provinciaCuba.value = localStorage.getItem("provincia_cuba") || ""
+  municipioCuba.value = localStorage.getItem("municipio_cuba") || ""
 }
 
-function cambiarProvincia() {
+function cambiarUbicacion() {
   localStorage.removeItem("provincia_cuba")
+  localStorage.removeItem("municipio_cuba")
   localStorage.removeItem("carrito_cuba")
+
   provinciaCuba.value = ""
+  municipioCuba.value = ""
+
   window.dispatchEvent(new CustomEvent("provincia-cuba-actualizada"))
   window.dispatchEvent(new CustomEvent("carrito-actualizado"))
 }
 
-function cambiarProvinciaDesdeMenu() {
+function cambiarUbicacionDesdeMenu() {
   drawer.value = false
-  cambiarProvincia()
+  cambiarUbicacion()
 }
 
 function resetBuscar() {
@@ -326,7 +346,7 @@ async function logout() {
 
 onMounted(async () => {
   await cargarUsuario()
-  refrescarProvincia()
+  refrescarUbicacion()
 
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null
@@ -334,12 +354,12 @@ onMounted(async () => {
   unsubAuth = data?.subscription
 
   document.addEventListener("mousedown", clickFuera)
-  window.addEventListener("provincia-cuba-actualizada", refrescarProvincia)
+  window.addEventListener("provincia-cuba-actualizada", refrescarUbicacion)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", clickFuera)
-  window.removeEventListener("provincia-cuba-actualizada", refrescarProvincia)
+  window.removeEventListener("provincia-cuba-actualizada", refrescarUbicacion)
   unsubAuth?.unsubscribe?.()
 })
 </script>
@@ -444,6 +464,9 @@ onBeforeUnmount(() => {
   font-weight: 1000;
   cursor: pointer;
   white-space: nowrap;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .acciones { display: flex; align-items: center; gap: 14px; }
@@ -571,6 +594,11 @@ onBeforeUnmount(() => {
   cursor:pointer;
 }
 
+.nav-link.static{
+  cursor: default;
+  background: #f8fafc;
+}
+
 .nav-link.danger{
   border-color:#fecaca;
   background:#fff1f2;
@@ -580,7 +608,7 @@ onBeforeUnmount(() => {
 @media (max-width: 900px) {
   .header{
     grid-template-columns: auto auto 1fr auto;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: 10px;
     padding: 10px 12px;
   }
@@ -608,7 +636,12 @@ onBeforeUnmount(() => {
   }
 
   .province-chip{
-    display: none;
+    grid-column: 1 / -1;
+    order: 4;
+    display: block;
+    width: 100%;
+    max-width: none;
+    text-align: left;
   }
 
   .acciones{

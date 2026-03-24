@@ -77,24 +77,109 @@
             <p class="badge payment">Pago</p>
             <h3>Método de pago</h3>
 
-            <div class="payment-method active">
-              <div class="method-left">
-                <div class="method-icon">B</div>
-                <div>
-                  <strong>Bizum</strong>
-                  <p>Pago rápido, cómodo y seguro</p>
+            <div class="payment-methods-grid">
+              <button
+                type="button"
+                class="payment-method selectable"
+                :class="{ active: metodoPago === 'bizum' }"
+                @click="metodoPago = 'bizum'"
+              >
+                <div class="method-left">
+                  <div class="method-icon bizum-icon">B</div>
+                  <div>
+                    <strong>Bizum</strong>
+                    <p>Pago rápido, cómodo y seguro</p>
+                  </div>
                 </div>
-              </div>
-              <span class="method-pill">Seleccionado</span>
+                <span class="method-pill" v-if="metodoPago === 'bizum'">Seleccionado</span>
+              </button>
+
+              <button
+                type="button"
+                class="payment-method selectable"
+                :class="{ active: metodoPago === 'transferencia' }"
+                @click="metodoPago = 'transferencia'"
+              >
+                <div class="method-left">
+                  <div class="method-icon transfer-icon">€</div>
+                  <div>
+                    <strong>Transferencia bancaria</strong>
+                    <p>Haz la transferencia y usa el concepto indicado</p>
+                  </div>
+                </div>
+                <span class="method-pill transfer-pill" v-if="metodoPago === 'transferencia'">
+                  Seleccionado
+                </span>
+              </button>
             </div>
 
-            <button class="pay-btn" @click="pagarBizum" :disabled="procesando">
+            <div class="payment-details-card">
+              <div class="payment-detail-head">
+                <strong>Datos para el pago</strong>
+                <span class="payment-detail-tag">
+                  {{ metodoPago === "bizum" ? "Bizum" : "Transferencia" }}
+                </span>
+              </div>
+
+              <div class="payment-detail-grid">
+                <template v-if="metodoPago === 'bizum'">
+                  <div class="detail-row">
+                    <span>Número Bizum</span>
+                    <strong>{{ BIZUM_NUMBER }}</strong>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <div class="detail-row">
+                    <span>Titular</span>
+                    <strong>{{ TRANSFER_HOLDER }}</strong>
+                  </div>
+
+                  <div class="detail-row column">
+                    <span>IBAN</span>
+                    <strong class="multiline iban">{{ TRANSFER_IBAN }}</strong>
+                  </div>
+                </template>
+
+                <div class="detail-row column">
+                  <span>Concepto</span>
+                  <div class="concept-box">
+                    <strong class="multiline concept-text">{{ paymentConcept }}</strong>
+                    <button type="button" class="copy-btn" @click="copiarConcepto">
+                      {{ copied ? "Copiado" : "Copiar" }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="detail-row column">
+                  <span>Importe</span>
+                  <strong class="amount">{{ total.toFixed(2) }} €</strong>
+                </div>
+              </div>
+
+              <p class="secure-note payment-instructions">
+                {{
+                  metodoPago === "bizum"
+                    ? "Haz el Bizum con este importe exacto y usa el concepto para identificar tu pedido."
+                    : "Haz la transferencia con este importe exacto y usa el concepto para identificar tu pedido."
+                }}
+              </p>
+            </div>
+
+            <button class="pay-btn" @click="confirmarPagoManual" :disabled="procesando">
               <span v-if="procesando" class="spinner"></span>
-              {{ procesando ? "Procesando pago..." : "Pagar por Bizum" }}
+              {{
+                procesando
+                  ? "Registrando pedido..."
+                  : metodoPago === "bizum"
+                    ? "He realizado el pago por Bizum"
+                    : "He realizado la transferencia"
+              }}
             </button>
 
             <p class="secure-note">
-              Tu pago se procesará de forma segura. Al confirmar, tu pedido quedará registrado.
+              Tu pedido quedará registrado como <strong>pendiente de verificación</strong> hasta
+              comprobar el pago.
             </p>
           </div>
         </section>
@@ -138,7 +223,7 @@
               </div>
 
               <div class="product-total">
-                {{ Number(item.precio) * Number(item.cantidad) }} €
+                {{ (Number(item.precio) * Number(item.cantidad)).toFixed(2) }} €
               </div>
             </button>
           </div>
@@ -146,12 +231,17 @@
           <div class="summary-lines">
             <div class="summary-line">
               <span>Subtotal</span>
-              <span>{{ subtotal }} €</span>
+              <span>{{ subtotal.toFixed(2) }} €</span>
             </div>
 
             <div class="summary-line">
               <span>Envío</span>
-              <span>{{ envio }} €</span>
+              <span>{{ envio.toFixed(2) }} €</span>
+            </div>
+
+            <div class="summary-line">
+              <span>Método</span>
+              <span>{{ metodoPagoLabel }}</span>
             </div>
 
             <div class="summary-line" v-if="cantidadTotal">
@@ -162,13 +252,14 @@
 
           <div class="summary-total">
             <span>Total</span>
-            <span>{{ total }} €</span>
+            <span>{{ total.toFixed(2) }} €</span>
           </div>
 
           <div class="summary-box">
             <p><strong>Pedido:</strong> #{{ pedido.order_id || "Pendiente" }}</p>
             <p><strong>Moneda:</strong> EUR</p>
-            <p><strong>Estado:</strong> Pendiente de pago</p>
+            <p><strong>Estado:</strong> Pendiente de verificación</p>
+            <p><strong>Concepto:</strong> {{ paymentConcept }}</p>
           </div>
         </aside>
       </div>
@@ -189,8 +280,14 @@ import { supabase } from "../../supabase"
 
 const router = useRouter()
 const procesando = ref(false)
+const copied = ref(false)
 
 const pedido = ref(JSON.parse(localStorage.getItem("checkout_pending")) || null)
+const metodoPago = ref(localStorage.getItem("metodo_pago_internacional") || "bizum")
+
+const BIZUM_NUMBER = "600000000"
+const TRANSFER_HOLDER = "ResuelveShop"
+const TRANSFER_IBAN = "ES00 0000 0000 0000 0000 0000"
 
 const subtotal = computed(() => {
   if (!pedido.value) return 0
@@ -202,11 +299,22 @@ const subtotal = computed(() => {
 })
 
 const envio = computed(() => Number(pedido.value?.envio || 0))
-
 const total = computed(() => Number(pedido.value?.total || subtotal.value + envio.value))
 
 const cantidadTotal = computed(() =>
   (pedido.value?.productos || []).reduce((s, i) => s + Number(i.cantidad || 0), 0)
+)
+
+const paymentConcept = computed(() => {
+  const base =
+    pedido.value?.order_id ||
+    pedido.value?.id ||
+    `RS-${Date.now().toString().slice(-6)}`
+  return `RESUELVE-${base}`
+})
+
+const metodoPagoLabel = computed(() =>
+  metodoPago.value === "bizum" ? "Bizum" : "Transferencia"
 )
 
 if (!pedido.value) {
@@ -217,12 +325,27 @@ function irAlCarrito() {
   router.push("/carrito")
 }
 
-async function pagarBizum() {
+async function copiarConcepto() {
+  try {
+    await navigator.clipboard.writeText(paymentConcept.value)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 1800)
+  } catch (e) {
+    console.error(e)
+    alert("No se pudo copiar el concepto.")
+  }
+}
+
+async function confirmarPagoManual() {
   if (!pedido.value) {
     alert("No se encontró la información del checkout.")
     router.push("/checkout")
     return
   }
+
+  localStorage.setItem("metodo_pago_internacional", metodoPago.value)
 
   const { data } = await supabase.auth.getUser()
   const user = data.user
@@ -235,20 +358,32 @@ async function pagarBizum() {
 
   procesando.value = true
 
-const orderPayload = {
-  user_id: user.id,
-  status: "paid",
-  payment_status: "paid",
-  payment_method: "bizum",
-  paid_at: new Date().toISOString(),
-  total: Number(pedido.value.total || 0),
-  currency: "EUR",
-  items: pedido.value.productos || [],
-  shipping: {
-    facturacion: pedido.value.facturacion || {},
-    entrega: pedido.value.entrega || {},
-  },
-}
+  const nowIso = new Date().toISOString()
+
+  const orderPayload = {
+    user_id: user.id,
+    status: "pending_verification",
+    payment_status: "pending_verification",
+    payment_method: metodoPago.value,
+    paid_at: null,
+    payment_reference: paymentConcept.value,
+    total: Number(total.value || 0),
+    currency: "EUR",
+    items: pedido.value.productos || [],
+    shipping: {
+      facturacion: pedido.value.facturacion || {},
+      entrega: pedido.value.entrega || {},
+    },
+    metadata: {
+      customer_confirmed_payment: true,
+      payment_instructions_shown: true,
+      bizum_number: metodoPago.value === "bizum" ? BIZUM_NUMBER : null,
+      transfer_holder: metodoPago.value === "transferencia" ? TRANSFER_HOLDER : null,
+      transfer_iban: metodoPago.value === "transferencia" ? TRANSFER_IBAN : null,
+      checkout_snapshot: pedido.value,
+    },
+    created_at: nowIso,
+  }
 
   const { data: order, error } = await supabase
     .from("orders")
@@ -260,12 +395,11 @@ const orderPayload = {
 
   if (error) {
     console.error(error)
-    alert("No se pudo registrar el pago. Intenta de nuevo.")
+    alert("No se pudo registrar el pedido. Intenta de nuevo.")
     return
   }
 
-  localStorage.removeItem("carrito")
-  localStorage.removeItem("checkout_pending")
+window.dispatchEvent(new CustomEvent("pedido-pendiente-actualizado"))
 
   router.push(`/gracias?order=${order.id}`)
 }
@@ -448,8 +582,13 @@ const orderPayload = {
   line-height: 1.5;
 }
 
-.payment-method{
+.payment-methods-grid{
   margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.payment-method{
   border-radius: 20px;
   border: 1px solid #e5e7eb;
   background: linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
@@ -458,6 +597,18 @@ const orderPayload = {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.payment-method.selectable{
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.payment-method.selectable:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15,23,42,0.06);
 }
 
 .payment-method.active{
@@ -477,10 +628,18 @@ const orderPayload = {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
   color: white;
   font-weight: 1000;
   font-size: 20px;
+  flex: 0 0 46px;
+}
+
+.bizum-icon{
+  background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.transfer-icon{
+  background: linear-gradient(180deg, #0f766e 0%, #0f9f8f 100%);
 }
 
 .method-pill{
@@ -493,6 +652,112 @@ const orderPayload = {
   font-weight: 1000;
   display: inline-flex;
   align-items: center;
+}
+
+.transfer-pill{
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.payment-details-card{
+  margin-top: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
+  padding: 18px;
+}
+
+.payment-detail-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.payment-detail-tag{
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 1000;
+  display: inline-flex;
+  align-items: center;
+}
+
+.payment-detail-grid{
+  display: grid;
+  gap: 12px;
+}
+
+.detail-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detail-row.column{
+  display: grid;
+  justify-content: stretch;
+}
+
+.detail-row span{
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.detail-row strong{
+  color: #111827;
+  font-size: 15px;
+  font-weight: 1000;
+}
+
+.iban{
+  letter-spacing: .04em;
+}
+
+.amount{
+  font-size: 20px !important;
+}
+
+.concept-box{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px dashed #d1d5db;
+  background: #f8fafc;
+}
+
+.concept-text{
+  word-break: break-word;
+}
+
+.copy-btn{
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #166534;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.copy-btn:hover{
+  background: #f0fdf4;
+}
+
+.payment-instructions{
+  margin-top: 14px;
 }
 
 .pay-btn{
@@ -808,23 +1073,26 @@ const orderPayload = {
     gap: 8px;
   }
 
-  .info-row{
+  .info-row,
+  .detail-row{
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
   }
 
-  .info-row span{
+  .info-row span,
+  .detail-row span{
     font-size: 11.5px;
   }
 
-  .info-row strong{
+  .info-row strong,
+  .detail-row strong{
     font-size: 14px;
     text-align: left;
   }
 
   .payment-method{
-    margin-top: 12px;
+    margin-top: 0;
     padding: 14px;
     border-radius: 16px;
     flex-direction: column;
@@ -847,6 +1115,30 @@ const orderPayload = {
     font-size: 11px;
     padding: 0 10px;
     align-self: flex-start;
+  }
+
+  .payment-details-card{
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .payment-detail-head{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .concept-box{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copy-btn{
+    width: 100%;
+    min-height: 38px;
+    border-radius: 12px;
+    font-size: 12px;
   }
 
   .pay-btn{

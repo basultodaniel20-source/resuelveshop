@@ -51,17 +51,25 @@
                   <p class="badge shipping">Entrega</p>
                   <h3>Datos de entrega</h3>
                   <p class="section-muted">
-                    La provincia seleccionada definirá la disponibilidad del pedido.
+                    La provincia y el municipio seleccionados definen la disponibilidad del pedido.
                   </p>
                 </div>
               </div>
 
               <div class="field-grid">
                 <div class="field full">
-                  <label>Provincia seleccionada</label>
+                  <label>Ubicación seleccionada</label>
                   <div class="province-box">
-                    <span>📍 {{ provincia || "Sin provincia seleccionada" }}</span>
-                    <button type="button" class="change-province-btn" @click="cambiarProvincia">
+                    <div class="location-lines">
+                      <span>📍 {{ provincia || "Sin provincia seleccionada" }}</span>
+                      <span>🏙️ {{ municipioSeleccionado || "Sin municipio seleccionado" }}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="change-province-btn"
+                      @click="cambiarUbicacion"
+                    >
                       Cambiar
                     </button>
                   </div>
@@ -85,11 +93,11 @@
                   />
                 </div>
 
-                <div class="field">
-                  <label>Municipio</label>
+                <div class="field full">
+                  <label>Reparto / zona / barrio (opcional)</label>
                   <input
-                    v-model="municipio"
-                    placeholder="Ej. Plaza / Santa Clara / Centro Habana"
+                    v-model="zona"
+                    placeholder="Ej. Micro 3, Reparto Sueño, Vedado..."
                   />
                 </div>
 
@@ -117,6 +125,14 @@
             <div class="mobile-summary">
               <div class="summary-lines">
                 <div class="summary-line">
+                  <span>Provincia</span>
+                  <span>{{ provincia || "—" }}</span>
+                </div>
+                <div class="summary-line">
+                  <span>Municipio</span>
+                  <span>{{ municipioSeleccionado || "—" }}</span>
+                </div>
+                <div class="summary-line">
                   <span>Subtotal</span>
                   <span>{{ total }} €</span>
                 </div>
@@ -131,7 +147,10 @@
               </div>
             </div>
 
-            <button class="pagar-btn" :disabled="!provincia || enviando || !carrito.length">
+            <button
+              class="pagar-btn"
+              :disabled="!provincia || !municipioSeleccionado || enviando || !carrito.length"
+            >
               <span v-if="enviando" class="spinner"></span>
               {{ enviando ? "Abriendo WhatsApp..." : "Enviar pedido por WhatsApp" }}
             </button>
@@ -190,6 +209,11 @@
             </div>
 
             <div class="summary-line">
+              <span>Municipio</span>
+              <span>{{ municipioSeleccionado || "—" }}</span>
+            </div>
+
+            <div class="summary-line">
               <span>Subtotal</span>
               <span>{{ total }} €</span>
             </div>
@@ -229,6 +253,7 @@ const WHATS_PHONE = "34624569359"
 
 const carrito = ref(JSON.parse(localStorage.getItem("carrito_cuba")) || [])
 const provincia = ref(localStorage.getItem("provincia_cuba") || "")
+const municipioSeleccionado = ref(localStorage.getItem("municipio_cuba") || "")
 
 const nombre = ref("")
 const telefono = ref("")
@@ -238,7 +263,7 @@ const notas = ref("")
 const destinatarioNombre = ref("")
 const destinatarioTelefono = ref("")
 const destinatarioDireccion = ref("")
-const municipio = ref("")
+const zona = ref("")
 
 const cargandoPerfil = ref(true)
 const enviando = ref(false)
@@ -257,8 +282,9 @@ const totalFinal = computed(() => total.value + envio.value)
 function recargarCheckout() {
   carrito.value = JSON.parse(localStorage.getItem("carrito_cuba")) || []
   provincia.value = localStorage.getItem("provincia_cuba") || ""
+  municipioSeleccionado.value = localStorage.getItem("municipio_cuba") || ""
 
-  if (!provincia.value) {
+  if (!provincia.value || !municipioSeleccionado.value) {
     router.push("/cuba/catalogo")
     return
   }
@@ -309,8 +335,9 @@ function irAlCarrito() {
   router.push("/cuba/carrito")
 }
 
-function cambiarProvincia() {
+function cambiarUbicacion() {
   localStorage.removeItem("provincia_cuba")
+  localStorage.removeItem("municipio_cuba")
   localStorage.removeItem("carrito_cuba")
   window.dispatchEvent(new CustomEvent("provincia-cuba-actualizada"))
   window.dispatchEvent(new CustomEvent("carrito-actualizado"))
@@ -327,7 +354,8 @@ function construirMensaje() {
     "Hola, quiero realizar este pedido en ResuelveShop Cuba:",
     "",
     `📍 Provincia: ${provincia.value || "No indicada"}`,
-    `🏙️ Municipio: ${municipio.value || "No indicado"}`,
+    `🏙️ Municipio: ${municipioSeleccionado.value || "No indicado"}`,
+    `📌 Zona / barrio: ${zona.value || "No indicado"}`,
     "",
     "🧾 Datos del comprador:",
     `- Nombre: ${nombre.value}`,
@@ -352,6 +380,52 @@ function construirMensaje() {
   return mensaje
 }
 
+function guardarPedidoLocal(user) {
+  const pedidosGuardados = JSON.parse(localStorage.getItem("orders_cuba")) || []
+
+  const nuevoPedido = {
+    id: `CUBA-${Date.now()}`,
+    fecha: new Date().toISOString(),
+    estado: "Pendiente por confirmar",
+    tienda: "cuba",
+    user_id: user.id,
+    user_email: user.email,
+    provincia: provincia.value,
+    municipio: municipioSeleccionado.value,
+    subtotal: total.value,
+    envio: envio.value,
+    total: totalFinal.value,
+    comprador: {
+      nombre: nombre.value,
+      telefono: telefono.value,
+      direccion: direccion.value,
+    },
+    entrega: {
+      nombre: destinatarioNombre.value,
+      telefono: destinatarioTelefono.value,
+      municipio: municipioSeleccionado.value,
+      zona: zona.value,
+      direccion: destinatarioDireccion.value,
+      notas: notas.value || "",
+    },
+    productos: carrito.value.map((i) => ({
+      id: i.id,
+      nombre: i.nombre,
+      precio: Number(i.precio || 0),
+      cantidad: Number(i.cantidad || 0),
+      imagen: i.imagen || null,
+      provincias: i.provincias || [],
+      municipios: i.municipios || [],
+    })),
+  }
+
+  pedidosGuardados.unshift(nuevoPedido)
+  localStorage.setItem("orders_cuba", JSON.stringify(pedidosGuardados))
+  localStorage.setItem("checkout_pending_cuba", JSON.stringify(nuevoPedido))
+
+  return nuevoPedido
+}
+
 async function continuarWhatsApp() {
   const { data } = await supabase.auth.getUser()
   const user = data.user
@@ -368,18 +442,24 @@ async function continuarWhatsApp() {
     return
   }
 
-  if (!provincia.value) {
-    alert("Debes seleccionar una provincia antes de continuar.")
+  if (!provincia.value || !municipioSeleccionado.value) {
+    alert("Debes seleccionar provincia y municipio antes de continuar.")
     router.push("/cuba/catalogo")
     return
   }
 
   const productosInvalidos = carrito.value.filter((item) => {
-    return !Array.isArray(item.provincias) || !item.provincias.includes(provincia.value)
+    const validaProvincia =
+      !Array.isArray(item.provincias) || item.provincias.includes(provincia.value)
+
+    const validaMunicipio =
+      !Array.isArray(item.municipios) || item.municipios.includes(municipioSeleccionado.value)
+
+    return !validaProvincia || !validaMunicipio
   })
 
   if (productosInvalidos.length) {
-    alert("Hay productos en tu carrito que no están disponibles para la provincia seleccionada.")
+    alert("Hay productos en tu carrito que no están disponibles para la ubicación seleccionada.")
     router.push("/cuba/carrito")
     return
   }
@@ -407,44 +487,18 @@ async function continuarWhatsApp() {
     return
   }
 
-  const pedidoTemporal = {
-    tienda: "cuba",
-    user_id: user.id,
-    productos: carrito.value.map((i) => ({
-      id: i.id,
-      nombre: i.nombre,
-      precio: Number(i.precio || 0),
-      cantidad: Number(i.cantidad || 0),
-      imagen: i.imagen || null,
-      provincias: i.provincias || [],
-    })),
-    subtotal: total.value,
-    envio: envio.value,
-    total: totalFinal.value,
-    currency: "EUR",
-    provincia: provincia.value,
-    comprador: {
-      nombre: nombre.value,
-      telefono: telefono.value,
-      direccion: direccion.value,
-    },
-    entrega: {
-      nombre: destinatarioNombre.value,
-      telefono: destinatarioTelefono.value,
-      municipio: municipio.value,
-      direccion: destinatarioDireccion.value,
-      notas: notas.value || "",
-    },
-    created_at: nowIso,
-  }
-
-  localStorage.setItem("checkout_pending_cuba", JSON.stringify(pedidoTemporal))
+  guardarPedidoLocal(user)
 
   const mensaje = construirMensaje()
   const url = `https://wa.me/${WHATS_PHONE}?text=${encodeURIComponent(mensaje)}`
 
+  localStorage.removeItem("carrito_cuba")
+  carrito.value = []
+  window.dispatchEvent(new CustomEvent("carrito-actualizado"))
+
   enviando.value = false
   window.open(url, "_blank")
+  router.push("/cuba/account/orders")
 }
 </script>
 
@@ -638,7 +692,12 @@ async function continuarWhatsApp() {
   min-height: 54px;
 }
 
-.province-box span{
+.location-lines{
+  display: grid;
+  gap: 6px;
+}
+
+.location-lines span{
   font-size: 14px;
   font-weight: 900;
   color: #111827;

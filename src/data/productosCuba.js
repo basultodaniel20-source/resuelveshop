@@ -11,7 +11,7 @@ export const productos = [
     imagen: reloj,
     categoria: "Accesorios",
     provincias: ["Granma"],
-    municipios:["Yara"]
+    municipios:["Yara","Campechuela","Manzanillo"]
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ export const productos = [
     imagen: zapato,
     categoria: "Calzado",
     provincias: ["Granma"],
-    municipios:["Yara"]
+    municipios:["Yara","Campechuela","Manzanillo"]
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ export const productos = [
     imagen: camiseta,
     categoria: "Ropa",
     provincias: ["Granma"],
-    municipios:["Yara"]
+    municipios:["Yara","Campechuela","Manzanillo"]
   },
   {
     id: 4,
@@ -38,6 +38,6 @@ export const productos = [
     imagen: kit,
     categoria: "Gym",
     provincias: ["Granma"],
-    municipios:["Yara"]
+    municipios:["Yara","Campechuela","Manzanillo"]
   }
 ]
