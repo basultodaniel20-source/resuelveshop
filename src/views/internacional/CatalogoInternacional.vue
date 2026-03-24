@@ -1,4 +1,5 @@
 <template>
+  <StoreLayout>
   <div class="home">
     <!-- HERO PRO -->
     <section class="hero">
@@ -31,6 +32,7 @@
 
     <p v-if="productosFiltrados.length === 0" class="sin">No se encontraron productos</p>
   </div>
+  </StoreLayout>
 </template>
 
 <script setup>
@@ -38,6 +40,7 @@ import { computed } from "vue"
 import { useRoute } from "vue-router"
 import Categorias from "../../components/Categorias.vue"
 import ProductoCard from "../../components/ProductoCard.vue"
+import StoreLayout from "@/layouts/StoreLayout.vue"
 
 defineEmits(["agregar"])
 

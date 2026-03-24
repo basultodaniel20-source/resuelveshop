@@ -1,4 +1,5 @@
 <template>
+  <StoreLayout>
   <div class="home">
     <!-- 1) HERO -->
     <section class="hero">
@@ -366,11 +367,13 @@
     <!-- Spacer real (para que la última sección suba bien bajo el sticky) -->
     <div class="bottomSpacer" aria-hidden="true"></div>
   </div>
+  </StoreLayout>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, nextTick, watch } from "vue"
 import ProductoCard from "../../components/ProductoCard.vue"
+import StoreLayout from "@/layouts/StoreLayout.vue"
 
 defineEmits(["agregar"])
 

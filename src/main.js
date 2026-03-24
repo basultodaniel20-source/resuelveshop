@@ -3,6 +3,7 @@ import { createApp } from "vue"
 import App from "./App.vue"
 import router from "./router"
 import { supabase } from "./supabase"
+import "@/assets/store.css"
 
 const app = createApp(App)
 

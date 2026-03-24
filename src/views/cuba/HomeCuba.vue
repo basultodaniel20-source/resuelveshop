@@ -1,4 +1,5 @@
 <template>
+  <StoreLayout>
   <div class="homeCuba">
     <!-- HERO -->
     <section class="hero">
@@ -157,10 +158,12 @@
       </div>
     </section>
   </div>
+  </StoreLayout>
 </template>
 
 <script setup>
 import { computed } from "vue"
+import StoreLayout from "@/layouts/StoreLayout.vue"
 
 const whatsPhone = "34624569359"
 

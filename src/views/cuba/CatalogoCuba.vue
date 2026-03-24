@@ -1,4 +1,5 @@
 <template>
+  <StoreLayout>
   <div class="catalogo">
     <div class="catalogo-head">
       <div>
@@ -34,6 +35,7 @@
       No hay productos disponibles para esta provincia en esta categoría.
     </p>
   </div>
+  <</StoreLayout>
 </template>
 
 <script setup>
@@ -42,6 +44,9 @@ import { useRoute } from "vue-router"
 import Categorias from "../../components/Categorias.vue"
 import ProductoCard from "../../components/ProductoCard.vue"
 import { productos } from "../../data/productosCuba.js"
+import StoreLayout from "@/layouts/StoreLayout.vue"
+
+
 
 defineEmits(["agregar"])
 
