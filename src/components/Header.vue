@@ -115,14 +115,6 @@
           📍 {{ ubicacionLabel }}
         </div>
 
-        <button
-          v-if="isCuba"
-          class="nav-link"
-          @click="cambiarUbicacionDesdeMenu"
-        >
-          📍 Cambiar ubicación
-        </button>
-
         <router-link class="nav-link" :to="carritoPath" @click="goClose">
           🛒 Carrito ({{ total }})
         </router-link>
