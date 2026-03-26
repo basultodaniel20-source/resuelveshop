@@ -198,16 +198,20 @@
               </div>
             </div>
 
-            <button class="pagar-btn" :disabled="cargandoPerfil || creandoPedido">
-              <span v-if="cargandoPerfil || creandoPedido" class="spinner"></span>
-              {{
-                cargandoPerfil
-                  ? "Cargando datos..."
-                  : creandoPedido
-                    ? "Preparando pedido..."
-                    : `Continuar al pago (${metodoPagoLabel})`
-              }}
-            </button>
+         <button
+  type="submit"
+  class="pagar-btn"
+  :disabled="cargandoPerfil || creandoPedido"
+>
+  <span v-if="cargandoPerfil || creandoPedido" class="spinner"></span>
+  {{
+    cargandoPerfil
+      ? "Cargando datos..."
+      : creandoPedido
+        ? "Preparando pedido..."
+        : `Continuar al pago (${metodoPagoLabel})`
+  }}
+</button>
           </form>
         </section>
 
@@ -421,80 +425,73 @@ function irAlCarrito() {
 }
 
 async function continuar() {
-  const { data } = await supabase.auth.getUser()
-  const user = data.user
+  console.log("CLICK EN CONTINUAR")
 
-  if (!user) {
-    alert("Debes iniciar sesión")
-    router.push({ path: "/login", query: { redirect: "/internacional/checkout" } })
-    return
-  }
+  try {
+    const { data, error: authError } = await supabase.auth.getUser()
+    console.log("USER:", data?.user)
+    console.log("AUTH ERROR:", authError)
 
-  if (!carrito.value.length) {
-    alert("Tu carrito está vacío.")
-    router.push("/internacional/carrito")
-    return
-  }
+    const user = data.user
 
-  creandoPedido.value = true
+    if (!user) {
+      console.log("NO USER")
+      alert("Debes iniciar sesión")
+      router.push({ path: "/login", query: { redirect: "/internacional/checkout" } })
+      return
+    }
 
-  const nowIso = new Date().toISOString()
+    if (!carrito.value.length) {
+      console.log("CARRITO VACÍO")
+      alert("Tu carrito está vacío.")
+      router.push("/internacional/carrito")
+      return
+    }
 
-  const { error: profileError } = await supabase.from("profiles").upsert(
-    {
-      id: user.id,
-      email: user.email,
-      nombre: nombre.value,
-      telefono: telefono.value,
-      direccion: direccion.value,
-      updated_at: nowIso,
-    },
-    { onConflict: "id" }
-  )
+    creandoPedido.value = true
+    const nowIso = new Date().toISOString()
 
-  if (profileError) {
+    console.log("ANTES DEL UPSERT")
+
+    const { error: profileError } = await supabase.from("profiles").upsert(
+      {
+        id: user.id,
+        email: user.email,
+        nombre: nombre.value,
+        telefono: telefono.value,
+        direccion: direccion.value,
+        updated_at: nowIso,
+      },
+      { onConflict: "id" }
+    )
+
+    console.log("PROFILE ERROR:", profileError)
+
+    if (profileError) {
+      throw profileError
+    }
+
+    localStorage.setItem(
+      "checkout_pending_internacional",
+      JSON.stringify({
+        tienda: "internacional",
+        user_id: user.id,
+        productos: carrito.value,
+        subtotal: total.value,
+        envio: envio.value,
+        total: totalFinal.value,
+        currency: "EUR",
+      })
+    )
+
+    console.log("ANTES DE ROUTER PUSH")
+    await router.push("/internacional/pago")
+    console.log("DESPUÉS DE ROUTER PUSH")
+  } catch (error) {
+    console.error("ERROR EN CONTINUAR:", error)
+  } finally {
     creandoPedido.value = false
-    console.error(profileError)
-    alert("No se pudo guardar tu perfil antes de continuar.")
-    return
   }
-
-  const pedidoTemporal = {
-    tienda: "internacional",
-    user_id: user.id,
-    productos: carrito.value.map((i) => ({
-      id: i.id,
-      nombre: i.nombre,
-      precio: Number(i.precio || 0),
-      cantidad: Number(i.cantidad || 0),
-      imagen: i.imagen || null,
-    })),
-    subtotal: total.value,
-    envio: envio.value,
-    total: totalFinal.value,
-    currency: "EUR",
-    facturacion: {
-      nombre: nombre.value,
-      telefono: telefono.value,
-      direccion: direccion.value,
-    },
-    entrega: {
-      shipping_address_id: selectedShippingId.value || null,
-      nombre: destinatarioNombre.value,
-      telefono: destinatarioTelefono.value,
-      direccion: destinatarioDireccion.value,
-      notas: notas.value || "",
-    },
-    payment_method: metodoPago.value,
-    created_at: nowIso,
-  }
-
-  localStorage.setItem("checkout_pending_internacional", JSON.stringify(pedidoTemporal))
-  localStorage.setItem("metodo_pago_internacional", metodoPago.value)
-  window.dispatchEvent(new CustomEvent("pedido-pendiente-actualizado"))
-
-  creandoPedido.value = false
-  router.push("/internacional/pago")
 }
 </script>
 
