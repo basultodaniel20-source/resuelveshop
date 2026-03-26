@@ -12,15 +12,6 @@
             }}
           </p>
         </div>
-
-        <button class="provBtn" @click="cambiarUbicacion">
-          📍
-          {{
-            provinciaSeleccionada && municipioSeleccionado
-              ? `${provinciaSeleccionada} · ${municipioSeleccionado}`
-              : "Elegir ubicación"
-          }}
-        </button>
       </div>
 
       <Categorias :categorias="categoriasDisponibles" />

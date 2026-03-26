@@ -267,7 +267,9 @@
       <div v-else class="empty card">
         <h3>No hay datos de pago</h3>
         <p>No encontramos la información del checkout.</p>
-        <router-link to="/checkout" class="back-btn">Volver al checkout</router-link>
+        <router-link to="/internacional/checkout" class="back-btn">
+          Volver al checkout
+        </router-link>
       </div>
     </div>
   </div>
@@ -282,12 +284,14 @@ const router = useRouter()
 const procesando = ref(false)
 const copied = ref(false)
 
-const pedido = ref(JSON.parse(localStorage.getItem("checkout_pending")) || null)
+const pedido = ref(
+  JSON.parse(localStorage.getItem("checkout_pending_internacional") || "null")
+)
 const metodoPago = ref(localStorage.getItem("metodo_pago_internacional") || "bizum")
 
-const BIZUM_NUMBER = "600000000"
+const BIZUM_NUMBER = "643170184"
 const TRANSFER_HOLDER = "ResuelveShop"
-const TRANSFER_IBAN = "ES00 0000 0000 0000 0000 0000"
+const TRANSFER_IBAN = "ES20 0049 0016 5125 1124 0971"
 
 const subtotal = computed(() => {
   if (!pedido.value) return 0
@@ -318,11 +322,11 @@ const metodoPagoLabel = computed(() =>
 )
 
 if (!pedido.value) {
-  router.push("/checkout")
+  router.push("/internacional/checkout")
 }
 
 function irAlCarrito() {
-  router.push("/carrito")
+  router.push("/internacional/carrito")
 }
 
 async function copiarConcepto() {
@@ -341,7 +345,7 @@ async function copiarConcepto() {
 async function confirmarPagoManual() {
   if (!pedido.value) {
     alert("No se encontró la información del checkout.")
-    router.push("/checkout")
+    router.push("/internacional/checkout")
     return
   }
 
@@ -352,7 +356,7 @@ async function confirmarPagoManual() {
 
   if (!user) {
     alert("Debes iniciar sesión")
-    router.push({ path: "/login", query: { redirect: "/checkout" } })
+    router.push({ path: "/login", query: { redirect: "/internacional/checkout" } })
     return
   }
 
@@ -385,6 +389,8 @@ async function confirmarPagoManual() {
     created_at: nowIso,
   }
 
+  console.log("PAYLOAD A INSERTAR EN ORDERS:", orderPayload)
+
   const { data: order, error } = await supabase
     .from("orders")
     .insert(orderPayload)
@@ -393,15 +399,31 @@ async function confirmarPagoManual() {
 
   procesando.value = false
 
+  console.log("ORDER RESPONSE:", order)
+  console.error("ORDER ERROR:", error)
+
   if (error) {
-    console.error(error)
-    alert("No se pudo registrar el pedido. Intenta de nuevo.")
+    alert(`No se pudo registrar el pedido:\n${error.message}`)
     return
   }
 
-window.dispatchEvent(new CustomEvent("pedido-pendiente-actualizado"))
+  localStorage.setItem(
+    "ultimo_pedido_internacional",
+    JSON.stringify({
+      ...pedido.value,
+      order_id: order.id,
+      payment_method: metodoPago.value,
+      payment_reference: paymentConcept.value,
+    })
+  )
 
-  router.push(`/gracias?order=${order.id}`)
+  localStorage.removeItem("checkout_pending_internacional")
+  localStorage.removeItem("carrito_internacional")
+
+  window.dispatchEvent(new CustomEvent("carrito-actualizado"))
+  window.dispatchEvent(new CustomEvent("pedido-pendiente-actualizado"))
+
+  router.push(`/internacional/gracias?order=${order.id}`)
 }
 </script>
 

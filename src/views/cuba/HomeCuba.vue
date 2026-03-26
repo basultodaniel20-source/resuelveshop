@@ -25,7 +25,6 @@
        <a class="btn ghost" :href="whatsLink" target="_blank" rel="noreferrer">
         Pedir información
        </a>
-        <router-link class="btn ghost" to="/">Cambiar opción</router-link>
        </div>
         </div>
 
@@ -153,7 +152,6 @@
        <a class="btn ghost" :href="whatsLink" target="_blank" rel="noreferrer">
        Contactar por WhatsApp
        </a>
-       <router-link class="btn ghost" to="/">Volver al selector</router-link>
        </div>
       </div>
     </section>

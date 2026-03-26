@@ -20,6 +20,7 @@ import PagoInternacional from "../views/internacional/PagoInternacional.vue"
 import DireccionesInternacional from "../views/internacional/DireccionesInternacional.vue"
 import PedidosInternacional from "../views/internacional/PedidosInternacional.vue"
 import PedidosDetallesInternacional from "../views/internacional/PedidosDetallesInternacional.vue"
+import GraciasInternacional from "@/views/internacional/GraciasInternacional.vue"
 
 // Cuba
 import HomeCuba from "../views/cuba/HomeCuba.vue"
@@ -36,6 +37,12 @@ import PedidoDetalleCuba from "../views/cuba/PedidoDetalleCuba.vue"
 import AdminOrders from "../views/AdminOrders.vue"
 
 const routes = [
+
+{
+  path: "/internacional/gracias",
+  name: "InternacionalGracias",
+  component: GraciasInternacional,
+},
   {
     path: "/",
     name: "selector-inicial",
