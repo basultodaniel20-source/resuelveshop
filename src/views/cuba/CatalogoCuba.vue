@@ -14,7 +14,9 @@
         </div>
       </div>
 
-      <Categorias :categorias="categoriasDisponibles" />
+      <div class="categorias-wrap">
+        <Categorias :categorias="categoriasDisponibles" />
+      </div>
 
       <section class="productos">
         <ProductoCard
@@ -123,6 +125,107 @@ onBeforeUnmount(() => {
   window.removeEventListener("provincia-cuba-actualizada", refrescarUbicacion)
 })
 </script>
+
+<style scoped>
+.catalogo {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.catalogo-head {
+  margin-bottom: 18px;
+}
+
+.catalogo-head h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  line-height: 1.1;
+}
+
+.catalogo-head p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.categorias-wrap {
+  margin-bottom: 18px;
+}
+
+.productos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.productos > * {
+  min-width: 0;
+}
+
+.emptyState {
+  margin-top: 22px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.sin {
+  margin: 0 0 14px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.changeLocation {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #22c55e;
+  color: #fff;
+}
+
+@media (max-width: 1100px) {
+  .productos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .catalogo {
+    padding: 14px;
+  }
+
+  .productos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .catalogo {
+    padding: 12px;
+  }
+
+  .productos {
+    gap: 10px;
+  }
+
+  .catalogo-head h1 {
+    font-size: 1.45rem;
+  }
+
+  .catalogo-head p {
+    font-size: 0.95rem;
+  }
+}
+</style>
 
 <style scoped>
 .catalogo{

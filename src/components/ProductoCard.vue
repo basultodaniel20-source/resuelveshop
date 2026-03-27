@@ -1,28 +1,26 @@
 <template>
   <article class="producto">
-    <!-- ZONA CLICABLE → VA AL DETALLE -->
     <router-link :to="detallePath" class="link">
       <div class="img-box">
         <img
           :src="producto.imagen"
           :alt="producto.nombre"
+          loading="lazy"
         />
       </div>
 
-      <h3>{{ producto.nombre }}</h3>
+      <h3 class="titulo">{{ producto.nombre }}</h3>
     </router-link>
 
     <p class="precio">{{ producto.precio }} €</p>
 
-    <!-- SELECTOR DE CANTIDAD -->
     <div class="cantidad-selector">
-      <button @click="menos">-</button>
-      <span>{{ cantidad }}</span>
-      <button @click="mas">+</button>
+      <button type="button" class="cantidad-btn" @click="menos">-</button>
+      <span class="cantidad">{{ cantidad }}</span>
+      <button type="button" class="cantidad-btn" @click="mas">+</button>
     </div>
 
-    <!-- BOTÓN AGREGAR -->
-    <button class="btn" @click="agregar($event)">
+    <button type="button" class="btn-agregar" @click="agregar($event)">
       Agregar 🛒
     </button>
   </article>
@@ -69,7 +67,6 @@ function agregar(e) {
   cantidad.value = 1
 }
 
-/* ✨ PARTÍCULA QUE VUELA AL CARRITO */
 function animarAlCarrito(origenElemento) {
   const carrito = document.querySelector(".carrito-indicador")
   if (!carrito || !origenElemento) return
@@ -108,106 +105,116 @@ function animarAlCarrito(origenElemento) {
 }
 </script>
 
-<style>
+<style scoped>
 .producto {
-  background: white;
-  border-radius: 12px;
-  padding: 8px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
+  min-width: 0;
 }
 
-/* LINK DEL PRODUCTO */
 .link {
   text-decoration: none;
   color: inherit;
   display: block;
 }
 
-/* IMAGEN */
 .img-box {
-  height: 100px;
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .img-box img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
-/* NOMBRE */
-.producto h3 {
+.titulo {
   font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
   margin: 6px 0 4px;
+  min-height: 38px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* PRECIO */
 .precio {
   color: #079428;
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 6px;
+  font-weight: 800;
+  font-size: 18px;
+  margin: 8px 0;
 }
 
-/* SELECTOR */
 .cantidad-selector {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.cantidad-selector button {
-  width: 28px;
-  height: 28px;
+.cantidad {
+  min-width: 18px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.cantidad-btn {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
-  background: #e0e0e0;
+  background: #e8e8e8;
   font-size: 18px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.cantidad-selector button:hover {
-  background: #cfcfcf;
-  transform: scale(1.1);
+.cantidad-btn:hover {
+  background: #dcdcdc;
+  transform: scale(1.08);
 }
 
-.cantidad-selector button:active {
-  background: #cfcfcf;
+.cantidad-btn:active {
   transform: scale(0.95);
 }
 
-/* BOTÓN */
-.btn {
+.btn-agregar {
+  width: 100%;
   background: #28a745;
   color: white;
   border: none;
-  padding: 6px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 700;
   transition: all 0.15s ease;
 }
 
-.btn:hover {
+.btn-agregar:hover {
   background: #218838;
   transform: scale(1.02);
 }
 
-.btn:active {
-  transform: scale(0.95);
+.btn-agregar:active {
+  transform: scale(0.97);
 }
 
-/* 🔵 PARTÍCULA */
 .particula-carrito {
   position: fixed;
   width: 14px;
@@ -219,7 +226,6 @@ function animarAlCarrito(origenElemento) {
   transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 🛒 BOUNCE DEL CARRITO */
 .carrito-indicador.bounce {
   animation: bounceCart 0.4s ease;
 }
@@ -229,5 +235,73 @@ function animarAlCarrito(origenElemento) {
   30% { transform: scale(1.25); }
   60% { transform: scale(0.9); }
   100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+  .producto {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .img-box {
+    height: 100px;
+    margin-bottom: 6px;
+  }
+
+  .titulo {
+    font-size: 14px;
+    min-height: 34px;
+  }
+
+  .precio {
+    font-size: 17px;
+    margin: 6px 0;
+  }
+
+  .cantidad-selector {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cantidad-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .cantidad {
+    font-size: 14px;
+  }
+
+  .btn-agregar {
+    padding: 9px 10px;
+    font-size: 13px;
+    border-radius: 9px;
+  }
+}
+
+@media (max-width: 420px) {
+  .producto {
+    padding: 9px;
+  }
+
+  .img-box {
+    height: 88px;
+  }
+
+  .titulo {
+    font-size: 13px;
+    line-height: 1.2;
+    min-height: 32px;
+  }
+
+  .precio {
+    font-size: 16px;
+  }
+
+  .btn-agregar {
+    padding: 8px;
+    font-size: 12.5px;
+  }
 }
 </style>

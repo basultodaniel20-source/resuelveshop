@@ -17,12 +17,14 @@ import { computed } from "vue"
 import { useRoute } from "vue-router"
 
 defineProps({
-  categorias: Array,
+  categorias: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const route = useRoute()
 
-/* 🔥 detectar tienda */
 const isInternacional = computed(() => route.path.startsWith("/internacional"))
 const isCuba = computed(() => route.path.startsWith("/cuba"))
 
@@ -32,13 +34,11 @@ const basePath = computed(() => {
   return "/catalogo"
 })
 
-/* 🔥 construir ruta correcta */
 function getPath(cat) {
   if (cat === "Todos") return basePath.value
-  return `${basePath.value}/${cat}`
+  return `${basePath.value}/${encodeURIComponent(cat)}`
 }
 
-/* categoría activa */
 const categoriaActual = computed(() => {
   return route.params.categoria || "Todos"
 })
@@ -49,8 +49,18 @@ const categoriaActual = computed(() => {
   display: flex;
   gap: 12px;
   margin: 24px 0;
-  flex-wrap: wrap;
-  transition: all 0.15s ease;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  padding: 4px 2px 8px;
+}
+
+.categorias::-webkit-scrollbar {
+  display: none;
 }
 
 .categorias .btn:active {
@@ -58,16 +68,30 @@ const categoriaActual = computed(() => {
 }
 
 .btn {
-  padding: 8px 16px;
-  border-radius: 18px;
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  border-radius: 999px;
   text-decoration: none;
   background: #e4e6ea;
   color: #333;
   font-weight: 600;
+  transition: all 0.15s ease;
 }
 
 .btn.activa {
   background: #28a745;
   color: white;
+}
+
+@media (max-width: 768px) {
+  .categorias {
+    gap: 10px;
+    margin: 18px 0;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+  }
 }
 </style>
