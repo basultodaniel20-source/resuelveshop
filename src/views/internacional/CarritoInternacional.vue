@@ -205,7 +205,7 @@ function formatMoney(value) {
 
 .itemCard{
   display: grid;
-  grid-template-columns: 110px minmax(0, 1fr) auto;
+  grid-template-columns: 110px minmax(0, 1fr) 118px;
   gap: 14px;
   align-items: center;
   background: white;
@@ -224,12 +224,14 @@ function formatMoney(value) {
   place-items: center;
   text-decoration: none;
   border: 1px solid rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 .thumb img{
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .info{
@@ -264,19 +266,23 @@ function formatMoney(value) {
 }
 
 .controls{
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  justify-items: end;
+  align-items: stretch;
+  justify-content: center;
 }
 
 .qtyBox{
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 6px;
   background: #f5f6f8;
   border: 1px solid rgba(0,0,0,0.06);
-  padding: 6px;
+  padding: 5px;
   border-radius: 999px;
+  min-height: 46px;
 }
 
 .qtyBox button{
@@ -296,9 +302,10 @@ function formatMoney(value) {
 }
 
 .qtyBox span{
-  min-width: 24px;
+  min-width: 22px;
   text-align: center;
   font-weight: 1000;
+  font-size: 16px;
 }
 
 .removeBtn{
@@ -309,6 +316,7 @@ function formatMoney(value) {
   border-radius: 12px;
   font-weight: 1000;
   cursor: pointer;
+  width: 100%;
 }
 
 .summaryCard{
@@ -436,27 +444,58 @@ function formatMoney(value) {
   }
 
   .itemCard{
-    grid-template-columns: 88px 1fr;
+    grid-template-columns: 82px minmax(0, 1fr) 88px;
     gap: 12px;
-    align-items: start;
+    align-items: center;
+    padding: 12px;
   }
 
   .thumb{
-    width: 88px;
-    height: 88px;
+    width: 82px;
+    height: 82px;
+    border-radius: 14px;
+  }
+
+  .info h3{
+    font-size: 15px;
+    line-height: 1.15;
+  }
+
+  .unitPrice{
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .lineTotal{
+    margin-top: 6px;
+    font-size: 12px;
   }
 
   .controls{
-    grid-column: 1 / -1;
-    justify-items: stretch;
+    gap: 8px;
   }
 
   .qtyBox{
-    justify-content: center;
+    min-height: 40px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .qtyBox button{
+    width: 30px;
+    height: 30px;
+    font-size: 17px;
+  }
+
+  .qtyBox span{
+    min-width: 16px;
+    font-size: 15px;
   }
 
   .removeBtn{
-    width: 100%;
+    padding: 8px 6px;
+    border-radius: 10px;
+    font-size: 12px;
   }
 
   .page-head h1{
@@ -506,6 +545,46 @@ function formatMoney(value) {
     border-radius: 14px;
     padding: 12px 14px;
     min-width: 120px;
+  }
+}
+
+@media (max-width: 420px){
+  .itemCard{
+    grid-template-columns: 74px minmax(0, 1fr) 82px;
+    gap: 10px;
+    padding: 11px;
+  }
+
+  .thumb{
+    width: 74px;
+    height: 74px;
+  }
+
+  .info h3{
+    font-size: 14px;
+  }
+
+  .unitPrice{
+    font-size: 12.5px;
+  }
+
+  .lineTotal{
+    font-size: 11.5px;
+  }
+
+  .qtyBox button{
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .qtyBox span{
+    font-size: 14px;
+  }
+
+  .removeBtn{
+    font-size: 11px;
+    padding: 7px 4px;
   }
 }
 </style>
