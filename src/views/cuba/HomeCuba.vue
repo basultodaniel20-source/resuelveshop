@@ -529,6 +529,15 @@ const pasos = [
   background: rgba(255,255,255,0.06);
 }
 
+.heroPhotoReal,
+.miniBannerReal,
+.promoBannerReal {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 .heroOverlayCard {
   position: absolute;
   left: 18px;
@@ -700,9 +709,6 @@ const pasos = [
   background:
     radial-gradient(circle at 90% 10%, rgba(34, 197, 94, 0.1), transparent 22%),
     #ffffff;
-}
-
-.promoBanner.light {
   grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
 }
 
@@ -1036,7 +1042,7 @@ const pasos = [
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-/* RESPONSIVE */
+/* TABLET */
 @media (max-width: 980px) {
   .heroCard,
   .finalCard,
@@ -1060,9 +1066,14 @@ const pasos = [
   }
 }
 
+/* MOBILE */
 @media (max-width: 640px) {
   .homeCuba {
     padding: 8px 2px 22px;
+  }
+
+  .section {
+    margin-top: 14px;
   }
 
   .heroCard,
@@ -1072,42 +1083,260 @@ const pasos = [
   .catCard,
   .benefitCard,
   .promoBanner {
-    border-radius: 22px;
+    border-radius: 20px;
   }
 
   .heroCard,
   .finalCard,
   .howCard,
-  .promoBanner {
-    padding: 18px;
+  .promoBanner,
+  .infoCard {
+    padding: 16px;
+  }
+
+  .heroCard {
+    gap: 14px;
   }
 
   .heroContent h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .heroText {
+    font-size: 13px;
+    line-height: 1.55;
+    margin-top: 12px;
   }
 
   .heroStats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
   }
 
-  .heroMiniBanners,
-  .catsGrid,
-  .benefitsGrid {
-    grid-template-columns: 1fr;
+  .statCard {
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
+
+  .statCard strong {
+    font-size: 14px;
+    line-height: 1.1;
+  }
+
+  .statCard span {
+    font-size: 10.5px;
+    line-height: 1.25;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 14px;
+  }
+
+  .heroTrust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    font-size: 11px;
+    margin-top: 12px;
+  }
+
+  .heroVisual {
+    gap: 10px;
   }
 
   .heroMainBanner {
-    min-height: 300px;
+    min-height: 235px;
+    border-radius: 20px;
   }
 
-  .promoMedia {
-    min-height: 180px;
+  .heroOverlayCard {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .overlayLabel {
+    font-size: 10px;
+  }
+
+  .overlayTitle {
+    font-size: 15px;
+    line-height: 1.15;
+    margin-top: 6px;
+  }
+
+  .overlayText {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  .heroMiniBanners {
+    display: none;
   }
 
   .sectionHead h2,
   .promoContent h3,
   .finalText h2 {
-    font-size: 24px;
+    font-size: 22px;
+    line-height: 1.08;
+  }
+
+  .sectionHead p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .catsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .catCard {
+    padding: 14px;
+    border-radius: 18px;
+    min-height: 170px;
+  }
+
+  .catIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 20px;
+  }
+
+  .catTitle {
+    font-size: 15px;
+    margin-top: 10px;
+  }
+
+  .catText {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 5px;
+  }
+
+  .promoGrid {
+    gap: 12px;
+  }
+
+  .promoBanner,
+  .promoBanner.light {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .promoMedia {
+    min-height: 150px;
+    border-radius: 16px;
+  }
+
+  .promoContent h3 {
+    margin-top: 10px;
+    font-size: 20px;
+  }
+
+  .promoContent p {
+    font-size: 12.5px;
+    line-height: 1.45;
+    margin-top: 8px;
+  }
+
+  .promoContent .btn {
+    margin-top: 12px;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .benefitCard {
+    padding: 14px;
+    border-radius: 18px;
+    min-height: 168px;
+  }
+
+  .benefitIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 20px;
+  }
+
+  .benefitTitle {
+    margin-top: 10px;
+    font-size: 15px;
+  }
+
+  .benefitText {
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .howCard {
+    padding: 16px;
+  }
+
+  .stepsGrid {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .stepCard {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .stepTitle {
+    font-size: 15px;
+  }
+
+  .stepText {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .infoGrid {
+    gap: 12px;
+  }
+
+  .infoCard {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .infoTitle {
+    font-size: 15px;
+  }
+
+  .infoList,
+  .infoText {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .finalCard {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .finalText p {
+    font-size: 12.5px;
+    line-height: 1.45;
   }
 
   .heroActions,
@@ -1116,29 +1345,42 @@ const pasos = [
     align-items: stretch;
   }
 
+  .finalActions {
+    justify-content: stretch;
+  }
+
   .btn {
     width: 100%;
     min-width: 0;
+    height: 42px;
+    font-size: 13px;
   }
 }
-.heroPhotoReal,
-.miniBannerReal,
-.promoBannerReal {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
 
-.heroPhotoReal {
-  object-position: center;
-}
+@media (max-width: 420px) {
+  .heroContent h1 {
+    font-size: 1.8rem;
+  }
 
-.miniBannerReal {
-  object-position: center;
-}
+  .heroStats {
+    grid-template-columns: 1fr;
+  }
 
-.promoBannerReal {
-  object-position: center;
+  .heroTrust {
+    grid-template-columns: 1fr;
+  }
+
+  .catsGrid,
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroMainBanner {
+    min-height: 215px;
+  }
+
+  .promoMedia {
+    min-height: 135px;
+  }
 }
 </style>
