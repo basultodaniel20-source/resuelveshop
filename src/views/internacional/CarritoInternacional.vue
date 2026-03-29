@@ -20,7 +20,6 @@
     </div>
 
     <div v-else class="layout">
-      <!-- IZQUIERDA -->
       <div class="itemsWrap">
         <transition-group name="fade" tag="div" class="itemsList">
           <article
@@ -66,7 +65,6 @@
         </transition-group>
       </div>
 
-      <!-- DERECHA -->
       <aside class="summaryCard">
         <div class="summaryTitle">Resumen del pedido</div>
 
@@ -95,7 +93,6 @@
       </aside>
     </div>
 
-    <!-- CTA FIJO MÓVIL -->
     <div v-if="carrito.length" class="mobileCheckoutBar">
       <div class="mobileTotal">
         <span>Total</span>
@@ -119,21 +116,27 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(["agregar", "eliminar"])
+const emit = defineEmits(["actualizarCantidad", "eliminar"])
 
 function mas(item) {
-  emit("agregar", { ...item, cantidad: 1 })
+  emit("actualizarCantidad", {
+    id: item.id,
+    cantidad: (item.cantidad || 0) + 1
+  })
 }
 
 function menos(item) {
-  if ((item.cantidad || 1) <= 1) {
+  const cantidadActual = item.cantidad || 1
+
+  if (cantidadActual <= 1) {
     emit("eliminar", item)
     return
   }
 
-  const actualizado = { ...item, cantidad: item.cantidad - 1 }
-  emit("eliminar", item)
-  emit("agregar", actualizado)
+  emit("actualizarCantidad", {
+    id: item.id,
+    cantidad: cantidadActual - 1
+  })
 }
 
 function eliminar(item) {

@@ -42,7 +42,6 @@ import { useRoute } from "vue-router"
 import Categorias from "../../components/Categorias.vue"
 import ProductoCard from "../../components/ProductoCard.vue"
 import StoreLayout from "@/layouts/StoreLayout.vue"
-import PedidoPendienteBanner from "@/components/PedidoPendienteBanner.vue"
 
 const emit = defineEmits(["agregar"])
 
@@ -53,18 +52,28 @@ const props = defineProps({
 })
 
 const route = useRoute()
+
 const categoria = computed(() => route.params.categoria || "Todos")
+const busquedaUrl = computed(() =>
+  String(route.query.q || "").toLowerCase().trim()
+)
 
 const productosFiltrados = computed(() => {
-  const q = (props.busqueda || "").toLowerCase()
-
   return props.productos.filter((p) => {
     const pasaCategoria =
       categoria.value === "Todos" || p.categoria === categoria.value
 
-    const pasaTexto = (p.nombre || "").toLowerCase().includes(q)
+    const nombre = String(p.nombre || "").toLowerCase()
+    const descripcion = String(p.descripcion || "").toLowerCase()
+    const categoriaTexto = String(p.categoria || "").toLowerCase()
 
-    return pasaCategoria && pasaTexto
+    const pasaBusqueda =
+      !busquedaUrl.value ||
+      nombre.includes(busquedaUrl.value) ||
+      descripcion.includes(busquedaUrl.value) ||
+      categoriaTexto.includes(busquedaUrl.value)
+
+    return pasaCategoria && pasaBusqueda
   })
 })
 </script>

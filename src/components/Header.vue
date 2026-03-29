@@ -22,7 +22,7 @@
           @focus="abierto = true"
         />
 
-        <button v-if="search" class="clear" @click="limpiar">✕</button>
+        <button v-if="search" class="clear" @click="limpiar" type="button">✕</button>
       </div>
 
       <div v-if="abierto && sugerencias.length" class="sugerencias">
@@ -150,7 +150,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue"
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue"
 import { useRouter, useRoute } from "vue-router"
 import logo from "../assets/logo.png"
 import { productos as productosInternacional } from "../data/productosInternacional.js"
@@ -165,9 +165,9 @@ const emit = defineEmits(["buscar"])
 const router = useRouter()
 const route = useRoute()
 
-const search = ref("")
+const search = ref(String(route.query.q || ""))
 const abierto = ref(false)
-const seleccion = ref(0)
+const seleccion = ref(-1)
 const searchBox = ref(null)
 
 const drawer = ref(false)
@@ -231,6 +231,32 @@ const iniciales = computed(() => {
   return email.slice(0, 2).toUpperCase()
 })
 
+const sugerencias = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return []
+
+  return productosActuales.value
+    .filter((p) => {
+      const nombre = String(p.nombre || "").toLowerCase()
+      const descripcion = String(p.descripcion || "").toLowerCase()
+      const categoria = String(p.categoria || "").toLowerCase()
+
+      return (
+        nombre.includes(q) ||
+        descripcion.includes(q) ||
+        categoria.includes(q)
+      )
+    })
+    .slice(0, 5)
+})
+
+watch(
+  () => route.query.q,
+  (nuevoQ) => {
+    search.value = String(nuevoQ || "")
+  }
+)
+
 async function cargarUsuario() {
   const { data } = await supabase.auth.getUser()
   user.value = data.user ?? null
@@ -253,77 +279,93 @@ function cambiarUbicacion() {
   window.dispatchEvent(new CustomEvent("carrito-actualizado"))
 }
 
-function cambiarUbicacionDesdeMenu() {
-  drawer.value = false
-  cambiarUbicacion()
-}
-
 function resetBuscar() {
   search.value = ""
+  abierto.value = false
+  seleccion.value = -1
   emit("buscar", "")
+
+  if (route.query.q) {
+    router.push({ path: homePath.value, query: {} })
+  }
 }
 
-const sugerencias = computed(() => {
-  if (!search.value.trim()) return []
-  return productosActuales.value
-    .filter((p) =>
-      String(p.nombre || "").toLowerCase().includes(search.value.toLowerCase())
-    )
-    .slice(0, 5)
-})
+function irABusqueda(texto) {
+  const q = texto.trim()
+
+  abierto.value = false
+  seleccion.value = -1
+  emit("buscar", q)
+  document.activeElement?.blur?.()
+
+  router.push({
+    path: catalogoPath.value,
+    query: q ? { q } : {}
+  })
+}
 
 function onInput() {
   emit("buscar", search.value)
   abierto.value = true
-  seleccion.value = 0
+  seleccion.value = -1
 }
 
 function onEnter() {
-  if (sugerencias.value.length && seleccion.value >= 0) {
-    const producto = sugerencias.value[seleccion.value]
-    if (producto) return seleccionar(producto)
+  const producto =
+    seleccion.value >= 0 ? sugerencias.value[seleccion.value] : null
+
+  if (producto) {
+    seleccionar(producto)
+    return
   }
 
-  abierto.value = false
-  emit("buscar", search.value)
-  document.activeElement?.blur?.()
-
-  if (router.currentRoute.value.path !== homePath.value) {
-    router.push(homePath.value)
-  }
+  irABusqueda(search.value)
 }
 
 function seleccionar(producto) {
   search.value = producto.nombre
-  emit("buscar", producto.nombre)
   abierto.value = false
+  seleccion.value = -1
   document.activeElement?.blur?.()
 
-  if (router.currentRoute.value.path !== homePath.value) {
-    router.push(homePath.value)
-  }
+  irABusqueda(producto.nombre)
 }
 
 function limpiar() {
   search.value = ""
-  emit("buscar", "")
   abierto.value = false
+  seleccion.value = -1
+  emit("buscar", "")
+
+  if (route.query.q) {
+    router.push({
+      path: catalogoPath.value,
+      query: {}
+    })
+  }
 }
 
 function clickFuera(e) {
   if (!searchBox.value?.contains(e.target)) {
     abierto.value = false
+    seleccion.value = -1
   }
 }
 
 function bajar() {
   if (!sugerencias.value.length) return
-  if (seleccion.value < sugerencias.value.length - 1) seleccion.value++
+
+  if (seleccion.value < sugerencias.value.length - 1) {
+    seleccion.value++
+  }
 }
 
 function subir() {
   if (!sugerencias.value.length) return
-  if (seleccion.value > 0) seleccion.value--
+
+  if (seleccion.value > -1) {
+    seleccion.value--
+  }
 }
 
 function goClose() {

@@ -68,6 +68,7 @@ const emit = defineEmits(["agregar"])
 
 const route = useRoute()
 const categoria = computed(() => route.params.categoria || "Todos")
+const busqueda = computed(() => String(route.query.q || "").toLowerCase().trim())
 
 const provinciaSeleccionada = ref(localStorage.getItem("provincia_cuba") || "")
 const municipioSeleccionado = ref(localStorage.getItem("municipio_cuba") || "")
@@ -113,7 +114,20 @@ const productosFiltrados = computed(() => {
   if (!provinciaSeleccionada.value || !municipioSeleccionado.value) return []
 
   return productosPorZona.value.filter((p) => {
-    return categoria.value === "Todos" || p.categoria === categoria.value
+    const pasaCategoria =
+      categoria.value === "Todos" || p.categoria === categoria.value
+
+    const nombre = String(p.nombre || "").toLowerCase()
+    const descripcion = String(p.descripcion || "").toLowerCase()
+    const categoriaTexto = String(p.categoria || "").toLowerCase()
+
+    const pasaBusqueda =
+      !busqueda.value ||
+      nombre.includes(busqueda.value) ||
+      descripcion.includes(busqueda.value) ||
+      categoriaTexto.includes(busqueda.value)
+
+    return pasaCategoria && pasaBusqueda
   })
 })
 

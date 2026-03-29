@@ -18,6 +18,7 @@
         :categorias="categoriasActuales"
         :carrito="carritoActual"
         @agregar="agregarAlCarrito"
+        @actualizar-cantidad="actualizarCantidad"
         @eliminar="eliminar"
       />
     </main>
@@ -118,7 +119,7 @@ watch(
 )
 
 /* =========================
-   AGREGAR / ELIMINAR
+   AGREGAR / ACTUALIZAR / ELIMINAR
 ========================= */
 function agregarAlCarrito(producto) {
   if (isInternacional.value) {
@@ -174,6 +175,25 @@ function agregarAlCarrito(producto) {
     }
 
     return
+  }
+}
+
+function actualizarCantidad({ id, cantidad }) {
+  if (isInternacional.value) {
+    carritoInternacional.value = carritoInternacional.value.map((item) =>
+      item.id === id
+        ? { ...item, cantidad }
+        : item
+    )
+    return
+  }
+
+  if (isCuba.value) {
+    carritoCuba.value = carritoCuba.value.map((item) =>
+      item.id === id
+        ? { ...item, cantidad }
+        : item
+    )
   }
 }
 
